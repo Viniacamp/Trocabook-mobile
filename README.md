@@ -1,4 +1,4 @@
-# Trocabook-mobile
+# Trocabook Mobile
 
 Somos alunos da Fatec Diadema e criamos a **Trocabook**, uma plataforma inovadora para a venda e troca de livros. Nosso objetivo é promover a reutilização de livros, reduzindo o desperdício de recursos naturais e tornando a leitura mais acessível.  
 

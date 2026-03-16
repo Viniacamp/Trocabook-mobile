@@ -16,9 +16,11 @@
             android:exported="false" />
         <activity
             android:name=".DadosSegurancaActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
             android:name=".CriarSenhaActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
             android:name=".WelcomeActivity"

@@ -2,37 +2,175 @@ package br.gov.sp.cps.trocabook;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.*;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 public class CriarSenhaActivity extends AppCompatActivity {
+
+    private TextInputLayout layoutNome, layoutSobrenome, layoutEmail, layoutSenha, layoutConfirma;
+    private TextInputEditText editNome, editSobrenome, editEmail, editSenha, editConfirma;
+
+    // Permite apenas letras
+    private final InputFilter apenasLetras = (source, start, end, dest, dstart, dend) -> {
+        StringBuilder filtrado = new StringBuilder();
+        for (int i = start; i < end; i++) {
+            char c = source.charAt(i);
+            if (Character.isLetter(c) || Character.isSpaceChar(c)) {
+                filtrado.append(c);
+            }
+        }
+        return filtrado.toString();
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_criar_senha);
 
+        layoutNome = findViewById(R.id.layoutNome);
+        layoutSobrenome = findViewById(R.id.layoutSobrenome);
+        layoutEmail = findViewById(R.id.layoutEmail);
+        layoutSenha = findViewById(R.id.layoutSenha);
+        layoutConfirma = findViewById(R.id.layoutConfirmaSenha);
+
+        editNome = findViewById(R.id.editNome);
+        editSobrenome = findViewById(R.id.editSobrenome);
+        editEmail = findViewById(R.id.editEmail);
+        editSenha = findViewById(R.id.editSenha);
+        editConfirma = findViewById(R.id.editConfirmaSenha);
+
+        editNome.setFilters(new InputFilter[]{apenasLetras});
+        editSobrenome.setFilters(new InputFilter[]{apenasLetras});
+
+        configurarValidacoes();
+
         Button btnProxima = findViewById(R.id.btnProxima);
-        EditText editSenha = findViewById(R.id.editSenha);
-        EditText editConfirma = findViewById(R.id.editConfirmaSenha);
-
-
         btnProxima.setOnClickListener(v -> {
-            String senha = editSenha.getText().toString();
-            String confirma = editConfirma.getText().toString();
+            if (validarTudo()) {
 
-            if (senha.equals(confirma) && !senha.isEmpty()) {
                 Intent intent = new Intent(this, DadosSegurancaActivity.class);
+
+                intent.putExtra(
+                        "NOME_USUARIO",
+                        editNome.getText() + " " + editSobrenome.getText()
+                );
+
+                intent.putExtra(
+                        "EMAIL_USUARIO",
+                        editEmail.getText().toString()
+                );
+
                 startActivity(intent);
-            } else {
-                Toast.makeText(this, "As senhas não conferem!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        Button btnVoltar = findViewById(R.id.btnVoltarCadastro);
-        btnVoltar.setOnClickListener(v -> {
-            finish();
+        findViewById(R.id.btnVoltarCadastro).setOnClickListener(v -> finish());
+    }
+
+    private void configurarValidacoes() {
+
+        // EMAIL
+        editEmail.setOnFocusChangeListener((v, hasFocus) -> {
+
+            if (!hasFocus) {
+
+                String email = editEmail.getText().toString().trim();
+
+                if (!email.isEmpty() && !email.endsWith("@gmail.com")) {
+                    layoutEmail.setError("Use um email @gmail.com");
+                } else {
+                    layoutEmail.setError(null);
+                }
+
+            }
+
         });
+
+
+        // SENHA
+        editSenha.setOnFocusChangeListener((v, hasFocus) -> {
+
+            if (!hasFocus) {
+
+                String senha = editSenha.getText().toString();
+
+                if (!senha.matches("^(?=.*[A-Za-z])(?=.*\\d).{8,}$")) {
+                    layoutSenha.setError("Mínimo 8 caracteres, com letras e números");
+                } else {
+                    layoutSenha.setError(null);
+                }
+
+            }
+
+        });
+
+
+        // CONFIRMAR SENHA
+        editConfirma.setOnFocusChangeListener((v, hasFocus) -> {
+
+            if (!hasFocus) {
+
+                if (!editSenha.getText().toString()
+                        .equals(editConfirma.getText().toString())) {
+
+                    layoutConfirma.setError("Senhas não coincidem");
+
+                } else {
+
+                    layoutConfirma.setError(null);
+
+                }
+
+            }
+
+        });
+    }
+
+    private void validarSenha() {
+        String senha = editSenha.getText().toString();
+
+        if (senha.length() > 0 &&
+                !senha.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")) {
+            layoutSenha.setError("Mínimo 8 caracteres, letras e números");
+        } else {
+            layoutSenha.setError(null);
+        }
+    }
+
+    private boolean validarTudo() {
+
+        if (editNome.getText().toString().isEmpty()) {
+            layoutNome.setError("Digite seu nome");
+            return false;
+        }
+
+        if (editSobrenome.getText().toString().isEmpty()) {
+            layoutSobrenome.setError("Digite seu sobrenome");
+            return false;
+        }
+
+        if (!editSenha.getText().toString().equals(editConfirma.getText().toString())) {
+            layoutConfirma.setError("Senhas não coincidem");
+            return false;
+        }
+
+        return layoutEmail.getError() == null && layoutSenha.getError() == null;
+    }
+
+    private TextWatcher simpleWatcher(WatcherCallback callback) {
+        return new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            public void onTextChanged(CharSequence s, int st, int b, int c) { callback.onChange(s); }
+            public void afterTextChanged(Editable s) {}
+        };
+    }
+
+    private interface WatcherCallback {
+        void onChange(CharSequence s);
     }
 }

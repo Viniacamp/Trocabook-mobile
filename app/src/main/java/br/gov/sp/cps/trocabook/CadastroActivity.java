@@ -67,14 +67,42 @@ public class CadastroActivity extends AppCompatActivity {
     }
 
     private void handleSignIn(GetCredentialResponse result) {
-        if (result.getCredential() instanceof GoogleIdTokenCredential) {
-            GoogleIdTokenCredential googleIdTokenCredential = (GoogleIdTokenCredential) result.getCredential();
+        // 1. Pegamos a credencial bruta
+        androidx.credentials.Credential credential = result.getCredential();
 
-            // Aqui você já tem o e-mail e nome
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Bem-vindo: " + googleIdTokenCredential.getDisplayName(), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(CadastroActivity.this, DadosSegurancaActivity.class));
-            });
+        // 2. Log de debug para sabermos o que o Google está cuspindo
+        android.util.Log.d("TROCABOOK", "Tipo recebido: " + credential.getType());
+
+        // 3. Verificação compatível com as versões mais novas do Android
+        if (credential instanceof GoogleIdTokenCredential) {
+            GoogleIdTokenCredential googleIdToken = (GoogleIdTokenCredential) credential;
+            String nome = googleIdToken.getDisplayName();
+            String email = googleIdToken.getId();
+
+            executarTrocaDeTela(nome, email);
+
+        } else if (credential.getType().equals(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
+            // Às vezes ele vem como o tipo genérico, então extraímos manualmente
+            try {
+                GoogleIdTokenCredential googleIdToken = GoogleIdTokenCredential.createFrom(credential.getData());
+                executarTrocaDeTela(googleIdToken.getDisplayName(), googleIdToken.getId());
+            } catch (Exception e) {
+                android.util.Log.e("TROCABOOK", "Erro ao converter: " + e.getMessage());
+            }
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Credencial não reconhecida", Toast.LENGTH_SHORT).show());
         }
+    }
+
+    // Função auxiliar para não repetir código
+    private void executarTrocaDeTela(String nome, String email) {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Bem-vindo: " + nome, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(CadastroActivity.this, DadosSegurancaActivity.class);
+            intent.putExtra("NOME_USUARIO", nome);
+            intent.putExtra("EMAIL_USUARIO", email);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        });
     }
 }

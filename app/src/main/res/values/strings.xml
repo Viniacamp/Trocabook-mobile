@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Trocabook</string>
+
+    <string name="btn_voltar">Voltar</string>
+
+    <string name="msg_pergunta_cadastro">Como deseja se cadastrar?</string>
+    <string name="btn_cadastrar_email">Cadastrar com E-mail</string>
 </resources>

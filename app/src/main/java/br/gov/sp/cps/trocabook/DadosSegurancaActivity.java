@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
-import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,12 +18,17 @@ public class DadosSegurancaActivity extends AppCompatActivity {
     private TextInputEditText editTelefone, editEmailRec, editNascimento, editCPF, editRG;
     private TextInputLayout layoutEmailRec, layoutCPF, layoutTelefone, layoutNascimento;
     private RadioGroup radioGenero;
+    private String emailPrincipal; // Variável para armazenar o email do cadastro
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dados_seguranca);
 
+        // Recupera o email vindo do Google Login ou Cadastro Manual
+        emailPrincipal = getIntent().getStringExtra("EMAIL_USUARIO");
+
+        // Inicialização dos componentes
         editTelefone = findViewById(R.id.editTelefone);
         editEmailRec = findViewById(R.id.editEmailRec);
         editNascimento = findViewById(R.id.editNascimento);
@@ -36,35 +40,45 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         layoutCPF = findViewById(R.id.layoutCPF);
         layoutTelefone = findViewById(R.id.layoutTelefone);
         layoutNascimento = findViewById(R.id.layoutNascimento);
-        
+
+        // Configurações iniciais
         configurarMascaras();
         configurarDataCalendario();
         configurarValidacoesAoSair();
 
+        // Botão Voltar
         findViewById(R.id.btnVoltarSeguranca).setOnClickListener(v -> finish());
 
+        // Botão Enviar
         findViewById(R.id.btnEnviarVerificacao).setOnClickListener(v -> {
             if (validarTudoAntesDeEnviar()) {
+                // Navega para a próxima tela (Verificação)
                 Intent intent = new Intent(this, VerificacaoActivity.class);
-                intent.putExtra("email", editEmailRec.getText().toString());
+                intent.putExtra("email_recuperacao", editEmailRec.getText().toString());
+                intent.putExtra("telefone", editTelefone.getText().toString());
                 startActivity(intent);
             }
         });
     }
 
     private void configurarValidacoesAoSair() {
-        // Validação do Email ao sair
+        // Validação do Email de Recuperação
         editEmailRec.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) { // Se saiu do campo
-                String email = editEmailRec.getText().toString().trim().toLowerCase();
-                if (email.length() > 0 && (!Patterns.EMAIL_ADDRESS.matcher(email).matches() || !email.endsWith("@gmail.com"))) {
-                    layoutEmailRec.setError("Use um email @gmail.com");
-                } else {
-                    layoutEmailRec.setError(null);
+            if (!hasFocus) {
+                String emailRec = editEmailRec.getText().toString().trim().toLowerCase();
+                if (emailRec.length() > 0) {
+                    if (!Patterns.EMAIL_ADDRESS.matcher(emailRec).matches() || !emailRec.endsWith("@gmail.com")) {
+                        layoutEmailRec.setError("Use um email @gmail.com válido");
+                    } else if (emailPrincipal != null && emailRec.equals(emailPrincipal.toLowerCase())) {
+                        layoutEmailRec.setError("O email de recuperação deve ser diferente do principal");
+                    } else {
+                        layoutEmailRec.setError(null);
+                    }
                 }
             }
         });
 
+        // Validação do Telefone
         editTelefone.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String tel = editTelefone.getText().toString().replaceAll("[^\\d]", "");
@@ -76,7 +90,7 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             }
         });
 
-
+        // Validação do CPF
         editCPF.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
@@ -91,21 +105,31 @@ public class DadosSegurancaActivity extends AppCompatActivity {
 
     private boolean validarTudoAntesDeEnviar() {
         boolean erro = false;
-        String email = editEmailRec.getText().toString().trim().toLowerCase();
+        String emailRec = editEmailRec.getText().toString().trim().toLowerCase();
         String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
 
-        if (!email.endsWith("@gmail.com")) {
+        // Validação Email de Recuperação (Formato e Comparação)
+        if (!emailRec.endsWith("@gmail.com")) {
             layoutEmailRec.setError("Use um email @gmail.com");
             erro = true;
+        } else if (emailPrincipal != null && emailRec.equals(emailPrincipal.toLowerCase())) {
+            layoutEmailRec.setError("O email de recuperação não pode ser igual ao principal");
+            erro = true;
         }
+
+        // Validação CPF
         if (!isCpfValido(cpf)) {
             layoutCPF.setError("CPF inválido");
             erro = true;
         }
+
+        // Validação Nascimento (Maioridade)
         if (editNascimento.getText().toString().isEmpty()) {
-            layoutNascimento.setError("Selecione a data");
+            layoutNascimento.setError("É necessário ter mais de 18 anos");
             erro = true;
         }
+
+        // Validação Gênero
         if (radioGenero.getCheckedRadioButtonId() == -1) {
             Toast.makeText(this, "Selecione o gênero", Toast.LENGTH_SHORT).show();
             erro = true;
@@ -113,6 +137,7 @@ public class DadosSegurancaActivity extends AppCompatActivity {
 
         return !erro;
     }
+
     private boolean isCpfValido(String cpf) {
         if (cpf == null || cpf.length() != 11 || cpf.matches("(\\d)\\1{10}")) return false;
         try {
@@ -131,17 +156,41 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             return cpf.substring(9).equals("" + digito1 + digito2);
         } catch (Exception e) { return false; }
     }
+
     private void configurarDataCalendario() {
         editNascimento.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
-            new DatePickerDialog(this, (view, year, month, day) -> {
-                editNascimento.setText(String.format("%02d/%02d/%d", day, month + 1, year));
-                layoutNascimento.setError(null);
-            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+            DatePickerDialog datePicker = new DatePickerDialog(this, (view, year, month, day) -> {
+
+                if (isMaiorDeIdade(year, month, day)) {
+                    editNascimento.setText(String.format("%02d/%02d/%d", day, month + 1, year));
+                    layoutNascimento.setError(null);
+                } else {
+                    editNascimento.setText("");
+                    layoutNascimento.setError("O Trocabook é apenas para maiores de 18 anos.");
+                    Toast.makeText(this, "Cadastro negado para menores", Toast.LENGTH_LONG).show();
+                }
+
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+
+            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
+            datePicker.show();
         });
     }
 
+    private boolean isMaiorDeIdade(int year, int month, int day) {
+        Calendar dataNascimento = Calendar.getInstance();
+        dataNascimento.set(year, month, day);
+        Calendar hoje = Calendar.getInstance();
+        int idade = hoje.get(Calendar.YEAR) - dataNascimento.get(Calendar.YEAR);
+        if (hoje.get(Calendar.DAY_OF_YEAR) < dataNascimento.get(Calendar.DAY_OF_YEAR)) {
+            idade--;
+        }
+        return idade >= 18;
+    }
+
     private void configurarMascaras() {
+        // Máscara Telefone
         editTelefone.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
             @Override
@@ -150,19 +199,21 @@ public class DadosSegurancaActivity extends AppCompatActivity {
                 if (isUpdating) { isUpdating = false; return; }
                 isUpdating = true;
                 String mask = (str.length() > 10) ? "(##) #####-####" : "(##) ####-####";
-                String formatado = ""; int i = 0;
+                StringBuilder formatado = new StringBuilder();
+                int i = 0;
                 for (char m : mask.toCharArray()) {
-                    if (m != '#') { formatado += m; continue; }
-                    try { formatado += str.charAt(i); } catch (Exception e) { break; }
+                    if (m != '#') { formatado.append(m); continue; }
+                    try { formatado.append(str.charAt(i)); } catch (Exception e) { break; }
                     i++;
                 }
-                editTelefone.setText(formatado);
+                editTelefone.setText(formatado.toString());
                 editTelefone.setSelection(formatado.length());
             }
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
         });
 
+        // Máscara CPF
         editCPF.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
             @Override
@@ -184,6 +235,7 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             @Override public void afterTextChanged(Editable s) {}
         });
 
+        // Máscara RG
         editRG.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
             @Override

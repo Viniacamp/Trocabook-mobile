@@ -94,7 +94,6 @@ public class CadastroActivity extends AppCompatActivity {
         }
     }
 
-    // Função auxiliar para não repetir código
     private void executarTrocaDeTela(String nome, String email) {
         runOnUiThread(() -> {
             Toast.makeText(this, "Bem-vindo: " + nome, Toast.LENGTH_SHORT).show();

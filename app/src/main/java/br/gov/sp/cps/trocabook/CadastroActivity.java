@@ -52,7 +52,6 @@ public class CadastroActivity extends AppCompatActivity {
                 .addCredentialOption(googleIdOption)
                 .build();
 
-        // Executa a requisição de forma assíncrona (não trava a tela)
         credentialManager.getCredentialAsync(this, request, null, executor, new androidx.credentials.CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
             @Override
             public void onResult(GetCredentialResponse result) {
@@ -67,13 +66,9 @@ public class CadastroActivity extends AppCompatActivity {
     }
 
     private void handleSignIn(GetCredentialResponse result) {
-        // 1. Pegamos a credencial bruta
         androidx.credentials.Credential credential = result.getCredential();
-
-        // 2. Log de debug para sabermos o que o Google está cuspindo
         android.util.Log.d("TROCABOOK", "Tipo recebido: " + credential.getType());
 
-        // 3. Verificação compatível com as versões mais novas do Android
         if (credential instanceof GoogleIdTokenCredential) {
             GoogleIdTokenCredential googleIdToken = (GoogleIdTokenCredential) credential;
             String nome = googleIdToken.getDisplayName();
@@ -82,7 +77,6 @@ public class CadastroActivity extends AppCompatActivity {
             executarTrocaDeTela(nome, email);
 
         } else if (credential.getType().equals(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) {
-            // Às vezes ele vem como o tipo genérico, então extraímos manualmente
             try {
                 GoogleIdTokenCredential googleIdToken = GoogleIdTokenCredential.createFrom(credential.getData());
                 executarTrocaDeTela(googleIdToken.getDisplayName(), googleIdToken.getId());

@@ -12,16 +12,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Trocabook">
         <activity
+            android:name=".EscolhaVerificacaoActivity"
+            android:exported="false" />
+        <activity
             android:name=".VerificacaoActivity"
             android:exported="false" />
         <activity
             android:name=".DadosSegurancaActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".CriarSenhaActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".WelcomeActivity"
             android:exported="true">

@@ -18,17 +18,16 @@ public class DadosSegurancaActivity extends AppCompatActivity {
     private TextInputEditText editTelefone, editEmailRec, editNascimento, editCPF, editRG;
     private TextInputLayout layoutEmailRec, layoutCPF, layoutTelefone, layoutNascimento;
     private RadioGroup radioGenero;
-    private String emailPrincipal; // Variável para armazenar o email do cadastro
+    private String emailPrincipal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dados_seguranca);
 
-        // Recupera o email vindo do Google Login ou Cadastro Manual
+
         emailPrincipal = getIntent().getStringExtra("EMAIL_USUARIO");
 
-        // Inicialização dos componentes
         editTelefone = findViewById(R.id.editTelefone);
         editEmailRec = findViewById(R.id.editEmailRec);
         editNascimento = findViewById(R.id.editNascimento);
@@ -41,28 +40,25 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         layoutTelefone = findViewById(R.id.layoutTelefone);
         layoutNascimento = findViewById(R.id.layoutNascimento);
 
-        // Configurações iniciais
+
         configurarMascaras();
         configurarDataCalendario();
         configurarValidacoesAoSair();
 
-        // Botão Voltar
         findViewById(R.id.btnVoltarSeguranca).setOnClickListener(v -> finish());
 
-        // Botão Enviar
         findViewById(R.id.btnEnviarVerificacao).setOnClickListener(v -> {
             if (validarTudoAntesDeEnviar()) {
-                // Navega para a próxima tela (Verificação)
-                Intent intent = new Intent(this, VerificacaoActivity.class);
+                Intent intent = new Intent(this, EscolhaVerificacaoActivity.class);
                 intent.putExtra("email_recuperacao", editEmailRec.getText().toString());
                 intent.putExtra("telefone", editTelefone.getText().toString());
+                intent.putExtra("EMAIL_USUARIO", emailPrincipal); // Passa o principal também por segurança
                 startActivity(intent);
             }
         });
     }
 
     private void configurarValidacoesAoSair() {
-        // Validação do Email de Recuperação
         editEmailRec.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String emailRec = editEmailRec.getText().toString().trim().toLowerCase();
@@ -78,7 +74,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             }
         });
 
-        // Validação do Telefone
         editTelefone.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String tel = editTelefone.getText().toString().replaceAll("[^\\d]", "");
@@ -90,7 +85,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             }
         });
 
-        // Validação do CPF
         editCPF.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
@@ -108,7 +102,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         String emailRec = editEmailRec.getText().toString().trim().toLowerCase();
         String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
 
-        // Validação Email de Recuperação (Formato e Comparação)
         if (!emailRec.endsWith("@gmail.com")) {
             layoutEmailRec.setError("Use um email @gmail.com");
             erro = true;
@@ -117,19 +110,16 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             erro = true;
         }
 
-        // Validação CPF
         if (!isCpfValido(cpf)) {
             layoutCPF.setError("CPF inválido");
             erro = true;
         }
 
-        // Validação Nascimento (Maioridade)
         if (editNascimento.getText().toString().isEmpty()) {
             layoutNascimento.setError("É necessário ter mais de 18 anos");
             erro = true;
         }
 
-        // Validação Gênero
         if (radioGenero.getCheckedRadioButtonId() == -1) {
             Toast.makeText(this, "Selecione o gênero", Toast.LENGTH_SHORT).show();
             erro = true;
@@ -190,7 +180,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
     }
 
     private void configurarMascaras() {
-        // Máscara Telefone
         editTelefone.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
             @Override
@@ -213,7 +202,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Máscara CPF
         editCPF.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
             @Override
@@ -235,7 +223,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Máscara RG
         editRG.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
             @Override

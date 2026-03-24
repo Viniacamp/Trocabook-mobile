@@ -2,74 +2,98 @@ package br.gov.sp.cps.trocabook;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 
 public class VerificacaoActivity extends AppCompatActivity {
 
     private TextView txtInstrucao;
     private EditText editCodigo;
     private Button btnConfirmar;
+    private String verificationId, metodo;
+
+    private Handler handler = new Handler();
+    private Runnable runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verificacao);
 
-
         txtInstrucao = findViewById(R.id.txtInstrucaoVerificacao);
         editCodigo = findViewById(R.id.editCodigoVerificacao);
         btnConfirmar = findViewById(R.id.btnConfirmar);
 
-        String metodo = getIntent().getStringExtra("METODO_ESCOLHIDO");
+        metodo = getIntent().getStringExtra("METODO_ESCOLHIDO");
         String destino = getIntent().getStringExtra("DESTINO_CODIGO");
+        verificationId = getIntent().getStringExtra("VERIFICATION_ID");
 
-        if (metodo != null && destino != null) {
-            if (metodo.equals("EMAIL")) {
-                String emailMascarado = mascararEmail(destino);
-                txtInstrucao.setText("Insira o código enviado para o e-mail:\n" + emailMascarado);
-            } else {
-                String telMascarado = mascararTelefone(destino);
-                txtInstrucao.setText("Insira o código enviado por SMS para:\n" + telMascarado);
-            }
+        if ("EMAIL".equals(metodo)) {
+            txtInstrucao.setText("Link enviado para: " + destino + "\n\nAbra seu e-mail e clique no link de confirmação.\nO Trocabook avançará sozinho assim que você confirmar!");
+            editCodigo.setVisibility(View.GONE); // Esconde o campo de números
+            btnConfirmar.setVisibility(View.GONE); // Esconde o botão (fica automático)
+
+            iniciarChecagemAutomatica();
+        } else {
+            txtInstrucao.setText("Insira o código de 6 dígitos enviado por SMS para:\n" + destino);
+            editCodigo.setVisibility(View.VISIBLE);
+            btnConfirmar.setVisibility(View.VISIBLE);
+            btnConfirmar.setText("CONFIRMAR CÓDIGO SMS");
         }
-        
+
         btnConfirmar.setOnClickListener(v -> {
-            String codigoDigitado = editCodigo.getText().toString().trim();
-
-            if (codigoDigitado.length() < 6) {
-                Toast.makeText(this, "O código deve ter 6 dígitos", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Conta verificada com sucesso!", Toast.LENGTH_LONG).show();
-
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+            if ("SMS".equals(metodo)) {
+                validarCodigoSMS(editCodigo.getText().toString().trim());
             }
         });
     }
 
-    private String mascararEmail(String email) {
-        if (email == null || !email.contains("@")) return email;
-        int atIndex = email.indexOf("@");
-        if (atIndex <= 2) return email;
-
-        String prefixo = email.substring(0, 2);
-        String dominio = email.substring(atIndex);
-        return prefixo + "****" + dominio;
+    private void iniciarChecagemAutomatica() {
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                FirebaseAuth.getInstance().getCurrentUser().reload().addOnCompleteListener(task -> {
+                    if (FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
+                        irParaBiometria();
+                    } else {
+                        handler.postDelayed(this, 3000); // Tenta de novo em 3 segundos
+                    }
+                });
+            }
+        };
+        handler.post(runnable);
     }
 
-    private String mascararTelefone(String tel) {
-        if (tel == null) return "";
-        String numeros = tel.replaceAll("[^\\d]", "");
-
-        if (numeros.length() >= 4) {
-            String ultimosQuatro = numeros.substring(numeros.length() - 4);
-            return "(**) *****-" + ultimosQuatro;
+    private void validarCodigoSMS(String codigo) {
+        if (codigo.length() < 6) {
+            Toast.makeText(this, "Digite os 6 dígitos", Toast.LENGTH_SHORT).show();
+            return;
         }
-        return tel;
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, codigo);
+        FirebaseAuth.getInstance().getCurrentUser().updatePhoneNumber(credential)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) { irParaBiometria(); }
+                    else { Toast.makeText(this, "Código inválido!", Toast.LENGTH_SHORT).show(); }
+                });
+    }
+
+    private void irParaBiometria() {
+        if (handler != null && runnable != null) handler.removeCallbacks(runnable);
+        startActivity(new Intent(this, BiometriaActivity.class));
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (handler != null && runnable != null) handler.removeCallbacks(runnable);
     }
 }

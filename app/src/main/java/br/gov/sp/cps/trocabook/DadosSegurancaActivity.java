@@ -6,12 +6,20 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+// --- IMPORTAÇÕES DO FIREBASE ---
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DadosSegurancaActivity extends AppCompatActivity {
 
@@ -20,11 +28,16 @@ public class DadosSegurancaActivity extends AppCompatActivity {
     private RadioGroup radioGenero;
     private String emailPrincipal;
 
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dados_seguranca);
 
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         emailPrincipal = getIntent().getStringExtra("EMAIL_USUARIO");
 
@@ -40,7 +53,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         layoutTelefone = findViewById(R.id.layoutTelefone);
         layoutNascimento = findViewById(R.id.layoutNascimento);
 
-
         configurarMascaras();
         configurarDataCalendario();
         configurarValidacoesAoSair();
@@ -49,13 +61,42 @@ public class DadosSegurancaActivity extends AppCompatActivity {
 
         findViewById(R.id.btnEnviarVerificacao).setOnClickListener(v -> {
             if (validarTudoAntesDeEnviar()) {
-                Intent intent = new Intent(this, EscolhaVerificacaoActivity.class);
-                intent.putExtra("email_recuperacao", editEmailRec.getText().toString());
-                intent.putExtra("telefone", editTelefone.getText().toString());
-                intent.putExtra("EMAIL_USUARIO", emailPrincipal); // Passa o principal também por segurança
-                startActivity(intent);
+                salvarDadosNoFirestore();
             }
         });
+    }
+
+    private void salvarDadosNoFirestore() {
+        if (mAuth.getCurrentUser() == null) {
+            Toast.makeText(this, "Usuário não autenticado!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String userId = mAuth.getCurrentUser().getUid();
+
+        Map<String, Object> usuario = new HashMap<>();
+        usuario.put("email_principal", emailPrincipal);
+        usuario.put("email_recuperacao", editEmailRec.getText().toString().trim());
+        usuario.put("telefone", editTelefone.getText().toString().trim());
+        usuario.put("cpf", editCPF.getText().toString().trim());
+        usuario.put("rg", editRG.getText().toString().trim());
+        usuario.put("nascimento", editNascimento.getText().toString().trim());
+
+        int idGenero = radioGenero.getCheckedRadioButtonId();
+        RadioButton rb = findViewById(idGenero);
+        usuario.put("genero", rb.getText().toString());
+
+        db.collection("usuarios").document(userId)
+                .set(usuario)
+                .addOnSuccessListener(aVoid -> {
+                    Intent intent = new Intent(this, EscolhaVerificacaoActivity.class);
+                    intent.putExtra("email_recuperacao", editEmailRec.getText().toString());
+                    intent.putExtra("telefone", editTelefone.getText().toString());
+                    intent.putExtra("EMAIL_USUARIO", emailPrincipal);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Erro ao salvar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
     }
 
     private void configurarValidacoesAoSair() {

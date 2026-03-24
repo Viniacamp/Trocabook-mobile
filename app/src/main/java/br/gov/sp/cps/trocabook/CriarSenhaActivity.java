@@ -4,16 +4,22 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.*;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+// IMPORTANTE: Adicione as importações do Firebase
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 public class CriarSenhaActivity extends AppCompatActivity {
 
     private TextInputLayout layoutNome, layoutSobrenome, layoutEmail, layoutSenha, layoutConfirma;
     private TextInputEditText editNome, editSobrenome, editEmail, editSenha, editConfirma;
+
+    private FirebaseAuth mAuth;
 
     private final InputFilter apenasLetras = (source, start, end, dest, dstart, dend) -> {
         StringBuilder filtrado = new StringBuilder();
@@ -30,6 +36,8 @@ public class CriarSenhaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_criar_senha);
+
+        mAuth = FirebaseAuth.getInstance();
 
         layoutNome = findViewById(R.id.layoutNome);
         layoutSobrenome = findViewById(R.id.layoutSobrenome);
@@ -51,26 +59,45 @@ public class CriarSenhaActivity extends AppCompatActivity {
         Button btnProxima = findViewById(R.id.btnProxima);
         btnProxima.setOnClickListener(v -> {
             if (validarTudo()) {
-
-                Intent intent = new Intent(this, DadosSegurancaActivity.class);
-                intent.putExtra(
-                        "NOME_USUARIO",
-                        editNome.getText() + " " + editSobrenome.getText()
-                );
-                intent.putExtra(
-                        "EMAIL_USUARIO",
-                        editEmail.getText().toString()
-                );
-                startActivity(intent);
+                cadastrarUsuarioNoFirebase();
             }
         });
+
         findViewById(R.id.btnVoltarCadastro).setOnClickListener(v -> finish());
     }
 
+    private void cadastrarUsuarioNoFirebase() {
+        String email = editEmail.getText().toString().trim();
+        String senha = editSenha.getText().toString();
+
+        mAuth.createUserWithEmailAndPassword(email, senha)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        irParaProximaTela();
+                    } else {
+                        String erro;
+                        try {
+                            throw task.getException();
+                        } catch (FirebaseAuthUserCollisionException e) {
+                            erro = "Este e-mail já está cadastrado.";
+                        } catch (Exception e) {
+                            erro = "Erro ao cadastrar: " + e.getMessage();
+                        }
+                        Toast.makeText(this, erro, Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+
+    private void irParaProximaTela() {
+        Intent intent = new Intent(this, DadosSegurancaActivity.class);
+        intent.putExtra("NOME_USUARIO", editNome.getText().toString() + " " + editSobrenome.getText().toString());
+        intent.putExtra("EMAIL_USUARIO", editEmail.getText().toString());
+        startActivity(intent);
+    }
+
     private void configurarValidacoes() {
-
         editEmail.setOnFocusChangeListener((v, hasFocus) -> {
-
             if (!hasFocus) {
                 String email = editEmail.getText().toString().trim();
                 if (!email.isEmpty() && !email.endsWith("@gmail.com")) {
@@ -80,7 +107,6 @@ public class CriarSenhaActivity extends AppCompatActivity {
                 }
             }
         });
-
 
         editSenha.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
@@ -95,8 +121,7 @@ public class CriarSenhaActivity extends AppCompatActivity {
 
         editConfirma.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                if (!editSenha.getText().toString()
-                        .equals(editConfirma.getText().toString())) {
+                if (!editSenha.getText().toString().equals(editConfirma.getText().toString())) {
                     layoutConfirma.setError("Senhas não coincidem");
                 } else {
                     layoutConfirma.setError(null);
@@ -105,18 +130,7 @@ public class CriarSenhaActivity extends AppCompatActivity {
         });
     }
 
-    private void validarSenha() {
-        String senha = editSenha.getText().toString();
-
-        if (senha.length() > 0 &&
-                !senha.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")) {
-            layoutSenha.setError("Mínimo 8 caracteres, letras e números");
-        } else {
-            layoutSenha.setError(null);
-        }
-    }
     private boolean validarTudo() {
-
         if (editNome.getText().toString().isEmpty()) {
             layoutNome.setError("Digite seu nome");
             return false;
@@ -130,16 +144,5 @@ public class CriarSenhaActivity extends AppCompatActivity {
             return false;
         }
         return layoutEmail.getError() == null && layoutSenha.getError() == null;
-    }
-
-    private TextWatcher simpleWatcher(WatcherCallback callback) {
-        return new TextWatcher() {
-            public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
-            public void onTextChanged(CharSequence s, int st, int b, int c) { callback.onChange(s); }
-            public void afterTextChanged(Editable s) {}
-        };
-    }
-    private interface WatcherCallback {
-        void onChange(CharSequence s);
     }
 }

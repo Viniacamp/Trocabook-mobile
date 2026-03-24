@@ -3,39 +3,79 @@ package br.gov.sp.cps.trocabook;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.FirebaseException;
+
+import java.util.concurrent.TimeUnit;
 
 public class EscolhaVerificacaoActivity extends AppCompatActivity {
 
     private String emailRecuperacao, telefone;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_escolha_verificacao);
 
+        mAuth = FirebaseAuth.getInstance();
         emailRecuperacao = getIntent().getStringExtra("email_recuperacao");
         telefone = getIntent().getStringExtra("telefone");
 
-        Button btnEmail = findViewById(R.id.btnEscolhaEmail);
-        Button btnSMS = findViewById(R.id.btnEscolhaSMS);
-        Button btnVoltar = findViewById(R.id.btnVoltarEscolha);
-
-        btnEmail.setOnClickListener(v -> {
-            irParaVerificacao("EMAIL", emailRecuperacao);
-        });
-
-        btnSMS.setOnClickListener(v -> {
-            irParaVerificacao("SMS", telefone);
-        });
-
-        btnVoltar.setOnClickListener(v -> finish());
+        findViewById(R.id.btnEscolhaEmail).setOnClickListener(v -> dispararEmail());
+        findViewById(R.id.btnEscolhaSMS).setOnClickListener(v -> dispararSMS());
+        findViewById(R.id.btnVoltarEscolha).setOnClickListener(v -> finish());
     }
 
-    private void irParaVerificacao(String metodo, String destino) {
+    private void dispararEmail() {
+        if (mAuth.getCurrentUser() != null) {
+            mAuth.getCurrentUser().sendEmailVerification()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(this, "Link enviado!", Toast.LENGTH_SHORT).show();
+                            irParaVerificacao("EMAIL", emailRecuperacao, null);
+                        }
+                    });
+        }
+    }
+
+    private void dispararSMS() {
+        String telLimpo = telefone.replaceAll("[^\\d]", "");
+        String telFinal = "+55" + telLimpo;
+
+        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(mAuth)
+                .setPhoneNumber(telFinal)
+                .setTimeout(60L, TimeUnit.SECONDS)
+                .setActivity(this)
+                .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                    @Override
+                    public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
+                        // SMS enviado! Passamos o ID da verificação para a próxima tela conferir
+                        irParaVerificacao("SMS", telefone, verificationId);
+                    }
+
+                    @Override
+                    public void onVerificationCompleted(com.google.firebase.auth.PhoneAuthCredential credential) {}
+
+                    @Override
+                    public void onVerificationFailed(FirebaseException e) {
+                        Toast.makeText(EscolhaVerificacaoActivity.this, "Erro: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                })
+                .build();
+        PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+
+    private void irParaVerificacao(String metodo, String destino, String vId) {
         Intent intent = new Intent(this, VerificacaoActivity.class);
         intent.putExtra("METODO_ESCOLHIDO", metodo);
         intent.putExtra("DESTINO_CODIGO", destino);
+        intent.putExtra("VERIFICATION_ID", vId); // ID necessário para validar o SMS
         startActivity(intent);
     }
 }

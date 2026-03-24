@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "141097973066",
+    "project_id": "trocabook-92297",
+    "storage_bucket": "trocabook-92297.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141097973066:android:d3be81184f9064968c3db3",
+        "android_client_info": {
+          "package_name": "br.gov.sp.cps.trocabook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhzva6Sf4SMbboOsjxZv7OcojX4DfzaQo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -34,11 +34,15 @@ public class EscolhaVerificacaoActivity extends AppCompatActivity {
 
     private void dispararEmail() {
         if (mAuth.getCurrentUser() != null) {
+            String emailPrincipalDoFirebase = mAuth.getCurrentUser().getEmail();
+
             mAuth.getCurrentUser().sendEmailVerification()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(this, "Link enviado!", Toast.LENGTH_SHORT).show();
-                            irParaVerificacao("EMAIL", emailRecuperacao, null);
+                            Toast.makeText(this, "Link enviado para o e-mail principal!", Toast.LENGTH_SHORT).show();
+                            irParaVerificacao("EMAIL", emailPrincipalDoFirebase, null);
+                        } else {
+                            Toast.makeText(this, "Erro ao enviar: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -55,7 +59,6 @@ public class EscolhaVerificacaoActivity extends AppCompatActivity {
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
-                        // SMS enviado! Passamos o ID da verificação para a próxima tela conferir
                         irParaVerificacao("SMS", telefone, verificationId);
                     }
 
@@ -75,7 +78,7 @@ public class EscolhaVerificacaoActivity extends AppCompatActivity {
         Intent intent = new Intent(this, VerificacaoActivity.class);
         intent.putExtra("METODO_ESCOLHIDO", metodo);
         intent.putExtra("DESTINO_CODIGO", destino);
-        intent.putExtra("VERIFICATION_ID", vId); // ID necessário para validar o SMS
+        intent.putExtra("VERIFICATION_ID", vId);
         startActivity(intent);
     }
 }

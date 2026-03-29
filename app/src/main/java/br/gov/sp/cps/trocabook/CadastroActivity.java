@@ -43,7 +43,7 @@ public class CadastroActivity extends AppCompatActivity {
 
         btnEmail.setOnClickListener(v -> startActivity(new Intent(this, CriarSenhaActivity.class)));
         btnVoltar.setOnClickListener(v -> finish());
-        
+
         btnGoogle.setOnClickListener(v -> loginComGoogle());
     }
 

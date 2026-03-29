@@ -11,54 +11,47 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Trocabook">
-
+        <activity
+            android:name=".RecuperarSenhaActivity"
+            android:exported="false" />
         <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".WelcomeActivity"
             android:exported="false" />
-
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
-
         <activity
             android:name=".CadastroActivity"
             android:exported="false" />
-
         <activity
             android:name=".CriarSenhaActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".DadosSegurancaActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".EscolhaVerificacaoActivity"
             android:exported="false" />
-
         <activity
             android:name=".VerificacaoActivity"
             android:exported="false" />
-
         <activity
             android:name=".BiometriaActivity"
             android:exported="false" />
-
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
     </application>
 
 </manifest>

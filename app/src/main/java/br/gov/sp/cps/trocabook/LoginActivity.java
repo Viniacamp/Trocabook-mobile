@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.CredentialManager;
@@ -39,17 +40,28 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Inicialização do Firebase e Componentes
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         credentialManager = CredentialManager.create(this);
 
+        // Referências do Layout
         editEmail = findViewById(R.id.editLoginEmail);
         editSenha = findViewById(R.id.editLoginSenha);
         Button btnEntrar = findViewById(R.id.btnEntrar);
         SignInButton btnGoogle = findViewById(R.id.btnLoginGoogle);
+        TextView txtEsqueciSenha = findViewById(R.id.txtEsqueciSenha);
 
+        // Configuração de Cliques
         btnEntrar.setOnClickListener(v -> logarManual());
         btnGoogle.setOnClickListener(v -> loginComGoogle());
+
+        // AÇÃO: Abrir a nova tela de Recuperar Senha
+        txtEsqueciSenha.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RecuperarSenhaActivity.class);
+            startActivity(intent);
+        });
+
         findViewById(R.id.btnVoltarLogin).setOnClickListener(v -> finish());
     }
 
@@ -115,8 +127,10 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document != null && document.exists()) {
+                            // Se o cadastro está completo, vai para a Splash decidir sobre biometria
                             irParaSplash();
                         } else {
+                            // Se faltam dados (CPF/RG), manda para a tela de segurança
                             Toast.makeText(this, "Complete seu cadastro!", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(this, DadosSegurancaActivity.class);
                             intent.putExtra("NOME_USUARIO", user.getDisplayName());

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.google.services)
 }
 
+
 android {
     namespace 'br.gov.sp.cps.trocabook'
     compileSdk 36
@@ -21,6 +22,7 @@ android {
             properties.load(project.rootProject.file('local.properties').newDataInputStream())
         }
         buildConfigField "String", "GOOGLE_CLIENT_ID", "\"${properties.getProperty('GOOGLE_CLIENT_ID')}\""
+        buildConfigField "String", "GOOGLE_API_KEY", "\"${properties.getProperty("GOOGLE_API_KEY")}\""
     }
 
     buildFeatures {
@@ -49,6 +51,9 @@ dependencies {
     implementation(libs.firebase.analytics)
 
     implementation "androidx.biometric:biometric:1.2.0-alpha05"
+    implementation libs.androidx.recyclerview
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

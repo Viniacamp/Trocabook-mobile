@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Trocabook">
         <activity
+            android:name=".MeusLivrosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AnuncioActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BuscaActivity"
+            android:exported="false" />
+        <activity
             android:name=".RecuperarSenhaActivity"
             android:exported="false" />
         <activity

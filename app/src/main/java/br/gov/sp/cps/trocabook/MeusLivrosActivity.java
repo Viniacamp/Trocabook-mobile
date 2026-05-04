@@ -21,8 +21,8 @@ public class MeusLivrosActivity extends AppCompatActivity {
     private RecyclerView recyclerAnuncios;
     private RecyclerView recyclerNegociados;
 
-    private LivroAdapter adapterAnuncios;
-    private LivroAdapter adapterNegociados;
+    private LivroHorizontalAdapter adapterAnuncios;
+    private LivroHorizontalAdapter adapterNegociados;
 
     private List<Livro> listaAnuncios = new ArrayList<>();
     private List<Livro> listaNegociados = new ArrayList<>();
@@ -55,11 +55,16 @@ public class MeusLivrosActivity extends AppCompatActivity {
         txtVazioAnuncios = findViewById(R.id.txtVazioAnuncios);
         txtVazioNegociados = findViewById(R.id.txtVazioNegociados);
 
-        recyclerAnuncios.setLayoutManager(new LinearLayoutManager(this));
-        recyclerNegociados.setLayoutManager(new LinearLayoutManager(this));
+        recyclerAnuncios.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
 
-        adapterAnuncios = new LivroAdapter(listaAnuncios, livro -> {});
-        adapterNegociados = new LivroAdapter(listaNegociados, livro -> {});
+        recyclerNegociados.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+
+        adapterAnuncios = new LivroHorizontalAdapter(listaAnuncios);
+        adapterNegociados = new LivroHorizontalAdapter(listaNegociados);
 
         recyclerAnuncios.setAdapter(adapterAnuncios);
         recyclerNegociados.setAdapter(adapterNegociados);

@@ -1,4 +1,4 @@
-package br.gov.sp.cps.trocabook;
+package br.gov.sp.cps.trocabook.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

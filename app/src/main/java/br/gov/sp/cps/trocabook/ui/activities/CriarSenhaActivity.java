@@ -1,4 +1,4 @@
-package br.gov.sp.cps.trocabook;
+package br.gov.sp.cps.trocabook.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,16 +10,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-// IMPORTANTE: Adicione as importações do Firebase
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
+
+import br.gov.sp.cps.trocabook.R;
+import br.gov.sp.cps.trocabook.service.AuthService;
 
 public class CriarSenhaActivity extends AppCompatActivity {
 
     private TextInputLayout layoutNome, layoutSobrenome, layoutEmail, layoutSenha, layoutConfirma;
     private TextInputEditText editNome, editSobrenome, editEmail, editSenha, editConfirma;
 
-    private FirebaseAuth mAuth;
+    private AuthService authService;
 
     private final InputFilter apenasLetras = (source, start, end, dest, dstart, dend) -> {
         StringBuilder filtrado = new StringBuilder();
@@ -37,7 +38,7 @@ public class CriarSenhaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_criar_senha);
 
-        mAuth = FirebaseAuth.getInstance();
+        authService = new AuthService(this);
 
         layoutNome = findViewById(R.id.layoutNome);
         layoutSobrenome = findViewById(R.id.layoutSobrenome);
@@ -70,22 +71,17 @@ public class CriarSenhaActivity extends AppCompatActivity {
         String email = editEmail.getText().toString().trim();
         String senha = editSenha.getText().toString();
 
-        mAuth.createUserWithEmailAndPassword(email, senha)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        irParaProximaTela();
-                    } else {
-                        String erro;
-                        try {
-                            throw task.getException();
-                        } catch (FirebaseAuthUserCollisionException e) {
-                            erro = "Este e-mail já está cadastrado.";
-                        } catch (Exception e) {
-                            erro = "Erro ao cadastrar: " + e.getMessage();
-                        }
-                        Toast.makeText(this, erro, Toast.LENGTH_LONG).show();
-                    }
-                });
+        authService.cadastrarComEmail(email, senha, new AuthService.AuthCallback() {
+            @Override
+            public void onSuccess(FirebaseUser user) {
+                irParaProximaTela();
+            }
+
+            @Override
+            public void onError(String erro) {
+                Toast.makeText(CriarSenhaActivity.this, erro, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 

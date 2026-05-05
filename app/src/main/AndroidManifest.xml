@@ -12,19 +12,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Trocabook">
         <activity
-            android:name=".MeusLivrosActivity"
+            android:name=".ui.activities.MeusLivrosActivity"
             android:exported="false" />
         <activity
-            android:name=".AnuncioActivity"
+            android:name=".ui.activities.AnuncioActivity"
             android:exported="false" />
         <activity
-            android:name=".BuscaActivity"
+            android:name=".ui.activities.BuscaActivity"
             android:exported="false" />
         <activity
-            android:name=".RecuperarSenhaActivity"
+            android:name=".ui.activities.RecuperarSenhaActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.activities.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,33 +33,33 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WelcomeActivity"
+            android:name=".ui.activities.WelcomeActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.activities.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".CadastroActivity"
+            android:name=".ui.activities.CadastroActivity"
             android:exported="false" />
         <activity
-            android:name=".CriarSenhaActivity"
+            android:name=".ui.activities.CriarSenhaActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".DadosSegurancaActivity"
+            android:name=".ui.activities.DadosSegurancaActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".EscolhaVerificacaoActivity"
+            android:name=".ui.activities.EscolhaVerificacaoActivity"
             android:exported="false" />
         <activity
-            android:name=".VerificacaoActivity"
+            android:name=".ui.activities.VerificacaoActivity"
             android:exported="false" />
         <activity
-            android:name=".BiometriaActivity"
+            android:name=".ui.activities.BiometriaActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:exported="false" />
     </application>
 

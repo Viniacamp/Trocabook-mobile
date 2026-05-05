@@ -1,4 +1,4 @@
-package br.gov.sp.cps.trocabook;
+package br.gov.sp.cps.trocabook.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +9,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.auth.FirebaseUser;
+
+import br.gov.sp.cps.trocabook.R;
+import br.gov.sp.cps.trocabook.service.AuthService;
 
 public class VerificacaoActivity extends AppCompatActivity {
 
@@ -21,6 +22,8 @@ public class VerificacaoActivity extends AppCompatActivity {
     private String verificationId, metodo;
 
     private Handler handler = new Handler();
+
+    private AuthService authService;
     private Runnable runnable;
 
     @Override
@@ -31,6 +34,8 @@ public class VerificacaoActivity extends AppCompatActivity {
         txtInstrucao = findViewById(R.id.txtInstrucaoVerificacao);
         editCodigo = findViewById(R.id.editCodigoVerificacao);
         btnConfirmar = findViewById(R.id.btnConfirmar);
+
+        authService = new AuthService(this);
 
         metodo = getIntent().getStringExtra("METODO_ESCOLHIDO");
         String destino = getIntent().getStringExtra("DESTINO_CODIGO");
@@ -57,32 +62,52 @@ public class VerificacaoActivity extends AppCompatActivity {
     }
 
     private void iniciarChecagemAutomatica() {
+
         runnable = new Runnable() {
             @Override
             public void run() {
-                FirebaseAuth.getInstance().getCurrentUser().reload().addOnCompleteListener(task -> {
-                    if (FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
+
+                authService.verificarEmailVerificado(new AuthService.AuthCallback() {
+
+                    @Override
+                    public void onSuccess(FirebaseUser user) {
                         irParaBiometria();
-                    } else {
-                        handler.postDelayed(this, 3000); // Tenta de novo em 3 segundos
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+                        handler.postDelayed(runnable, 3000);
                     }
                 });
             }
         };
+
         handler.post(runnable);
     }
 
     private void validarCodigoSMS(String codigo) {
+
         if (codigo.length() < 6) {
             Toast.makeText(this, "Digite os 6 dígitos", Toast.LENGTH_SHORT).show();
             return;
         }
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, codigo);
-        FirebaseAuth.getInstance().getCurrentUser().updatePhoneNumber(credential)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) { irParaBiometria(); }
-                    else { Toast.makeText(this, "Código inválido!", Toast.LENGTH_SHORT).show(); }
-                });
+
+        authService.confirmarCodigoSMS(
+                verificationId,
+                codigo,
+                new AuthService.AuthCallback() {
+
+                    @Override
+                    public void onSuccess(FirebaseUser user) {
+                        irParaBiometria();
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+                        Toast.makeText(VerificacaoActivity.this, erro, Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     private void irParaBiometria() {

@@ -1,4 +1,4 @@
-package br.gov.sp.cps.trocabook;
+package br.gov.sp.cps.trocabook.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,10 +19,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
+import br.gov.sp.cps.trocabook.model.Livro;
+import br.gov.sp.cps.trocabook.R;
+import br.gov.sp.cps.trocabook.service.AnuncioService;
 
 public class AnuncioActivity extends AppCompatActivity {
     private TextView titulo, autores, categorias;
@@ -31,7 +31,7 @@ public class AnuncioActivity extends AppCompatActivity {
     private Spinner status;
     private ImageView capa;
     private Livro livro;
-    private FirebaseFirestore db;
+    private AnuncioService anuncioService;
     private FirebaseAuth mAuth;
 
     @Override
@@ -39,13 +39,14 @@ public class AnuncioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_anuncio);
-        db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
         if (mAuth.getCurrentUser() == null) {
             finish();
             return;
         }
+
+        anuncioService = new AnuncioService();
 
         livro = (Livro) getIntent().getSerializableExtra("livro");
         capa = findViewById(R.id.imgCapa);
@@ -114,38 +115,34 @@ public class AnuncioActivity extends AppCompatActivity {
                 status.getSelectedItem() != null;
     }
 
-    private void salvarAnuncioBanco(){
+    private void salvarAnuncioBanco() {
+
         String userId = mAuth.getCurrentUser().getUid();
         String descricaoTexto = descricao.getText().toString().trim();
+        String tipo = status.getSelectedItem().toString();
 
-        if (descricaoTexto.isEmpty()) {
-            descricaoTexto = "Anunciante não informou uma descrição";
-        }
+        anuncioService.criarAnuncio(livro, descricaoTexto, tipo, userId,
+                new AnuncioService.Callback<Void>() {
+                    @Override
+                    public void onSuccess(Void resultado) {
 
-        Map<String, Object> anuncio = new HashMap<>();
-        anuncio.put("livroId", livro.getId());
-        anuncio.put("titulo", livro.getTitulo());
-        anuncio.put("capa", livro.getCapa());
-        anuncio.put("descricao", descricaoTexto);
-        anuncio.put("tipoNegociacao", status.getSelectedItem().toString());
-        anuncio.put("userId", userId);
+                        runOnUiThread(() -> {
+                            Toast.makeText(AnuncioActivity.this,
+                                    "Anúncio criado com sucesso!",
+                                    Toast.LENGTH_SHORT).show();
 
-        db.collection("anuncios")
-                .add(anuncio)
-                .addOnSuccessListener(doc -> {
+                            perguntarProximoPasso();
+                        });
+                    }
 
-                    Toast.makeText(this,
-                            "Anúncio criado com sucesso!",
-                            Toast.LENGTH_SHORT).show();
-
-                    perguntarProximoPasso();
-
-                })
-                .addOnFailureListener(e -> {
-
-                    Toast.makeText(this,
-                            "Erro: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
+                    @Override
+                    public void onError(String mensagem) {
+                        runOnUiThread(() ->
+                                Toast.makeText(AnuncioActivity.this,
+                                        "Erro: " + mensagem,
+                                        Toast.LENGTH_LONG).show()
+                        );
+                    }
                 });
     }
 

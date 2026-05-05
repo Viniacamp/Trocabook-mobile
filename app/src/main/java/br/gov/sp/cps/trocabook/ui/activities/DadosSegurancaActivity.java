@@ -1,25 +1,24 @@
-package br.gov.sp.cps.trocabook;
+package br.gov.sp.cps.trocabook.ui.activities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.*;
 import android.util.Patterns;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-
-// --- IMPORTAÇÕES DO FIREBASE ---
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+
+import br.gov.sp.cps.trocabook.R;
+import br.gov.sp.cps.trocabook.service.UsuarioService;
 
 public class DadosSegurancaActivity extends AppCompatActivity {
 
@@ -28,16 +27,16 @@ public class DadosSegurancaActivity extends AppCompatActivity {
     private RadioGroup radioGenero;
     private String emailPrincipal;
 
-    private FirebaseFirestore db;
     private FirebaseAuth mAuth;
+    private UsuarioService usuarioService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dados_seguranca);
 
-        db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        usuarioService = new UsuarioService();
 
         emailPrincipal = getIntent().getStringExtra("EMAIL_USUARIO");
 
@@ -61,53 +60,74 @@ public class DadosSegurancaActivity extends AppCompatActivity {
 
         findViewById(R.id.btnEnviarVerificacao).setOnClickListener(v -> {
             if (validarTudoAntesDeEnviar()) {
-                salvarDadosNoFirestore();
+                salvarDados();
             }
         });
     }
 
-    private void salvarDadosNoFirestore() {
+
+    private void salvarDados() {
+
         if (mAuth.getCurrentUser() == null) {
             Toast.makeText(this, "Usuário não autenticado!", Toast.LENGTH_SHORT).show();
             return;
         }
+
         String userId = mAuth.getCurrentUser().getUid();
 
-        Map<String, Object> usuario = new HashMap<>();
-        usuario.put("email_principal", emailPrincipal);
-        usuario.put("email_recuperacao", editEmailRec.getText().toString().trim());
-        usuario.put("telefone", editTelefone.getText().toString().trim());
-        usuario.put("cpf", editCPF.getText().toString().trim());
-        usuario.put("rg", editRG.getText().toString().trim());
-        usuario.put("nascimento", editNascimento.getText().toString().trim());
+        String emailRec = editEmailRec.getText().toString().trim();
+        String telefone = editTelefone.getText().toString().trim();
+        String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
+        String rg = editRG.getText().toString().trim();
+        String nascimento = editNascimento.getText().toString().trim();
 
         int idGenero = radioGenero.getCheckedRadioButtonId();
         RadioButton rb = findViewById(idGenero);
-        usuario.put("genero", rb.getText().toString());
+        String genero = rb.getText().toString();
 
-        db.collection("usuarios").document(userId)
-                .set(usuario)
-                .addOnSuccessListener(aVoid -> {
-                    Intent intent = new Intent(this, EscolhaVerificacaoActivity.class);
-                    intent.putExtra("email_recuperacao", editEmailRec.getText().toString());
-                    intent.putExtra("telefone", editTelefone.getText().toString());
-                    intent.putExtra("EMAIL_USUARIO", emailPrincipal);
-                    startActivity(intent);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Erro ao salvar: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
+        usuarioService.salvarDadosUsuario(
+                userId,
+                emailPrincipal,
+                emailRec,
+                telefone,
+                cpf,
+                rg,
+                nascimento,
+                genero,
+                new UsuarioService.ServiceCallback<Void>() {
+
+                    @Override
+                    public void onSuccess(Void resultado) {
+                        Intent intent = new Intent(DadosSegurancaActivity.this, EscolhaVerificacaoActivity.class);
+                        intent.putExtra("email_recuperacao", emailRec);
+                        intent.putExtra("telefone", telefone);
+                        intent.putExtra("EMAIL_USUARIO", emailPrincipal);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+                        Toast.makeText(DadosSegurancaActivity.this, erro, Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
     }
 
+
     private void configurarValidacoesAoSair() {
+
         editEmailRec.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String emailRec = editEmailRec.getText().toString().trim().toLowerCase();
+
                 if (emailRec.length() > 0) {
+
                     if (!Patterns.EMAIL_ADDRESS.matcher(emailRec).matches() || !emailRec.endsWith("@gmail.com")) {
                         layoutEmailRec.setError("Use um email @gmail.com válido");
-                    } else if (emailPrincipal != null && emailRec.equals(emailPrincipal.toLowerCase())) {
-                        layoutEmailRec.setError("O email de recuperação deve ser diferente do principal");
+
+                    } else if (!usuarioService.validarEmailRecuperacao(emailPrincipal, emailRec)) {
+                        layoutEmailRec.setError("O email deve ser diferente do principal");
+
                     } else {
                         layoutEmailRec.setError(null);
                     }
@@ -118,6 +138,7 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         editTelefone.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String tel = editTelefone.getText().toString().replaceAll("[^\\d]", "");
+
                 if (tel.length() > 0 && tel.length() < 10) {
                     layoutTelefone.setError("Telefone incompleto");
                 } else {
@@ -129,8 +150,9 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         editCPF.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
-                if (cpf.length() > 0 && !isCpfValido(cpf)) {
-                    layoutCPF.setError("CPF inválido ou inexistente");
+
+                if (cpf.length() > 0 && !usuarioService.isCpfValido(cpf)) {
+                    layoutCPF.setError("CPF inválido");
                 } else {
                     layoutCPF.setError(null);
                 }
@@ -139,25 +161,24 @@ public class DadosSegurancaActivity extends AppCompatActivity {
     }
 
     private boolean validarTudoAntesDeEnviar() {
+
         boolean erro = false;
+
         String emailRec = editEmailRec.getText().toString().trim().toLowerCase();
         String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
 
-        if (!emailRec.endsWith("@gmail.com")) {
-            layoutEmailRec.setError("Use um email @gmail.com");
-            erro = true;
-        } else if (emailPrincipal != null && emailRec.equals(emailPrincipal.toLowerCase())) {
-            layoutEmailRec.setError("O email de recuperação não pode ser igual ao principal");
+        if (!usuarioService.validarEmailRecuperacao(emailPrincipal, emailRec)) {
+            layoutEmailRec.setError("Email inválido");
             erro = true;
         }
 
-        if (!isCpfValido(cpf)) {
+        if (!usuarioService.isCpfValido(cpf)) {
             layoutCPF.setError("CPF inválido");
             erro = true;
         }
 
         if (editNascimento.getText().toString().isEmpty()) {
-            layoutNascimento.setError("É necessário ter mais de 18 anos");
+            layoutNascimento.setError("Informe sua data");
             erro = true;
         }
 
@@ -169,37 +190,22 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         return !erro;
     }
 
-    private boolean isCpfValido(String cpf) {
-        if (cpf == null || cpf.length() != 11 || cpf.matches("(\\d)\\1{10}")) return false;
-        try {
-            int d1 = 0, d2 = 0, peso = 10;
-            for (int i = 0; i < 9; i++) {
-                int num = Integer.parseInt(cpf.substring(i, i + 1));
-                d1 += num * peso;
-                d2 += num * (peso + 1);
-                peso--;
-            }
-            int r1 = 11 - (d1 % 11);
-            int digito1 = (r1 > 9) ? 0 : r1;
-            d2 += digito1 * 2;
-            int r2 = 11 - (d2 % 11);
-            int digito2 = (r2 > 9) ? 0 : r2;
-            return cpf.substring(9).equals("" + digito1 + digito2);
-        } catch (Exception e) { return false; }
-    }
-
     private void configurarDataCalendario() {
         editNascimento.setOnClickListener(v -> {
+
             Calendar c = Calendar.getInstance();
+
             DatePickerDialog datePicker = new DatePickerDialog(this, (view, year, month, day) -> {
 
-                if (isMaiorDeIdade(year, month, day)) {
+                if (usuarioService.isMaiorDeIdade(year, month, day)) {
+
                     editNascimento.setText(String.format("%02d/%02d/%d", day, month + 1, year));
                     layoutNascimento.setError(null);
+
                 } else {
                     editNascimento.setText("");
-                    layoutNascimento.setError("O Trocabook é apenas para maiores de 18 anos.");
-                    Toast.makeText(this, "Cadastro negado para menores", Toast.LENGTH_LONG).show();
+                    layoutNascimento.setError("Apenas maiores de 18 anos");
+                    Toast.makeText(this, "Cadastro negado", Toast.LENGTH_LONG).show();
                 }
 
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -208,18 +214,6 @@ public class DadosSegurancaActivity extends AppCompatActivity {
             datePicker.show();
         });
     }
-
-    private boolean isMaiorDeIdade(int year, int month, int day) {
-        Calendar dataNascimento = Calendar.getInstance();
-        dataNascimento.set(year, month, day);
-        Calendar hoje = Calendar.getInstance();
-        int idade = hoje.get(Calendar.YEAR) - dataNascimento.get(Calendar.YEAR);
-        if (hoje.get(Calendar.DAY_OF_YEAR) < dataNascimento.get(Calendar.DAY_OF_YEAR)) {
-            idade--;
-        }
-        return idade >= 18;
-    }
-
     private void configurarMascaras() {
         editTelefone.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;

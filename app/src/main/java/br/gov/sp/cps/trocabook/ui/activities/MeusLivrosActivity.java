@@ -1,20 +1,27 @@
-package br.gov.sp.cps.trocabook;
+package br.gov.sp.cps.trocabook.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import br.gov.sp.cps.trocabook.R;
+import br.gov.sp.cps.trocabook.model.Livro;
+import br.gov.sp.cps.trocabook.service.AnuncioService;
+import br.gov.sp.cps.trocabook.service.AuthService;
+import br.gov.sp.cps.trocabook.service.NegociacoesService;
+import br.gov.sp.cps.trocabook.ui.adapters.LivroHorizontalAdapter;
 
 public class MeusLivrosActivity extends AppCompatActivity {
 
@@ -27,8 +34,9 @@ public class MeusLivrosActivity extends AppCompatActivity {
     private List<Livro> listaAnuncios = new ArrayList<>();
     private List<Livro> listaNegociados = new ArrayList<>();
 
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
+    private AuthService authService;
+    private AnuncioService anuncioService;
+    private NegociacoesService negociacaoService;
 
     private TextView txtVazioAnuncios;
     private TextView txtVazioNegociados;
@@ -39,15 +47,17 @@ public class MeusLivrosActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meuslivros);
 
-        db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
+        authService = new AuthService(this);
+        anuncioService = new AnuncioService();
+        negociacaoService = new NegociacoesService();
 
-        if (mAuth.getCurrentUser() == null) {
+        FirebaseUser user = authService.getUsuarioAtual();
+        if (user == null) {
             finish();
             return;
         }
 
-        String userId = mAuth.getCurrentUser().getUid();
+        String userId = user.getUid();
 
         recyclerAnuncios = findViewById(R.id.recyclerAnuncios);
         recyclerNegociados = findViewById(R.id.recyclerNegociados);
@@ -83,51 +93,43 @@ public class MeusLivrosActivity extends AppCompatActivity {
 
     private void carregarAnuncios(String userId) {
 
-        db.collection("anuncios")
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
+        anuncioService.buscarAnunciosUsuario(userId, new AnuncioService.Callback<List<Livro>>() {
 
-                    listaAnuncios.clear();
+            @Override
+            public void onSuccess(List<Livro> lista) {
 
-                    if (snapshot.isEmpty()) {
-                        txtVazioAnuncios.setVisibility(View.VISIBLE);
-                        return;
-                    }
+                listaAnuncios.clear();
+                listaAnuncios.addAll(lista);
 
-                    txtVazioAnuncios.setVisibility(View.GONE);
+                txtVazioAnuncios.setVisibility(lista.isEmpty() ? View.VISIBLE : View.GONE);
+                adapterAnuncios.notifyDataSetChanged();
+            }
 
-                    snapshot.forEach(doc -> {
-                        Livro livro = doc.toObject(Livro.class);
-                        listaAnuncios.add(livro);
-                    });
+            @Override
+            public void onError(String erro) {
 
-                    adapterAnuncios.notifyDataSetChanged();
-                });
+            }
+        });
     }
 
     private void carregarNegociacoes(String userId) {
 
-        db.collection("negociacoes")
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
+        negociacaoService.buscarNegociacoesUsuario(userId, new NegociacoesService.Callback<List<Livro>>() {
 
-                    listaNegociados.clear();
+            @Override
+            public void onSuccess(List<Livro> lista) {
 
-                    if (snapshot.isEmpty()) {
-                        txtVazioNegociados.setVisibility(View.VISIBLE);
-                        return;
-                    }
+                listaNegociados.clear();
+                listaNegociados.addAll(lista);
 
-                    txtVazioNegociados.setVisibility(View.GONE);
+                txtVazioNegociados.setVisibility(lista.isEmpty() ? View.VISIBLE : View.GONE);
+                adapterNegociados.notifyDataSetChanged();
+            }
 
-                    snapshot.forEach(doc -> {
-                        Livro livro = doc.toObject(Livro.class);
-                        listaNegociados.add(livro);
-                    });
-
-                    adapterNegociados.notifyDataSetChanged();
-                });
+            @Override
+            public void onError(String erro) {
+                Toast.makeText(MeusLivrosActivity.this, erro, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

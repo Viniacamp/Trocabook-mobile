@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firestore.v1.ListenRequestOrBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,6 +17,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import br.gov.sp.cps.trocabook.BuildConfig;
 import br.gov.sp.cps.trocabook.model.Livro;
@@ -24,13 +26,27 @@ public class LivroRepository {
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public interface Callback {
-        void onSucesso(List<Livro> livros);
+    public interface Callback<T> {
+        void onSucesso(T livros);
         void onErro(Exception e);
     }
 
+    public void salvarLivro(Livro livro, Callback<Livro> callback) {
+        String id = db.collection("livros")
+                .document()
+                .getId();
 
-    public void buscarNoFirebase(String titulo, Callback callback) {
+        livro.setId(id);
+        db.collection("livros")
+                .document(livro.getId())
+                .set(livro)
+                .addOnSuccessListener(doc -> callback.onSucesso(livro))
+                .addOnFailureListener(e ->
+                        callback.onErro(new Exception("Erro ao salvar livro")));
+    }
+
+
+    public void buscarNoFirebase(String titulo, Callback<List<Livro>> callback) {
 
         db.collection("livros")
                 .whereEqualTo("titulo", titulo)
@@ -50,7 +66,9 @@ public class LivroRepository {
     }
 
 
-    public void buscarNaApi(String titulo, Callback callback) {
+
+
+    public void buscarNaApi(String titulo, Callback<List<Livro>> callback) {
 
         new Thread(() -> {
             HttpURLConnection conn = null;
@@ -159,4 +177,21 @@ public class LivroRepository {
             }
         }).start();
     }
+
+    public void buscarCategoriasNoFirebase(Callback<List<List<String>>> callback) {
+        db.collection("livros")
+                .get()
+                .addOnSuccessListener(query -> {
+                    List<List<String>> lista = new ArrayList<>();
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+                        List<String> categorias = (List<String>) doc.get("categorias");
+                        if (categorias != null) {
+                            lista.add(categorias);
+                        }
+                    }
+                    callback.onSucesso(lista);
+                })
+                .addOnFailureListener(callback::onErro);
+    }
 }
+

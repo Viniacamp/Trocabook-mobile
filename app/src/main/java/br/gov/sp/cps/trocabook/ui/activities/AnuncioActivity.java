@@ -62,7 +62,7 @@ public class AnuncioActivity extends AppCompatActivity {
         btnVoltar = findViewById(R.id.btnVoltar);
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
-        bottomNavigation.setSelectedItemId(R.id.menu_livros);
+        bottomNavigation.setSelectedItemId(R.id.menu_anuncio);
 
         bottomNavigation.setOnItemSelectedListener(item -> {
 

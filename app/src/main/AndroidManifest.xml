@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Trocabook">
         <activity
+            android:name=".ui.activities.AnuncioManualActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.MeusLivrosActivity"
             android:exported="false" />
         <activity

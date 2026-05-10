@@ -1,55 +1,83 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:fitsSystemWindows="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Livros anunciados:"
-        android:textStyle="bold"
-        android:textSize="16sp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerAnuncios"
+    <!-- CONTEÚDO -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/txtVazioAnuncios"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nenhum livro anunciado"
-        android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Livros negociados:"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_marginTop="16dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Livros anunciados:"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerNegociados"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerAnuncios"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:id="@+id/txtVazioAnuncios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nenhum livro anunciado"
+                android:visibility="gone"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Livros negociados:"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerNegociados"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:id="@+id/txtVazioNegociados"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nenhum livro negociado"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btnVoltar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voltar"
+                android:layout_marginTop="20dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- MENU INFERIOR -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:layout_marginTop="8dp"/>
-
-    <TextView
-        android:id="@+id/txtVazioNegociados"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nenhum livro negociado"
-        android:visibility="gone"/>
-
-    <Button
-        android:id="@+id/btnVoltar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Voltar"
-        android:layout_marginTop="20dp"/>
+        android:background="@android:color/white"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom"/>
 
 </LinearLayout>

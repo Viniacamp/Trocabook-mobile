@@ -1,68 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:fitsSystemWindows="true"
     tools:context=".ui.activities.AnuncioActivity">
 
-    <ImageView
-        android:id="@+id/imgCapa"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"/>
+    <!-- CONTEÚDO ROLÁVEL -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/txtTitulo"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imgCapa"
+                android:layout_width="150dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/txtTitulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Título"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:padding="8dp"/>
+
+            <TextView
+                android:id="@+id/txtAutores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Autores"
+                android:padding="8dp"/>
+
+            <TextView
+                android:id="@+id/txtCategorias"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Categorias"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/txtDescricao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:hint="Descrição (opcional)"/>
+
+            <Spinner
+                android:id="@+id/spinnerStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btnAnunciar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Anunciar" />
+
+            <Button
+                android:id="@+id/btnVoltar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voltar ou Anunciar outro Livro"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- MENU INFERIOR FIXO -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Título"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:padding="8dp"/>
-
-    <TextView
-        android:id="@+id/txtAutores"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Autores"
-        android:padding="8dp"/>
-
-    <TextView
-        android:id="@+id/txtCategorias"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Categorias"
-        android:padding="8dp"/>
-
-    <EditText
-        android:id="@+id/txtDescricao"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="start|top"
-        android:inputType="textMultiLine"
-        android:hint="Descrição (opcional)"/>
-
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/spinnerStatus"/>
-
-    <Button
-        android:id="@+id/btnAnunciar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Anunciar" />
-
-    <Button
-        android:id="@+id/btnVoltar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Voltar ou Anunciar outro Livro"/>
-
+        android:background="@android:color/white"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom"/>
 
 </LinearLayout>

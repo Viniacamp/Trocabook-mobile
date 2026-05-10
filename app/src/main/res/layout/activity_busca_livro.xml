@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.activities.BuscaActivity" >
+    android:fitsSystemWindows="true"
+    tools:context=".ui.activities.BuscaActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textLayoutTitulo"
@@ -18,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Digite o titulo" />
+
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -29,5 +31,15 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewLivros"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom" />
+
 </LinearLayout>

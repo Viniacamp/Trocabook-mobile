@@ -17,12 +17,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import br.gov.sp.cps.trocabook.model.Livro;
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
+import br.gov.sp.cps.trocabook.service.AuthService;
 
 public class AnuncioActivity extends AppCompatActivity {
     private TextView titulo, autores, categorias;
@@ -32,16 +34,17 @@ public class AnuncioActivity extends AppCompatActivity {
     private ImageView capa;
     private Livro livro;
     private AnuncioService anuncioService;
-    private FirebaseAuth mAuth;
+    private AuthService authService;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_anuncio);
-        mAuth = FirebaseAuth.getInstance();
+        authService = new AuthService(this);
 
-        if (mAuth.getCurrentUser() == null) {
+        if (authService.getUsuarioAtual() == null) {
             finish();
             return;
         }
@@ -57,6 +60,50 @@ public class AnuncioActivity extends AppCompatActivity {
         status = findViewById(R.id.spinnerStatus);
         btnAnunciar = findViewById(R.id.btnAnunciar);
         btnVoltar = findViewById(R.id.btnVoltar);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+
+        bottomNavigation.setSelectedItemId(R.id.menu_livros);
+
+        bottomNavigation.setOnItemSelectedListener(item -> {
+
+            int id = item.getItemId();
+
+            Class<?> tela = null;
+
+            if (id == R.id.menu_home) {
+                tela = MainActivity.class;
+
+            } else if (id == R.id.menu_anuncio) {
+                tela = BuscaActivity.class;
+
+            } else if (id == R.id.menu_livros) {
+                tela = MeusLivrosActivity.class;
+
+            } else if (id == R.id.menu_chat) {
+
+                // futura tela chat
+                return true;
+
+            } else if (id == R.id.menu_perfil) {
+
+                // futura tela perfil
+                return true;
+            }
+
+            if (tela != null) {
+
+                Intent intent = new Intent(this, tela);
+
+                intent.setFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                );
+
+                startActivity(intent);
+            }
+
+            return true;
+        });
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
@@ -79,11 +126,6 @@ public class AnuncioActivity extends AppCompatActivity {
 
         btnVoltar.setOnClickListener(v ->{
             finish();
-        });
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
         });
     }
 
@@ -117,7 +159,7 @@ public class AnuncioActivity extends AppCompatActivity {
 
     private void salvarAnuncioBanco() {
 
-        String userId = mAuth.getCurrentUser().getUid();
+        String userId = authService.getUsuarioAtual().getUid();
         String descricaoTexto = descricao.getText().toString().trim();
         String tipo = status.getSelectedItem().toString();
 
@@ -156,5 +198,14 @@ public class AnuncioActivity extends AppCompatActivity {
                     finish();
                 })
                 .show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        bottomNavigation.getMenu()
+                .findItem(R.id.menu_anuncio)
+                .setChecked(true);
     }
 }

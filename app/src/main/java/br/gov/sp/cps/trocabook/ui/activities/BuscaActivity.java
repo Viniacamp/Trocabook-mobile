@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.gov.sp.cps.trocabook.model.Livro;
+import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.ui.adapters.LivroAdapter;
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.service.LivroService;
@@ -32,18 +34,19 @@ public class BuscaActivity extends AppCompatActivity {
     private LivroAdapter livroAdapter;
     private List<Livro> listaLivros = new ArrayList<>();
 
-    private FirebaseAuth mAuth;
+    private AuthService authService;
     private LivroService livroService;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_busca_livro);
 
-        mAuth = FirebaseAuth.getInstance();
+        authService = new AuthService(this);
         livroService = new LivroService();
 
-        if (mAuth.getCurrentUser() == null) {
+        if (authService.getUsuarioAtual() == null) {
             finish();
             return;
         }
@@ -52,6 +55,50 @@ public class BuscaActivity extends AppCompatActivity {
         textEditTitulo = findViewById(R.id.textEditTitulo);
         btnBuscar = findViewById(R.id.btnBuscar);
         recyclerViewLivros = findViewById(R.id.recyclerViewLivros);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+
+        bottomNavigation.setSelectedItemId(R.id.menu_livros);
+
+        bottomNavigation.setOnItemSelectedListener(item -> {
+
+            int id = item.getItemId();
+
+            Class<?> tela = null;
+
+            if (id == R.id.menu_home) {
+                tela = MainActivity.class;
+
+            } else if (id == R.id.menu_anuncio) {
+                tela = BuscaActivity.class;
+
+            } else if (id == R.id.menu_livros) {
+                tela = MeusLivrosActivity.class;
+
+            } else if (id == R.id.menu_chat) {
+
+                // futura tela chat
+                return true;
+
+            } else if (id == R.id.menu_perfil) {
+
+                // futura tela perfil
+                return true;
+            }
+
+            if (tela != null) {
+
+                Intent intent = new Intent(this, tela);
+
+                intent.setFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                );
+
+                startActivity(intent);
+            }
+
+            return true;
+        });
 
         recyclerViewLivros.setLayoutManager(new LinearLayoutManager(this));
 
@@ -96,5 +143,14 @@ public class BuscaActivity extends AppCompatActivity {
         listaLivros.clear();
         listaLivros.addAll(livros);
         livroAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        bottomNavigation.getMenu()
+                .findItem(R.id.menu_anuncio)
+                .setChecked(true);
     }
 }

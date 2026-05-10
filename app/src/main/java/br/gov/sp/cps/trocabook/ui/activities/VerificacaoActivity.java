@@ -43,10 +43,10 @@ public class VerificacaoActivity extends AppCompatActivity {
 
         if ("EMAIL".equals(metodo)) {
             txtInstrucao.setText("Link enviado para: " + destino + "\n\nAbra seu e-mail e clique no link de confirmação.\nO Trocabook avançará sozinho assim que você confirmar!");
-            editCodigo.setVisibility(View.GONE); // Esconde o campo de números
-            btnConfirmar.setVisibility(View.GONE); // Esconde o botão (fica automático)
+            editCodigo.setVisibility(View.GONE);
+            btnConfirmar.setVisibility(View.GONE);
 
-            iniciarChecagemAutomatica();
+            handler.postDelayed(() -> iniciarChecagemAutomatica(), 5000);
         } else {
             txtInstrucao.setText("Insira o código de 6 dígitos enviado por SMS para:\n" + destino);
             editCodigo.setVisibility(View.VISIBLE);
@@ -62,13 +62,10 @@ public class VerificacaoActivity extends AppCompatActivity {
     }
 
     private void iniciarChecagemAutomatica() {
-
         runnable = new Runnable() {
             @Override
             public void run() {
-
                 authService.verificarEmailVerificado(new AuthService.AuthCallback() {
-
                     @Override
                     public void onSuccess(FirebaseUser user) {
                         irParaBiometria();
@@ -76,17 +73,15 @@ public class VerificacaoActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String erro) {
-                        handler.postDelayed(runnable, 3000);
+                        handler.postDelayed(runnable, 4000);
                     }
                 });
             }
         };
-
         handler.post(runnable);
     }
 
     private void validarCodigoSMS(String codigo) {
-
         if (codigo.length() < 6) {
             Toast.makeText(this, "Digite os 6 dígitos", Toast.LENGTH_SHORT).show();
             return;
@@ -96,7 +91,6 @@ public class VerificacaoActivity extends AppCompatActivity {
                 verificationId,
                 codigo,
                 new AuthService.AuthCallback() {
-
                     @Override
                     public void onSuccess(FirebaseUser user) {
                         irParaBiometria();

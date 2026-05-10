@@ -84,7 +84,7 @@ public class AuthService {
                     public void onError(GetCredentialException e) {
                         Log.e(TAG, "Erro CredentialManager", e);
                         activity.runOnUiThread(() ->
-                                callback.onError("Erro ao autenticar com Google")
+                                callback.onError("Erro ao autenticar com Google: " + e.getMessage())
                         );
                     }
                 }
@@ -132,7 +132,7 @@ public class AuthService {
                         Log.e(TAG, "Erro Firebase Auth", task.getException());
 
                         activity.runOnUiThread(() ->
-                                callback.onError("Erro ao autenticar no Firebase")
+                                callback.onError("Erro ao autenticar no Firebase: " + task.getException().getMessage())
                         );
                     }
                 });
@@ -144,13 +144,14 @@ public class AuthService {
                     if (task.isSuccessful()) {
                         callback.onSuccess(this.getUsuarioAtual());
                     } else {
+                        Exception e = task.getException();
+                        Log.e(TAG, "Erro ao cadastrar", e);
+                        
                         String erro;
-                        try {
-                            throw task.getException();
-                        } catch (FirebaseAuthUserCollisionException e) {
+                        if (e instanceof FirebaseAuthUserCollisionException) {
                             erro = "Este e-mail já está cadastrado.";
-                        } catch (Exception e) {
-                            erro = "Erro ao cadastrar: " + e.getMessage();
+                        } else {
+                            erro = "Erro: " + e.getMessage();
                         }
                         callback.onError(erro);
                     }
@@ -225,7 +226,7 @@ public class AuthService {
                     if (task.isSuccessful()) {
                         callback.onSuccess(mAuth.getCurrentUser());
                     } else {
-                        callback.onError("E-mail ou senha incorretos");
+                        callback.onError("E-mail ou senha incorretos: " + task.getException().getMessage());
                     }
                 });
     }
@@ -259,8 +260,10 @@ public class AuthService {
         user.reload().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
 
-                if (user.isEmailVerified()) {
-                    callback.onSuccess(user);
+                FirebaseUser userAtualizado = this.getUsuarioAtual();
+
+                if (userAtualizado != null && userAtualizado.isEmailVerified()) {
+                    callback.onSuccess(userAtualizado);
                 } else {
                     callback.onError("Email ainda não verificado");
                 }

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class MeusLivrosActivity extends AppCompatActivity {
 
     private TextView txtVazioAnuncios;
     private TextView txtVazioNegociados;
+    private BottomNavigationView bottomNavigation;
     private Button btnVoltar;
 
     @Override
@@ -57,6 +59,7 @@ public class MeusLivrosActivity extends AppCompatActivity {
             return;
         }
 
+
         String userId = user.getUid();
 
         recyclerAnuncios = findViewById(R.id.recyclerAnuncios);
@@ -64,6 +67,50 @@ public class MeusLivrosActivity extends AppCompatActivity {
 
         txtVazioAnuncios = findViewById(R.id.txtVazioAnuncios);
         txtVazioNegociados = findViewById(R.id.txtVazioNegociados);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+
+        bottomNavigation.setSelectedItemId(R.id.menu_livros);
+
+        bottomNavigation.setOnItemSelectedListener(item -> {
+
+            int id = item.getItemId();
+
+            Class<?> tela = null;
+
+            if (id == R.id.menu_home) {
+                tela = MainActivity.class;
+
+            } else if (id == R.id.menu_anuncio) {
+                tela = BuscaActivity.class;
+
+            } else if (id == R.id.menu_livros) {
+                tela = MeusLivrosActivity.class;
+
+            } else if (id == R.id.menu_chat) {
+
+                // futura tela chat
+                return true;
+
+            } else if (id == R.id.menu_perfil) {
+
+                // futura tela perfil
+                return true;
+            }
+
+            if (tela != null) {
+
+                Intent intent = new Intent(this, tela);
+
+                intent.setFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                );
+
+                startActivity(intent);
+            }
+
+            return true;
+        });
 
         recyclerAnuncios.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -131,5 +178,14 @@ public class MeusLivrosActivity extends AppCompatActivity {
                 Toast.makeText(MeusLivrosActivity.this, erro, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        bottomNavigation.getMenu()
+                .findItem(R.id.menu_livros)
+                .setChecked(true);
     }
 }

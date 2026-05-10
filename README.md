@@ -13,9 +13,9 @@ O **Trocabook** está alinhado à **ODS 12 da Agenda 2030 da ONU**, que visa gar
 O desperdício de livros ainda é uma realidade no Brasil. Acreditamos que, por meio da reutilização eficiente, podemos minimizar esse impacto, incentivando a economia sustentável e reduzindo a necessidade de novos recursos naturais.  
 
 ## Tecnologias Utilizadas no Projeto
-[![My Skills](https://skillicons.dev/icons?i=androidstudio,java,spring,mysql,&theme=light)](https://skillicons.dev)
-- **Back-end:** Java com Spring Boot 
-- **Banco de Dados:** MySQL 
+[![My Skills](https://skillicons.dev/icons?i=androidstudio,java,firebase,&theme=light)](https://skillicons.dev)
+- **Back-end:** Java
+- **Banco de Dados:** Firebase
 - **Front-end:** XML 
 
 ## Equipe  

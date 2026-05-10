@@ -28,7 +28,7 @@ public class BuscaActivity extends AppCompatActivity {
 
     private TextInputLayout textLayoutTitulo;
     private TextInputEditText textEditTitulo;
-    private Button btnBuscar;
+    private Button btnBuscar, btnAnunciarManualmente;
     private RecyclerView recyclerViewLivros;
 
     private LivroAdapter livroAdapter;
@@ -54,10 +54,11 @@ public class BuscaActivity extends AppCompatActivity {
         textLayoutTitulo = findViewById(R.id.textLayoutTitulo);
         textEditTitulo = findViewById(R.id.textEditTitulo);
         btnBuscar = findViewById(R.id.btnBuscar);
+        btnAnunciarManualmente = findViewById(R.id.btnAnuncioManual);
         recyclerViewLivros = findViewById(R.id.recyclerViewLivros);
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
-        bottomNavigation.setSelectedItemId(R.id.menu_livros);
+        bottomNavigation.setSelectedItemId(R.id.menu_anuncio);
 
         bottomNavigation.setOnItemSelectedListener(item -> {
 
@@ -111,6 +112,10 @@ public class BuscaActivity extends AppCompatActivity {
         recyclerViewLivros.setAdapter(livroAdapter);
 
         btnBuscar.setOnClickListener(v -> buscarLivro());
+        btnAnunciarManualmente.setOnClickListener(v -> {
+            startActivity(new Intent(this, AnuncioManualActivity.class));
+            finish();
+        });
     }
 
     private void buscarLivro() {
@@ -124,7 +129,7 @@ public class BuscaActivity extends AppCompatActivity {
 
         textLayoutTitulo.setError(null);
 
-        livroService.buscarLivros(titulo, new LivroService.Callback() {
+        livroService.buscarLivros(titulo, new LivroService.Callback<List<Livro>>() {
             @Override
             public void onSucesso(List<Livro> livros) {
                 runOnUiThread(() -> atualizarLista(livros));

@@ -5,16 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.activities.AnuncioManualActivity">
 
-    <!-- CONTEÚDO ROLÁVEL -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:background="#F5F5F5"
+        android:background="?android:attr/colorBackground"
         android:fitsSystemWindows="true"
-
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,18 +25,16 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- TÍTULO -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Criar anúncio"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="#000000"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="24dp" />
 
-            <!-- TÍTULO LIVRO -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,7 +44,6 @@
                 app:boxCornerRadiusTopEnd="16dp"
                 app:boxCornerRadiusBottomStart="16dp"
                 app:boxCornerRadiusBottomEnd="16dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTitulo"
                     android:layout_width="match_parent"
@@ -56,7 +52,6 @@
                     android:padding="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- AUTORES -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,7 +61,6 @@
                 app:boxCornerRadiusTopEnd="16dp"
                 app:boxCornerRadiusBottomStart="16dp"
                 app:boxCornerRadiusBottomEnd="16dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editAutores"
                     android:layout_width="match_parent"
@@ -75,7 +69,6 @@
                     android:padding="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- CATEGORIAS -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,7 +78,6 @@
                 app:boxCornerRadiusTopEnd="16dp"
                 app:boxCornerRadiusBottomStart="16dp"
                 app:boxCornerRadiusBottomEnd="16dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editCategorias"
                     android:layout_width="match_parent"
@@ -96,28 +88,6 @@
                     android:padding="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- NOVA CATEGORIA -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutNovaCategoria"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                app:boxBackgroundMode="filled"
-                app:boxCornerRadiusTopStart="16dp"
-                app:boxCornerRadiusTopEnd="16dp"
-                app:boxCornerRadiusBottomStart="16dp"
-                app:boxCornerRadiusBottomEnd="16dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editNovaCategoria"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Digite a nova categoria"
-                    android:padding="16dp"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- DESCRIÇÃO -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,7 +97,6 @@
                 app:boxCornerRadiusTopEnd="16dp"
                 app:boxCornerRadiusBottomStart="16dp"
                 app:boxCornerRadiusBottomEnd="16dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editDescricao"
                     android:layout_width="match_parent"
@@ -138,18 +107,17 @@
                     android:padding="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- STATUS -->
             <Spinner
                 android:id="@+id/spinnerStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"/>
 
-            <!-- UPLOAD IMAGEM -->
             <LinearLayout
                 android:id="@+id/layoutUpload"
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
+                android:layout_height="wrap_content"
+                android:minHeight="250dp"
                 android:layout_marginBottom="32dp"
                 android:background="@drawable/upload_background"
                 android:gravity="center"
@@ -158,23 +126,24 @@
 
                 <ImageView
                     android:id="@+id/imgCapa"
-                    android:layout_width="66dp"
-                    android:layout_height="66dp"
-                    android:scaleType="centerCrop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="200dp"
+                    android:maxHeight="250dp"
                     android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
                     android:src="@android:drawable/ic_menu_upload" />
 
                 <TextView
                     android:id="@+id/txtUpload"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:text="Selecione uma imagem da capa"
-                    android:textSize="16sp"
-                    android:textColor="#808080"/>
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
 
-            <!-- BOTÃO -->
             <Button
                 android:id="@+id/btnAnunciar"
                 android:layout_width="match_parent"
@@ -187,20 +156,18 @@
                 android:textSize="20sp"/>
 
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 
-    <!-- MENU INFERIOR -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="?android:attr/colorBackground"
+        app:itemIconTint="?attr/colorOnSurface"
+        app:itemTextColor="?attr/colorOnSurface"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_bottom"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

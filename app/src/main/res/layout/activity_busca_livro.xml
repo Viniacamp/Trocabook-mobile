@@ -7,18 +7,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.activities.BuscaActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textLayoutTitulo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="8dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textEditTitulo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Digite o titulo" />
+            android:hint="Digite o titulo"
+            android:textColor="?attr/colorOnSurface" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -26,12 +29,14 @@
         android:id="@+id/btnBuscar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
         android:text="Buscar" />
 
     <Button
         android:id="@+id/btnAnuncioManual"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
         android:text="Anunciar Manualmente" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -44,7 +49,9 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="?android:attr/colorBackground"
+        app:itemIconTint="?attr/colorOnSurface"
+        app:itemTextColor="?attr/colorOnSurface"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_bottom" />
 

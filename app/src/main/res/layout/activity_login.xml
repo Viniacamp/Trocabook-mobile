@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:padding="24dp"
     android:fitsSystemWindows="true"
-    android:background="#EBEBEB"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.activities.LoginActivity">
 
     <ImageView
@@ -29,7 +29,7 @@
         android:fontFamily="@font/manrope_bold"
         android:text="Bem-vindo de volta!"
         android:textAlignment="center"
-        android:textColor="@color/black"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,7 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:hint="E-mail"
-        android:textColor="#EBEBEB"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,8 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/manrope_regular"
-            android:textColor="#EBEBEB"
-            android:background="@color/white"
+            android:textColor="?attr/colorOnSurface"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,8 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/manrope_regular"
-            android:textColor="#EBEBEB"
-            android:background="@color/white"
+            android:textColor="?attr/colorOnSurface"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -7,7 +7,7 @@
     android:gravity="center"
     android:fitsSystemWindows="true"
     android:padding="20dp"
-    android:background="#EBEBEB">
+    android:background="?android:attr/colorBackground">
 
     <ImageView
         android:id="@+id/imageView2"
@@ -22,7 +22,7 @@
         android:layout_marginBottom="50dp"
         android:fontFamily="@font/manrope_bold"
         android:text="Bem-vindo ao Trocabook"
-        android:textColor="@color/black"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="24sp" />
 
     <Button

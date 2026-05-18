@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#FAFAFA"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.activities.MainActivity">
 
     <ScrollView
@@ -68,7 +68,7 @@
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:text="Negociantes em Destaque:"
-                android:textColor="@color/black" />
+                android:textColor="?attr/colorOnSurface" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -116,7 +116,7 @@
                 android:fontFamily="@font/manrope_bold"
                 android:textStyle="bold"
                 android:textSize="20sp"
-                android:textColor="@color/black" />
+                android:textColor="?attr/colorOnSurface" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -164,7 +164,7 @@
                 android:fontFamily="@font/manrope_bold"
                 android:textStyle="bold"
                 android:textSize="20sp"
-                android:textColor="@color/black" />
+                android:textColor="?attr/colorOnSurface" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -213,8 +213,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
-        app:itemIconTint="@color/black"
-        app:itemTextColor="@color/black"
+        app:itemIconTint="?attr/colorOnSurface"
+        app:itemTextColor="?attr/colorOnSurface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_bottom"

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:fillViewport="true"
-    android:background="#EBEBEB">
+    android:background="?android:attr/colorBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,13 +21,13 @@
             android:text="Segurança da Conta"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutTelefone"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -44,7 +44,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutEmailRec"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -60,7 +60,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutNascimento"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp">
@@ -81,7 +81,7 @@
             android:layout_height="wrap_content"
             android:text="Gênero"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"/>
 
@@ -91,14 +91,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="16dp">
-            <RadioButton android:id="@+id/radioMasculino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masculino" android:textColor="@color/black"/>
-            <RadioButton android:id="@+id/radioFeminino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Feminino" android:textColor="@color/black"/>
-            <RadioButton android:id="@+id/radioOutro" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Outro" android:textColor="@color/black"/>
+            <RadioButton android:id="@+id/radioMasculino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masculino" android:textColor="?attr/colorOnSurface"/>
+            <RadioButton android:id="@+id/radioFeminino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Feminino" android:textColor="?attr/colorOnSurface"/>
+            <RadioButton android:id="@+id/radioOutro" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Outro" android:textColor="?attr/colorOnSurface"/>
         </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutCPF"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -115,7 +115,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutRG"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp">
@@ -134,11 +134,13 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Enviar Código de Verificação"
+            app:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/btnVoltarSeguranca"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Voltar"/>

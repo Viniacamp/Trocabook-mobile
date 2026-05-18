@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:padding="24dp"
-    android:background="#EBEBEB">
+    android:background="?android:attr/colorBackground">
 
     <TextView
         android:id="@+id/txtTituloRecuperar"
@@ -14,7 +14,7 @@
         android:layout_marginTop="36dp"
         android:fontFamily="@font/manrope_bold"
         android:text="Recuperar Senha"
-        android:textColor="@color/black"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,7 +31,7 @@
         android:text="Insira o e-mail associado à sua conta para receber um link de redefinição."
         android:textAlignment="center"
         android:textSize="16sp"
-        android:textColor="@color/black"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +39,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutEmailRecuperar"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -53,22 +53,25 @@
             android:id="@+id/editEmailRecuperar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurface"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnEnviarLink"
         android:layout_width="0dp"
-        android:layout_height="55dp"
+        android:layout_height="56dp"
         android:layout_marginTop="24dp"
         android:text="ENVIAR E-MAIL"
+        app:backgroundTint="?attr/colorPrimary"
+        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutEmailRecuperar" />
 
     <Button
         android:id="@+id/btnVoltarRecuperar"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/manrope_semibold"

@@ -6,14 +6,15 @@
     android:gravity="center"
     android:fitsSystemWindows="true"
     android:padding="20dp"
-    android:background="?android:attr/colorBackground">
+    android:background="#EBEBEB">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_bold"
         android:text="Como deseja se cadastrar?"
         android:textSize="20sp"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/black"
         android:layout_marginBottom="40dp" />
 
     <Button
@@ -33,6 +34,7 @@
         android:id="@+id/btnVoltarWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_semibold"
         android:text="Voltar"
         style="@style/Widget.MaterialComponents.Button.TextButton" />
 

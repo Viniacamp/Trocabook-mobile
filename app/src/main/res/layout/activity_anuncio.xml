@@ -7,11 +7,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground"
+    android:background="#FAFAFA"
     tools:context=".ui.activities.AnuncioActivity">
 
     <!-- CONTEÚDO ROLÁVEL -->
     <ScrollView
+        android:layout_margin="20dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -26,12 +27,15 @@
                 android:layout_width="150dp"
                 android:layout_height="200dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="16dp"/>
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="20dp"/>
 
             <TextView
                 android:id="@+id/txtTitulo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#EBEBEB"
+                android:layout_marginBottom="10dp"
                 android:text="Título"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -42,6 +46,8 @@
                 android:id="@+id/txtAutores"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#EBEBEB"
+                android:layout_marginBottom="10dp"
                 android:text="Autores"
                 android:textColor="?attr/colorOnSurface"
                 android:padding="8dp"/>
@@ -50,14 +56,17 @@
                 android:id="@+id/txtCategorias"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#EBEBEB"
+                android:layout_marginBottom="10dp"
+                android:padding="8dp"
                 android:text="Categorias"
-                android:textColor="?attr/colorOnSurface"
-                android:padding="8dp"/>
+                android:textColor="?attr/colorOnSurface" />
 
             <EditText
                 android:id="@+id/txtDescricao"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:ems="10"
                 android:gravity="start|top"
                 android:inputType="textMultiLine"
@@ -68,10 +77,11 @@
             <Spinner
                 android:id="@+id/spinnerStatus"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/btnAnunciar"
+                android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Anunciar" />

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:fillViewport="true"
-    android:background="?android:attr/colorBackground">
+    android:background="#EBEBEB">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,10 +17,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/manrope_bold"
             android:text="Segurança da Conta"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/black"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"/>
 
@@ -80,7 +81,7 @@
             android:layout_height="wrap_content"
             android:text="Gênero"
             android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/black"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"/>
 
@@ -90,9 +91,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="16dp">
-            <RadioButton android:id="@+id/radioMasculino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masculino" android:textColor="?attr/colorOnSurface"/>
-            <RadioButton android:id="@+id/radioFeminino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Feminino" android:textColor="?attr/colorOnSurface"/>
-            <RadioButton android:id="@+id/radioOutro" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Outro" android:textColor="?attr/colorOnSurface"/>
+            <RadioButton android:id="@+id/radioMasculino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masculino" android:textColor="@color/black"/>
+            <RadioButton android:id="@+id/radioFeminino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Feminino" android:textColor="@color/black"/>
+            <RadioButton android:id="@+id/radioOutro" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Outro" android:textColor="@color/black"/>
         </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout

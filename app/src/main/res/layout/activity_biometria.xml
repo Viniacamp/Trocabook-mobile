@@ -6,7 +6,7 @@
     android:gravity="center"
     android:fitsSystemWindows="true"
     android:padding="20dp"
-    android:background="?android:attr/colorBackground">
+    android:background="#EBEBEB">
 
     <ImageView
         android:layout_width="100dp"
@@ -18,6 +18,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_bold"
         android:text="Segurança Reforçada"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -27,6 +28,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_regular"
         android:text="Deseja utilizar sua digital para entrar no Trocabook de forma mais rápida e segura?"
         android:textAlignment="center"
         android:textColor="?attr/colorOnSurface"

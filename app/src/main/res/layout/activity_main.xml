@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground"
+    android:background="#FAFAFA"
     tools:context=".ui.activities.MainActivity">
 
     <ScrollView
@@ -23,14 +23,14 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="118dp"
                 android:background="@drawable/gradiente_trocabook">
 
                 <ImageView
                     android:id="@+id/imageLogo"
                     android:layout_width="64dp"
                     android:layout_height="44dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -39,18 +39,21 @@
                 <EditText
                     android:id="@+id/editPesquisa"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="24dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="20dp"
+                    android:fontFamily="@font/manrope_regular"
                     android:background="@drawable/barra_pesquisa_background"
                     android:drawableStart="@drawable/search"
                     android:drawablePadding="8dp"
                     android:hint="Pesquise Aqui"
                     android:paddingStart="12dp"
-                    android:textColorHint="?attr/colorOnSurfaceVariant"
                     android:textColor="?attr/colorOnSurface"
+                    android:textColorHint="?attr/colorOnSurfaceVariant"
+                    android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/imageLogo" />
 
@@ -61,9 +64,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="20dp"
-                android:text="Negociantes em Destaque:"
+                android:fontFamily="@font/manrope_bold"
                 android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textSize="20sp"
+                android:text="Negociantes em Destaque:"
+                android:textColor="@color/black" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -108,8 +113,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Livros em destaque:"
+                android:fontFamily="@font/manrope_bold"
                 android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textSize="20sp"
+                android:textColor="@color/black" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -154,8 +161,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Propostas Recentes:"
+                android:fontFamily="@font/manrope_bold"
                 android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textSize="20sp"
+                android:textColor="@color/black" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -204,8 +213,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
-        app:itemIconTint="?attr/colorOnSurface"
-        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="@color/black"
+        app:itemTextColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_bottom"

@@ -6,18 +6,34 @@
     android:layout_height="match_parent"
     android:padding="24dp"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground"
+    android:background="#EBEBEB"
     tools:context=".ui.activities.LoginActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.028"
+        app:srcCompat="@drawable/logo_roxa_texto_preto" />
 
     <TextView
         android:id="@+id/txtTituloLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="116dp"
+        android:fontFamily="@font/manrope_bold"
         android:text="Bem-vindo de volta!"
+        android:textAlignment="center"
+        android:textColor="@color/black"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,9 +42,11 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="36dp"
         android:hint="E-mail"
+        android:textColor="#EBEBEB"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtTituloLogin">
 
@@ -36,6 +54,9 @@
             android:id="@+id/editLoginEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/manrope_regular"
+            android:textColor="#EBEBEB"
+            android:background="@color/white"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -44,10 +65,11 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:hint="Senha"
         app:endIconMode="password_toggle"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutLoginEmail">
 
@@ -55,6 +77,9 @@
             android:id="@+id/editLoginSenha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/manrope_regular"
+            android:textColor="#EBEBEB"
+            android:background="@color/white"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -64,6 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:padding="8dp"
+        android:fontFamily="@font/manrope_regular"
         android:text="Esqueci minha senha"
         android:textColor="?attr/colorPrimary"
         android:textStyle="bold"
@@ -74,9 +100,10 @@
         android:id="@+id/btnEntrar"
         android:layout_width="0dp"
         android:layout_height="55dp"
-        android:layout_marginTop="24dp"
-        android:text="ACESSAR CONTA"
+        android:layout_marginTop="28dp"
+        android:text="ENTRAR"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtEsqueciSenha" />
 
@@ -84,8 +111,9 @@
         android:id="@+id/btnLoginGoogle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnEntrar" />
 
@@ -95,9 +123,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        android:fontFamily="@font/manrope_bold"
         android:text="Voltar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnLoginGoogle"
+        app:layout_constraintVertical_bias="0.906" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

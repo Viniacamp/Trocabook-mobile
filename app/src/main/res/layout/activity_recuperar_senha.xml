@@ -5,17 +5,20 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:padding="24dp"
-    android:background="?android:attr/colorBackground">
+    android:background="#EBEBEB">
 
     <TextView
         android:id="@+id/txtTituloRecuperar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="36dp"
+        android:fontFamily="@font/manrope_bold"
         android:text="Recuperar Senha"
+        android:textColor="@color/black"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,11 +26,14 @@
         android:id="@+id/txtDescricao"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="36dp"
+        android:fontFamily="@font/manrope_regular"
         android:text="Insira o e-mail associado à sua conta para receber um link de redefinição."
+        android:textAlignment="center"
         android:textSize="16sp"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtTituloRecuperar" />
 
@@ -37,6 +43,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
+        android:fontFamily="@font/manrope_regular"
         android:hint="Seu e-mail cadastrado"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,6 +71,7 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_semibold"
         android:text="Voltar para o Login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

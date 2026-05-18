@@ -6,32 +6,34 @@
     android:gravity="center"
     android:padding="24dp"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground">
+    android:background="#EBEBEB">
 
     <TextView
         android:id="@+id/txtTituloVerificacao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_bold"
         android:text="Verificar Conta"
         android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface" />
+        android:textColor="@color/black" />
 
     <TextView
         android:id="@+id/txtInstrucaoVerificacao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_regular"
         android:text="Aguardando método de envio..."
         android:textAlignment="center"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="32dp"
         android:textSize="16sp"
-        android:textColor="?attr/colorOnSurface" />
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/editCodigoVerificacao"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_regular"
         android:hint="000000"
         android:gravity="center"
         android:inputType="number"
@@ -39,7 +41,7 @@
         android:textSize="36sp"
         android:letterSpacing="0.3"
         android:background="@null"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/black"
         android:textColorHint="?attr/colorOnSurfaceVariant"
         android:importantForAutofill="no" />
 

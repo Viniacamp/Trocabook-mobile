@@ -6,30 +6,34 @@
     android:padding="24dp"
     android:gravity="center"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground">
+    android:background="#EBEBEB">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_bold"
         android:text="Verificação de Segurança"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Como deseja receber seu código?"
-        android:textSize="16sp"
         android:layout_marginBottom="32dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/manrope_regular"
+        android:text="Como deseja receber seu código?"
         android:textAlignment="center"
-        android:textColor="?attr/colorOnSurface"/>
+        android:textColor="@color/black"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/btnEscolhaEmail"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:fontFamily="@font/manrope_regular"
         android:text="Enviar por E-mail"
         android:textAllCaps="false"
         android:layout_marginBottom="16dp"
@@ -39,6 +43,7 @@
         android:id="@+id/btnEscolhaSMS"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:fontFamily="@font/manrope_regular"
         android:text="Enviar por SMS"
         android:textAllCaps="false"
         android:layout_marginBottom="32dp"
@@ -48,6 +53,7 @@
         android:id="@+id/btnVoltarEscolha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/manrope_semibold"
         android:text="VOLTAR"
         style="@style/Widget.MaterialComponents.Button.TextButton"/>
 

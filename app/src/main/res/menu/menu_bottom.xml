@@ -3,27 +3,27 @@
 
     <item
         android:id="@+id/menu_home"
-        android:icon="@android:drawable/ic_menu_view"
+        android:icon="@drawable/home_1_svgrepo_com"
         android:title="Home" />
 
     <item
         android:id="@+id/menu_anuncio"
-        android:icon="@android:drawable/ic_input_add"
+        android:icon="@drawable/book_sparkles_svgrepo_com"
         android:title="Anunciar" />
 
     <item
         android:id="@+id/menu_livros"
-        android:icon="@android:drawable/ic_menu_agenda"
+        android:icon="@drawable/book_open_svgrepo_com"
         android:title="Livros" />
 
     <item
         android:id="@+id/menu_chat"
-        android:icon="@android:drawable/ic_dialog_email"
+        android:icon="@drawable/chat_svgrepo_com"
         android:title="Chat" />
 
     <item
         android:id="@+id/menu_perfil"
-        android:icon="@android:drawable/ic_menu_myplaces"
+        android:icon="@drawable/book_user_svgrepo_com"
         android:title="Perfil" />
 
 </menu>

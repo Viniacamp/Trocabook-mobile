@@ -2,9 +2,129 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.activities.ChatActivity">
+
+    <!-- HEADER / TOOLBAR -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutHeaderChat"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="?attr/colorSurface"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imgUsuarioChat"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="8dp"
+            android:padding="2dp"
+            android:src="@drawable/foto_squirtle_boladao"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="2dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imgUsuarioChat"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/txtNomeUsuarioChat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/manrope_bold"
+                android:text="Nome do Usuário"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtStatusUsuario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/manrope_regular"
+                android:text="Online agora"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- LISTA DE MENSAGENS -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMensagens"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toTopOf="@id/layoutInputChat"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeaderChat"
+        tools:listitem="@android:layout/simple_list_item_1" />
+
+    <!-- INPUT DE MENSAGEM -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutInputChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:padding="8dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
+
+        <EditText
+            android:id="@+id/editMensagem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/barra_pesquisa_background"
+            android:fontFamily="@font/manrope_regular"
+            android:hint="Escreva uma mensagem..."
+            android:inputType="textMultiLine"
+            android:maxLines="4"
+            android:padding="12dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textColorHint="?attr/colorOnSurfaceVariant"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnEnviarMensagem"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnEnviarMensagem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_send"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white"
+            app:backgroundTint="?attr/colorPrimary" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MENU INFERIOR -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        app:itemIconTint="?attr/colorOnSurfaceVariant"
+        app:itemTextColor="?attr/colorOnSurfaceVariant"
+        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

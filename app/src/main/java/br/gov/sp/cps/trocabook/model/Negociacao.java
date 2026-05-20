@@ -2,21 +2,18 @@ package br.gov.sp.cps.trocabook.model;
 
 public class Negociacao {
     private String id;
-    private String userId;
-    private String livroId;
-    private String titulo;
-    private String capa;
-    private String tipoNegociacao;
+    private String userIdRemetente;
+
+    private String userIdDestinatario;
+    private String anuncioId;
 
     public Negociacao(){}
 
-    public Negociacao(String id, String userId, String livroId, String titulo, String capa, String tipoNegociacao) {
+    public Negociacao(String anuncioId, String userIdDestinatario, String userIdRemetente, String id) {
+        this.anuncioId = anuncioId;
+        this.userIdDestinatario = userIdDestinatario;
+        this.userIdRemetente = userIdRemetente;
         this.id = id;
-        this.userId = userId;
-        this.livroId = livroId;
-        this.titulo = titulo;
-        this.capa = capa;
-        this.tipoNegociacao = tipoNegociacao;
     }
 
     public String getId() {
@@ -27,43 +24,27 @@ public class Negociacao {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUserIdRemetente() {
+        return userIdRemetente;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserIdRemetente(String userIdRemetente) {
+        this.userIdRemetente = userIdRemetente;
     }
 
-    public String getLivroId() {
-        return livroId;
+    public String getUserIdDestinatario() {
+        return userIdDestinatario;
     }
 
-    public void setLivroId(String livroId) {
-        this.livroId = livroId;
+    public void setUserIdDestinatario(String userIdDestinatario) {
+        this.userIdDestinatario = userIdDestinatario;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public String getAnuncioId() {
+        return anuncioId;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getCapa() {
-        return capa;
-    }
-
-    public void setCapa(String capa) {
-        this.capa = capa;
-    }
-
-    public String getTipoNegociacao() {
-        return tipoNegociacao;
-    }
-
-    public void setTipoNegociacao(String tipoNegociacao) {
-        this.tipoNegociacao = tipoNegociacao;
+    public void setAnuncioId(String anuncioId) {
+        this.anuncioId = anuncioId;
     }
 }

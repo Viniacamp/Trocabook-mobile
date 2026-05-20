@@ -2,7 +2,11 @@ package br.gov.sp.cps.trocabook.repository;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import br.gov.sp.cps.trocabook.model.Usuario;
 
 public class UsuarioRepository {
 
@@ -37,5 +41,52 @@ public class UsuarioRepository {
                 .addOnFailureListener(e -> {
                     callback.onError("Erro no Firestore");
                 });
+    }
+
+    public void cpfExiste(String CPF, Callback<Boolean> callback) {
+        System.out.println("CPF pesquisado: " + CPF);
+        db.collection("usuarios")
+                .whereEqualTo("cpf", CPF)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    callback.onSuccess(!queryDocumentSnapshots.isEmpty());
+                })
+                .addOnFailureListener(e -> {
+                    callback.onError("Erro no Firestore");
+                });
+    }
+
+    public void buscarUsuarios(Callback<List<Usuario>> callback) {
+
+        db.collection("usuarios")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+
+                    List<Usuario> lista = new ArrayList<>();
+
+                    snapshot.forEach(doc -> {
+
+                        Usuario usuario = doc.toObject(Usuario.class);
+
+                        usuario.setId(doc.getId());
+
+                        lista.add(usuario);
+                    });
+
+                    callback.onSuccess(lista);
+                })
+                .addOnFailureListener(e ->
+                        callback.onError("Erro ao buscar usuários"));
+    }
+
+    public void isVazio(Callback<Integer> callback){
+        db.collection("usuarios")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    callback.onSuccess(snapshot.size());
+                })
+                .addOnFailureListener(e ->
+                        callback.onError("Erro ao buscar usuários"));
+
     }
 }

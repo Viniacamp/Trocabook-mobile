@@ -37,7 +37,7 @@ public class LivroHorizontalAdapter extends RecyclerView.Adapter<LivroHorizontal
 
         Glide.with(holder.itemView.getContext())
                 .load(livro.getCapa())
-                .placeholder(R.drawable.ic_launcher_foreground)
+                .placeholder(R.drawable.placeholder_capa)
                 .into(holder.capa);
     }
 

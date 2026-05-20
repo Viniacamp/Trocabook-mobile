@@ -147,7 +147,7 @@ public class AnuncioActivity extends AppCompatActivity {
 
             Glide.with(this)
                     .load(livro.getCapa())
-                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .placeholder(R.drawable.placeholder_capa)
                     .into(capa);
         }
     }

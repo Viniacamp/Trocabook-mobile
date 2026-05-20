@@ -2,9 +2,11 @@ package br.gov.sp.cps.trocabook.repository;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import br.gov.sp.cps.trocabook.model.Anuncio;
 import br.gov.sp.cps.trocabook.model.Livro;
 
 public class AnuncioRepository {
@@ -34,5 +36,22 @@ public class AnuncioRepository {
                 })
                 .addOnFailureListener( e->
                         callback.onError("Erro ao buscar anúncios"));
+    }
+
+    public void buscarTodosOsAnuncios(Callback<List<Livro>> callback){
+        db.collection("anuncios")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Livro> lista = new ArrayList<>();
+                    snapshot.forEach(doc -> {
+                        lista.add(doc.toObject(Livro.class));
+                    });
+                    callback.onSuccess(lista);
+                })
+
+                .addOnFailureListener(e -> {
+                    callback.onError("Erro ao buscar anúncios");
+                });
+
     }
 }

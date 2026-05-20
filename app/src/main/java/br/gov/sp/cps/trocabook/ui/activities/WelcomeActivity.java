@@ -14,6 +14,7 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         authService = new AuthService(this);
         FirebaseUser usuarioAtual = authService.getUsuarioAtual();
 

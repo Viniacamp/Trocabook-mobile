@@ -2,8 +2,10 @@ package br.gov.sp.cps.trocabook.service;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.repository.UsuarioRepository;
 
 public class UsuarioService {
@@ -29,6 +31,7 @@ public class UsuarioService {
             String rg,
             String nascimento,
             String genero,
+            String foto_perfil,
             ServiceCallback<Void> callback
     ) {
 
@@ -42,14 +45,39 @@ public class UsuarioService {
             return;
         }
 
-        Map<String, Object> usuario = montarUsuario(
-                emailPrincipal, emailRec, telefone, cpf, rg, nascimento, genero
-        );
+        this.cpfExiste(cpf, new ServiceCallback<Boolean>() {
 
-        repository.salvarUsuario(userId, usuario, new UsuarioRepository.Callback<Void>() {
             @Override
-            public void onSuccess(Void resultado) {
-                callback.onSuccess(null);
+            public void onSuccess(Boolean existe) {
+
+                if (existe) {
+                    callback.onError("CPF já cadastrado");
+                    return;
+                }
+
+                Map<String, Object> usuario = montarUsuario(
+                        emailPrincipal,
+                        emailRec,
+                        telefone,
+                        cpf,
+                        rg,
+                        nascimento,
+                        genero,
+                        foto_perfil
+                );
+
+                repository.salvarUsuario(userId, usuario, new UsuarioRepository.Callback<Void>() {
+
+                    @Override
+                    public void onSuccess(Void resultado) {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+                        callback.onError(erro);
+                    }
+                });
             }
 
             @Override
@@ -67,7 +95,8 @@ public class UsuarioService {
             String cpf,
             String rg,
             String nascimento,
-            String genero
+            String genero,
+            String foto_perfil
     ) {
 
         Map<String, Object> usuario = new HashMap<>();
@@ -78,6 +107,7 @@ public class UsuarioService {
         usuario.put("rg", rg);
         usuario.put("nascimento", nascimento);
         usuario.put("genero", genero);
+        usuario.put("foto_perfil", foto_perfil);
 
         return usuario;
     }
@@ -139,6 +169,51 @@ public class UsuarioService {
                 callback.onSuccess(existe);
             }
 
+            @Override
+            public void onError(String erro) {
+                callback.onError(erro);
+            }
+        });
+    }
+
+    public void cpfExiste(String CPF, ServiceCallback<Boolean> callback) {
+        repository.cpfExiste(CPF, new UsuarioRepository.Callback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean existe) {
+                callback.onSuccess(existe);
+            }
+
+            @Override
+            public void onError(String erro) {
+                callback.onError(erro);
+            }
+        });
+
+    }
+
+    public void buscarUsuarios(ServiceCallback<List<Usuario>> callback) {
+
+        repository.buscarUsuarios(new UsuarioRepository.Callback<List<Usuario>>() {
+
+            @Override
+            public void onSuccess(List<Usuario> data) {
+                callback.onSuccess(data);
+            }
+
+            @Override
+            public void onError(String erro) {
+                callback.onError(erro);
+            }
+        });
+    }
+
+    public void isVazio(ServiceCallback<Integer> callback){
+        repository.isVazio(new UsuarioRepository.Callback<Integer>() {
+
+            @Override
+            public void onSuccess(Integer data) {
+                callback.onSuccess(data);
+            }
             @Override
             public void onError(String erro) {
                 callback.onError(erro);

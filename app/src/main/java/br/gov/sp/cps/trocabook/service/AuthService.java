@@ -83,9 +83,15 @@ public class AuthService {
                     @Override
                     public void onError(GetCredentialException e) {
                         Log.e(TAG, "Erro CredentialManager", e);
-                        activity.runOnUiThread(() ->
-                                callback.onError("Erro ao autenticar com Google: " + e.getMessage())
-                        );
+
+                        activity.runOnUiThread(() -> {
+                            // CORREÇÃO AQUI: Tratando explicitamente o NoCredentialException exigido pelo Lint
+                            if (e instanceof androidx.credentials.exceptions.NoCredentialException) {
+                                callback.onError("Nenhuma conta Google encontrada no dispositivo. Por favor, faça login com e-mail e senha.");
+                            } else {
+                                callback.onError("Erro ao autenticar com Google: " + e.getMessage());
+                            }
+                        });
                     }
                 }
         );

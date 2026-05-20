@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
@@ -13,17 +13,15 @@
         android:layout_height="100dp"
         android:src="@android:drawable/ic_dialog_info"
         android:contentDescription="Ícone Biometria"
-        android:tint="?attr/colorOnSurface" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/manrope_bold"
-        android:text="Segurança Reforçada"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
-        android:layout_marginTop="20dp"/>
+        app:tint="?attr/colorOnSurface" /> <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fontFamily="@font/manrope_bold"
+    android:text="Segurança Reforçada"
+    android:textSize="24sp"
+    android:textStyle="bold"
+    android:textColor="?attr/colorOnSurface"
+    android:layout_marginTop="20dp"/>
 
     <TextView
         android:layout_width="wrap_content"

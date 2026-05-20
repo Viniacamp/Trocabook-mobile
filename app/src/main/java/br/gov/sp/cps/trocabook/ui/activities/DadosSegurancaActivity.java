@@ -75,7 +75,7 @@ public class DadosSegurancaActivity extends AppCompatActivity {
 
         String userId = mAuth.getCurrentUser().getUid();
 
-        String emailRec = editEmailRec.getText().toString().trim();
+        String emailRec = editEmailRec.getText().toString().trim().toLowerCase(java.util.Locale.ROOT);
         String telefone = editTelefone.getText().toString().trim();
         String cpf = editCPF.getText().toString().replaceAll("[^\\d]", "");
         String rg = editRG.getText().toString().trim();

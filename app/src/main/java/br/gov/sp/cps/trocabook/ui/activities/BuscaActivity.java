@@ -145,9 +145,8 @@ public class BuscaActivity extends AppCompatActivity {
     }
 
     private void atualizarLista(List<Livro> livros) {
-        listaLivros.clear();
-        listaLivros.addAll(livros);
-        livroAdapter.notifyDataSetChanged();
+        // Deixamos o Adapter fazer o cálculo inteligente da diferença e atualizar a tela
+        livroAdapter.atualizarLista(livros);
     }
 
     @Override

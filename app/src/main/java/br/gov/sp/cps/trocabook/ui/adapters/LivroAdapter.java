@@ -59,8 +59,55 @@ public class LivroAdapter extends RecyclerView.Adapter<LivroAdapter.LivroViewHol
     }
 
     public void atualizarLista(List<Livro> novaLista) {
-        this.listaLivros = novaLista;
-        notifyDataSetChanged();
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult =
+                androidx.recyclerview.widget.DiffUtil.calculateDiff(new DiffUtilCallback(this.listaLivros, novaLista));
+
+        // Se você mudou a referência na BuscaActivity, é bom atualizar aqui também
+        this.listaLivros.clear();
+        this.listaLivros.addAll(novaLista);
+
+        // Atualiza cirurgicamente apenas o que mudou, eliminando o aviso do Lint!
+        diffResult.dispatchUpdatesTo(this);
+    }
+
+    // Adicione esta classe interna logo abaixo do método atualizarLista
+    private static class DiffUtilCallback extends androidx.recyclerview.widget.DiffUtil.Callback {
+        private final List<Livro> antigaLista;
+        private final List<Livro> novaLista;
+
+        public DiffUtilCallback(List<Livro> antigaLista, List<Livro> novaLista) {
+            this.antigaLista = antigaLista;
+            this.novaLista = novaLista;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return antigaLista.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return novaLista.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            // Se o seu modelo Livro tiver um ID único (ex: do Firestore), use ele aqui:
+            // return antigaLista.get(oldItemPosition).getId().equals(novaLista.get(newItemPosition).getId());
+
+            // Caso não tenha ID ainda, vamos comparar pelo título:
+            return antigaLista.get(oldItemPosition).getTitulo().equals(novaLista.get(newItemPosition).getTitulo());
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            Livro antigo = antigaLista.get(oldItemPosition);
+            Livro novo = novaLista.get(newItemPosition);
+
+            // Compara se o conteúdo interno mudou (título ou imagem da capa)
+            return antigo.getTitulo().equals(novo.getTitulo())
+                    && antigo.getCapa().equals(novo.getCapa());
+        }
     }
 
     static class LivroViewHolder extends RecyclerView.ViewHolder {

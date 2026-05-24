@@ -100,7 +100,9 @@ public class AnuncioManualActivity extends AppCompatActivity {
                 tela = BuscaActivity.class;
             } else if (id == R.id.menu_livros) {
                 tela = MeusLivrosActivity.class;
-            } else if (id == R.id.menu_chat || id == R.id.menu_perfil) {
+            } else if (id == R.id.menu_chat) {
+                tela = ChatActivity.class;;
+            } else if (id == R.id.menu_perfil){
                 return true;
             }
 

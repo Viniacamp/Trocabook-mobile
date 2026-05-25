@@ -36,6 +36,7 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
     private TextView textTrocas;
     private TextView textVendas;
     private TextView textNegociacoes;
+    private BottomNavigationView bottomNavigation;
 
     private RecyclerView recyclerLivros;
 
@@ -52,6 +53,7 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
 
         setContentView(R.layout.activity_tela_perfil_negociador);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -245,23 +247,48 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
     private void configurarMenu() {
 
-        BottomNavigationView bottomNavigation =
-                findViewById(R.id.bottomNavigation);
-
         bottomNavigation.setSelectedItemId(R.id.menu_home);
 
         bottomNavigation.setOnItemSelectedListener(item -> {
 
             int id = item.getItemId();
 
+            Class<?> tela = null;
+
             if (id == R.id.menu_home) {
 
-                finish();
+                tela = MainActivity.class;
+
+            } else if (id == R.id.menu_anuncio) {
+
+                tela = BuscaActivity.class;
+
+            } else if (id == R.id.menu_livros) {
+
+                tela = MeusLivrosActivity.class;
+
+            } else if (id == R.id.menu_chat) {
+
+                tela = ConversasActivity.class;
+
+            } else if (id == R.id.menu_perfil) {
 
                 return true;
             }
 
-            return false;
+            if (tela != null) {
+
+                Intent intent = new Intent(this, tela);
+
+                intent.setFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                );
+
+                startActivity(intent);
+            }
+
+            return true;
         });
     }
 }

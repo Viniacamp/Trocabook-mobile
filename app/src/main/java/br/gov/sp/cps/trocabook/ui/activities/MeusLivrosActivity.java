@@ -90,8 +90,7 @@ public class MeusLivrosActivity extends AppCompatActivity {
 
             } else if (id == R.id.menu_chat) {
 
-                // futura tela chat
-                tela = ChatActivity.class;;
+                tela = ConversasActivity.class;;
 
             } else if (id == R.id.menu_perfil) {
 

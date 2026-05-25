@@ -54,7 +54,6 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
 
         configurarMenu();
         String anuncioId = getIntent().getStringExtra("anuncioId");
-        System.out.println("ID DO ANUNCIO: " + anuncioId);
         anuncioService.buscarAnuncioPorId(anuncioId, new AnuncioService.Callback<Anuncio>() {
             @Override
             public void onSuccess(Anuncio dados) {
@@ -150,7 +149,7 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
 
             } else if (id == R.id.menu_chat) {
 
-                tela = ChatActivity.class;
+                tela = ConversasActivity.class;
 
             } else if (id == R.id.menu_perfil) {
 

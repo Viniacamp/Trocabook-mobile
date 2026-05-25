@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Trocabook">
         <activity
+            android:name=".ui.activities.ConversasActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.DetalhesAnuncioActivity"
             android:exported="false" />
         <activity

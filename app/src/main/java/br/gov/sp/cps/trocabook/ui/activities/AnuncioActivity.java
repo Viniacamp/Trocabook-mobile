@@ -81,7 +81,7 @@ public class AnuncioActivity extends AppCompatActivity {
 
             } else if (id == R.id.menu_chat) {
 
-                tela = ChatActivity.class;
+                tela = ConversasActivity.class;
 
             } else if (id == R.id.menu_perfil) {
 

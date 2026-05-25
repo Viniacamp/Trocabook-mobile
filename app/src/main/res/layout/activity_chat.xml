@@ -23,7 +23,7 @@
             android:layout_height="45dp"
             android:layout_marginStart="8dp"
             android:padding="2dp"
-            android:src="@drawable/foto_squirtle_boladao"
+            android:src="@drawable/chat_svgrepo_com"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"

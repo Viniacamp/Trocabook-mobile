@@ -89,4 +89,17 @@ public class NegociacoesService {
             }
         });
     }
+
+    public void contarTipoNegociacao(String userId, String tipoNegociacao, Callback<Integer> callback){
+        repository.contarNumeroTipoNegociacaoUsuario(userId, tipoNegociacao, new NegociacoesRepository.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer dados) {
+                callback.onSuccess(dados);
+            }
+            @Override
+            public void onError(String erro) {
+                callback.onError(erro);
+            }
+        });
+    }
 }

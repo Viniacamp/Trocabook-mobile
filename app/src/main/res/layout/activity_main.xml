@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:background="?android:attr/colorBackground"
+    android:fitsSystemWindows="true"
     tools:context=".ui.activities.MainActivity">
 
     <ScrollView
@@ -43,17 +43,16 @@
                     android:layout_marginStart="17dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginEnd="20dp"
-                    android:fontFamily="@font/manrope_regular"
                     android:background="@drawable/barra_pesquisa_background"
                     android:drawableStart="@drawable/search"
                     android:drawablePadding="8dp"
+                    android:fontFamily="@font/manrope_regular"
                     android:hint="Pesquise Aqui"
                     android:paddingStart="12dp"
                     android:textColor="?attr/colorOnSurface"
                     android:textColorHint="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/imageLogo" />
 
@@ -65,144 +64,63 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/manrope_bold"
-                android:textStyle="bold"
-                android:textSize="20sp"
                 android:text="Negociantes em Destaque:"
-                android:textColor="?attr/colorOnSurface" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            <HorizontalScrollView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerUsuarios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/foto_squirtle_boladao" />
-
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/foto_vini" />
-
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/foto_rafaela" />
-
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        app:srcCompat="@drawable/foto_pedro_lucas" />
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
+                android:layout_marginTop="12dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_usuario_home"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/manrope_bold"
                 android:text="Livros em destaque:"
-                android:fontFamily="@font/manrope_bold"
-                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
-                android:textColor="?attr/colorOnSurface" />
+                android:textStyle="bold" />
 
-            <HorizontalScrollView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerLivrosDestaque"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/capa_dracula" />
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/capa_floresta_sombria" />
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/capa_harry_potter" />
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        app:srcCompat="@drawable/capa_reflexoes" />
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
+                android:layout_marginTop="12dp"
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                tools:listitem="@layout/livro_card"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Propostas Recentes:"
+                android:layout_marginTop="20dp"
                 android:fontFamily="@font/manrope_bold"
-                android:textStyle="bold"
+                android:text="Propostas Recentes:"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
-                android:textColor="?attr/colorOnSurface" />
+                android:textStyle="bold" />
 
-            <HorizontalScrollView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerPropostas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/capa_a_era_da_ia" />
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/capa_o_pequeno_principe" />
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        android:layout_marginEnd="16dp"
-                        app:srcCompat="@drawable/capa_harry_potter" />
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        app:srcCompat="@drawable/capa_reflexoes" />
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="20dp"
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                tools:listitem="@layout/livro_card"/>
 
         </LinearLayout>
 
@@ -215,9 +133,8 @@
         android:background="?android:attr/colorBackground"
         app:itemIconTint="?attr/colorOnSurface"
         app:itemTextColor="?attr/colorOnSurface"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/menu_bottom"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/menu_bottom" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,19 +1,26 @@
 package br.gov.sp.cps.trocabook.model;
 
-public class Negociacao {
+import java.io.Serializable;
+
+import br.gov.sp.cps.trocabook.model.utils.ItemComCapa;
+
+public class Negociacao implements Serializable, ItemComCapa {
     private String id;
     private String userIdRemetente;
 
     private String userIdDestinatario;
     private String anuncioId;
 
+    private String capa;
+
     public Negociacao(){}
 
-    public Negociacao(String anuncioId, String userIdDestinatario, String userIdRemetente, String id) {
+    public Negociacao(String anuncioId, String userIdDestinatario, String userIdRemetente, String id, String capa) {
         this.anuncioId = anuncioId;
         this.userIdDestinatario = userIdDestinatario;
         this.userIdRemetente = userIdRemetente;
         this.id = id;
+        this.capa = capa;
     }
 
     public String getId() {
@@ -46,5 +53,10 @@ public class Negociacao {
 
     public void setAnuncioId(String anuncioId) {
         this.anuncioId = anuncioId;
+    }
+
+    @Override
+    public String getCapa(){
+        return this.capa;
     }
 }

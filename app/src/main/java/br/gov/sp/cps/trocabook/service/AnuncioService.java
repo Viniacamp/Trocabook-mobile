@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import br.gov.sp.cps.trocabook.model.Anuncio;
 import br.gov.sp.cps.trocabook.model.Livro;
 import br.gov.sp.cps.trocabook.repository.AnuncioRepository;
 
@@ -53,16 +54,49 @@ public class AnuncioService {
         });
     }
 
-    public void buscarAnunciosUsuario(String userId, Callback<List<Livro>> callback) {
+    public void buscarAnunciosUsuario(String userId, Callback<List<Anuncio>> callback) {
         if (userId == null) {
             callback.onError("Usuário inválido");
             return;
         }
 
-        repository.buscarAnunciosPorUsuario(userId, new AnuncioRepository.Callback<List<Livro>>() {
+        repository.buscarAnunciosPorUsuario(userId, new AnuncioRepository.Callback<List<Anuncio>>() {
             @Override
-            public void onSuccess(List<Livro> lista) {
+            public void onSuccess(List<Anuncio> lista) {
                 callback.onSuccess(lista);
+            }
+
+            @Override
+            public void onError(String erro) {
+                callback.onError(erro);
+            }
+        });
+    }
+
+    public void buscarTodosOsAnuncios(Callback<List<Anuncio>> callback){
+        repository.buscarTodosOsAnuncios(new AnuncioRepository.Callback<List<Anuncio>>() {
+            @Override
+            public void onSuccess(List<Anuncio> dados) {
+                callback.onSuccess(dados);
+            }
+
+            @Override
+            public void onError(String erro) {
+                callback.onError(erro);
+            }
+        });
+
+    }
+
+    public void buscarAnuncioPorId(String anuncioId, Callback<Anuncio> callback) {
+        if (anuncioId == null) {
+            callback.onError("Anúncio inválido");
+            return;
+        }
+        repository.buscarAnuncioPorId(anuncioId, new AnuncioRepository.Callback<Anuncio>() {
+            @Override
+            public void onSuccess(Anuncio dados) {
+                callback.onSuccess(dados);
             }
 
             @Override

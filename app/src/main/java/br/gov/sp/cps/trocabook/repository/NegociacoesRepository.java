@@ -84,5 +84,18 @@ public class NegociacoesRepository {
                 });
 
     }
+
+    public void contarNumeroTipoNegociacaoUsuario(String userId, String tipoNegociacao, Callback<Integer> callback){
+        db.collection("negociacoes")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("tipoNegociacao", tipoNegociacao)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    callback.onSuccess(snapshot.size());
+                })
+                .addOnFailureListener(e -> {
+                    callback.onError("Erro ao buscar negociações");
+                });
+    }
 }
 

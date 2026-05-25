@@ -1,6 +1,10 @@
 package br.gov.sp.cps.trocabook.model;
 
-public class Anuncio {
+import java.io.Serializable;
+
+import br.gov.sp.cps.trocabook.model.utils.ItemComCapa;
+
+public class Anuncio implements Serializable, ItemComCapa {
     private String id;
     private String userId;
     private String livroId;

@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
+import br.gov.sp.cps.trocabook.model.Anuncio;
 import br.gov.sp.cps.trocabook.model.Livro;
+import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.NegociacoesService;
@@ -32,7 +34,7 @@ public class MeusLivrosActivity extends AppCompatActivity {
     private LivroHorizontalAdapter adapterAnuncios;
     private LivroHorizontalAdapter adapterNegociados;
 
-    private List<Livro> listaAnuncios = new ArrayList<>();
+    private List<Anuncio> listaAnuncios = new ArrayList<>();
     private List<Livro> listaNegociados = new ArrayList<>();
 
     private AuthService authService;
@@ -120,8 +122,8 @@ public class MeusLivrosActivity extends AppCompatActivity {
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         );
 
-        adapterAnuncios = new LivroHorizontalAdapter(listaAnuncios);
-        adapterNegociados = new LivroHorizontalAdapter(listaNegociados);
+        adapterAnuncios = new LivroHorizontalAdapter<Anuncio>(listaAnuncios, anuncio -> {});
+        adapterNegociados = new LivroHorizontalAdapter<Livro>(listaNegociados, negociao -> {});
 
         recyclerAnuncios.setAdapter(adapterAnuncios);
         recyclerNegociados.setAdapter(adapterNegociados);
@@ -140,10 +142,10 @@ public class MeusLivrosActivity extends AppCompatActivity {
 
     private void carregarAnuncios(String userId) {
 
-        anuncioService.buscarAnunciosUsuario(userId, new AnuncioService.Callback<List<Livro>>() {
+        anuncioService.buscarAnunciosUsuario(userId, new AnuncioService.Callback<List<Anuncio>>() {
 
             @Override
-            public void onSuccess(List<Livro> lista) {
+            public void onSuccess(List<Anuncio> lista) {
 
                 listaAnuncios.clear();
                 listaAnuncios.addAll(lista);

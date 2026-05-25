@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/imgLivro"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_capa"/>
+
+        <TextView
+            android:id="@+id/textTituloLivro"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:maxLines="2"
+            android:text="Título Livro"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <ImageView
+            android:id="@+id/imgUsuario"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_usuario"/>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

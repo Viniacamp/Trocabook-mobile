@@ -1,140 +1,229 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
     android:fitsSystemWindows="true"
-    tools:context=".ui.activities.MainActivity">
+    android:layout_height="match_parent">
 
-    <ScrollView
+    <!-- CONTEÚDO PRINCIPAL -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
+        android:layout_height="match_parent"
+        android:background="?android:attr/colorBackground"
+        android:fitsSystemWindows="true"
+        tools:context=".ui.activities.MainActivity">
 
-        <LinearLayout
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- HEADER -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="118dp"
+                    android:background="@drawable/gradiente_trocabook">
+
+                    <ImageView
+                        android:id="@+id/imageLogo"
+                        android:layout_width="64dp"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="12dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/logo_branca" />
+
+                    <EditText
+                        android:id="@+id/editPesquisa"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="17dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginEnd="20dp"
+                        android:background="@drawable/barra_pesquisa_background"
+                        android:drawableStart="@drawable/search"
+                        android:drawablePadding="8dp"
+                        android:fontFamily="@font/manrope_regular"
+                        android:hint="Pesquise Aqui"
+                        android:paddingStart="12dp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textColorHint="?attr/colorOnSurfaceVariant"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/imageLogo" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- NEGOCIANTES -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/manrope_bold"
+                    android:text="Negociantes em Destaque:"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerUsuarios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    tools:listitem="@layout/item_usuario_home" />
+
+                <!-- LIVROS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/manrope_bold"
+                    android:text="Livros em destaque:"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerLivrosDestaque"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    tools:listitem="@layout/livro_card" />
+
+                <!-- PROPOSTAS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/manrope_bold"
+                    android:text="Propostas Recentes:"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerPropostas"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="20dp"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    tools:listitem="@layout/livro_card" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <!-- MENU -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="?android:attr/colorBackground"
+            app:itemIconTint="?attr/colorOnSurface"
+            app:itemTextColor="?attr/colorOnSurface"
+            app:labelVisibilityMode="labeled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/menu_bottom" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="118dp"
-                android:background="@drawable/gradiente_trocabook">
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ImageView
-                    android:id="@+id/imageLogo"
-                    android:layout_width="64dp"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="12dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/logo_branca" />
-
-                <EditText
-                    android:id="@+id/editPesquisa"
-                    android:layout_width="0dp"
-                    android:layout_height="36dp"
-                    android:layout_marginStart="17dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginEnd="20dp"
-                    android:background="@drawable/barra_pesquisa_background"
-                    android:drawableStart="@drawable/search"
-                    android:drawablePadding="8dp"
-                    android:fontFamily="@font/manrope_regular"
-                    android:hint="Pesquise Aqui"
-                    android:paddingStart="12dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textColorHint="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/imageLogo" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:fontFamily="@font/manrope_bold"
-                android:text="Negociantes em Destaque:"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerUsuarios"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_usuario_home"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:fontFamily="@font/manrope_bold"
-                android:text="Livros em destaque:"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerLivrosDestaque"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:nestedScrollingEnabled="false"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                tools:listitem="@layout/livro_card"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:fontFamily="@font/manrope_bold"
-                android:text="Propostas Recentes:"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerPropostas"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="20dp"
-                android:nestedScrollingEnabled="false"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                tools:listitem="@layout/livro_card"/>
-
-        </LinearLayout>
-
-    </ScrollView>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
+    <!-- CARD PESQUISA -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardResultadosPesquisa"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/colorBackground"
-        app:itemIconTint="?attr/colorOnSurface"
-        app:itemTextColor="?attr/colorOnSurface"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/menu_bottom" />
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="95dp"
+        android:visibility="gone"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="10dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- LISTA RESULTADOS -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerPesquisa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="350dp"
+                android:paddingVertical="8dp"
+                tools:listitem="@layout/item_resultado_busca" />
+
+            <!-- LOADING -->
+            <LinearLayout
+                android:id="@+id/layoutLoadingPesquisa"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/imgLoadingPesquisa"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_loading_ampulheta" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/manrope_regular"
+                    android:text="Buscando..."
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- SEM RESULTADOS -->
+            <LinearLayout
+                android:id="@+id/layoutSemResultados"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nenhum resultado encontrado"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:fontFamily="@font/manrope_regular"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>

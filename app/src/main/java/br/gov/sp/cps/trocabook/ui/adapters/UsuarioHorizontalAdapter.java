@@ -1,5 +1,6 @@
 package br.gov.sp.cps.trocabook.ui.adapters;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
-import java.io.File;
 import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
@@ -26,16 +26,21 @@ public class UsuarioHorizontalAdapter
         void onClick(Usuario usuario);
     }
 
-    public UsuarioHorizontalAdapter(List<Usuario> lista,
-                                    OnUsuarioClick listener) {
+    public UsuarioHorizontalAdapter(
+            List<Usuario> lista,
+            OnUsuarioClick listener
+    ) {
+
         this.lista = lista;
         this.listener = listener;
     }
 
     @NonNull
     @Override
-    public UsuarioViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                int viewType) {
+    public UsuarioViewHolder onCreateViewHolder(
+            @NonNull ViewGroup parent,
+            int viewType
+    ) {
 
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_usuario_home, parent, false);
@@ -44,28 +49,49 @@ public class UsuarioHorizontalAdapter
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UsuarioViewHolder holder, int position) {
+    public void onBindViewHolder(
+            @NonNull UsuarioViewHolder holder,
+            int position
+    ) {
 
         Usuario usuario = lista.get(position);
 
-        String nomeFoto = usuario.getFoto_perfil();
+        String caminhoImagem = usuario.getFoto_perfil();
 
-        int resId = holder.itemView.getContext()
-                .getResources()
-                .getIdentifier(
-                        nomeFoto,
-                        "drawable",
-                        holder.itemView.getContext().getPackageName()
-                );
+        if (caminhoImagem == null || caminhoImagem.isEmpty()) {
 
-        if (resId == 0) {
-            resId = R.drawable.placeholder_usuario;
+            Glide.with(holder.itemView.getContext())
+                    .load(R.drawable.placeholder_usuario)
+                    .into(holder.foto);
+
+            return;
         }
 
-        Glide.with(holder.itemView.getContext())
-                .load(resId)
-                .placeholder(R.drawable.placeholder_usuario)
-                .into(holder.foto);
+
+        if (caminhoImagem.startsWith("file")) {
+            Glide.with(holder.itemView.getContext())
+                    .load(caminhoImagem)
+                    .placeholder(R.drawable.placeholder_usuario)
+                    .error(R.drawable.placeholder_usuario)
+                    .into(holder.foto);
+        }
+        else {
+            Uri uri = Uri.parse(caminhoImagem);
+            Glide.with(holder.itemView.getContext())
+                    .load(uri)
+                    .placeholder(R.drawable.placeholder_usuario)
+                    .error(R.drawable.placeholder_usuario)
+                    .into(holder.foto);
+        }
+
+
+
+        holder.itemView.setOnClickListener(v -> {
+
+            if (listener != null) {
+                listener.onClick(usuario);
+            }
+        });
     }
 
     @Override

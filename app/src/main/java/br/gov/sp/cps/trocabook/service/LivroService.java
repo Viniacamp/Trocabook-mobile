@@ -103,4 +103,42 @@ public class LivroService {
         });
 
     }
+
+    public void salvarLivroAssets(
+            String titulo,
+            List<String> autores,
+            List<String> categorias,
+            String caminhoAsset,
+            Callback<Livro> callback
+    ) {
+
+        Livro livro = new Livro();
+
+        livro.setTitulo(titulo);
+
+        livro.setAutores(autores);
+
+        livro.setCategorias(categorias);
+
+        livro.setCapa(caminhoAsset);
+
+        repository.salvarLivro(
+                livro,
+
+                new LivroRepository.Callback<Livro>() {
+
+                    @Override
+                    public void onSucesso(Livro livro) {
+
+                        callback.onSucesso(livro);
+                    }
+
+                    @Override
+                    public void onErro(Exception e) {
+
+                        callback.onErro(e);
+                    }
+                }
+        );
+    }
 }

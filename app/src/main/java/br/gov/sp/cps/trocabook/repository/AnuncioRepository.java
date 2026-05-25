@@ -26,32 +26,77 @@ public class AnuncioRepository {
                         callback.onError("Erro ao salvar anúncio"));
     }
 
-    public void buscarAnunciosPorUsuario(String userId, Callback<List<Livro>> callback) {
+    public void buscarAnunciosPorUsuario(
+            String userId,
+            Callback<List<Anuncio>> callback
+    ) {
+
         db.collection("anuncios")
                 .whereEqualTo("userId", userId)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    List<Livro> lista = snapshot.toObjects(Livro.class);
+
+                    List<Anuncio> lista = new ArrayList<>();
+
+                    snapshot.forEach(doc -> {
+
+                        Anuncio anuncio =
+                                doc.toObject(Anuncio.class);
+
+                        anuncio.setId(doc.getId());
+
+                        lista.add(anuncio);
+                    });
+
                     callback.onSuccess(lista);
                 })
-                .addOnFailureListener( e->
+                .addOnFailureListener(e ->
                         callback.onError("Erro ao buscar anúncios"));
     }
 
-    public void buscarTodosOsAnuncios(Callback<List<Livro>> callback){
+    public void buscarTodosOsAnuncios(
+            Callback<List<Anuncio>> callback
+    ) {
+
         db.collection("anuncios")
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    List<Livro> lista = new ArrayList<>();
+
+                    List<Anuncio> lista = new ArrayList<>();
+
                     snapshot.forEach(doc -> {
-                        lista.add(doc.toObject(Livro.class));
+
+                        Anuncio anuncio =
+                                doc.toObject(Anuncio.class);
+
+                        anuncio.setId(doc.getId());
+
+                        lista.add(anuncio);
                     });
+
                     callback.onSuccess(lista);
                 })
 
                 .addOnFailureListener(e -> {
                     callback.onError("Erro ao buscar anúncios");
                 });
+    }
+
+    public void buscarAnuncioPorId(String anuncioId, Callback<Anuncio> callback) {
+        db.collection("anuncios")
+                .document(anuncioId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Anuncio anuncio = doc.toObject(Anuncio.class);
+                        anuncio.setId(doc.getId());
+                        callback.onSuccess(anuncio);
+                    } else {
+                        callback.onError("Anúncio não encontrado");
+                    }
+                })
+                .addOnFailureListener(e ->
+                        callback.onError("Erro ao buscar anúncio"));
 
     }
 }

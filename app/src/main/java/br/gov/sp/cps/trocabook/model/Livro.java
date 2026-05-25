@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Livro implements Serializable {
+import br.gov.sp.cps.trocabook.model.utils.ItemComCapa;
+
+public class Livro implements Serializable, ItemComCapa {
 
     private String id;
     private String titulo;

@@ -14,6 +14,7 @@ public class UsuarioRepository {
 
     public interface Callback<T> {
         void onSuccess(T data);
+
         void onError(String erro);
     }
 
@@ -77,6 +78,24 @@ public class UsuarioRepository {
                 })
                 .addOnFailureListener(e ->
                         callback.onError("Erro ao buscar usuários"));
+    }
+
+    public void buscarUsuarioPorId(String userId, Callback<Usuario> callback) {
+        db.collection("usuarios")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Usuario usuario = doc.toObject(Usuario.class);
+                        usuario.setId(doc.getId());
+                        callback.onSuccess(usuario);
+                    } else {
+                        callback.onError("Usuário não encontrado");
+                    }
+                })
+                .addOnFailureListener(e ->
+                        callback.onError("Erro ao buscar usuário"));
+
     }
 
     public void isVazio(Callback<Integer> callback){

@@ -220,4 +220,17 @@ public class UsuarioService {
             }
         });
     }
+
+    public void buscarUsuarioPorId(String userId, ServiceCallback<Usuario> callback) {
+        repository.buscarUsuarioPorId(userId, new UsuarioRepository.Callback<Usuario>() {
+            @Override
+            public void onSuccess(Usuario usuario) {
+                callback.onSuccess(usuario);
+            }
+            @Override
+            public void onError(String erro) {
+                callback.onError(erro);
+            }
+        });
+    }
 }

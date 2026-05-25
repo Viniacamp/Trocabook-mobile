@@ -10,7 +10,6 @@
     android:background="?android:attr/colorBackground"
     tools:context=".ui.activities.AnuncioActivity">
 
-    <!-- CONTEÚDO ROLÁVEL -->
     <ScrollView
         android:layout_margin="20dp"
         android:layout_width="match_parent"
@@ -25,10 +24,12 @@
             <ImageView
                 android:id="@+id/imgCapa"
                 android:layout_width="150dp"
-                android:layout_height="200dp"
+                android:layout_height="220dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="20dp"/>
+                android:layout_marginBottom="20dp"
+                android:scaleType="centerCrop"
+                android:background="?attr/colorSurfaceVariant"/>
 
             <TextView
                 android:id="@+id/txtTitulo"
@@ -36,11 +37,12 @@
                 android:layout_height="wrap_content"
                 android:background="?attr/colorSurfaceVariant"
                 android:layout_marginBottom="10dp"
-                android:text="Título"
+                android:text="Título do Livro"
+                android:fontFamily="@font/manrope_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"
-                android:padding="8dp"/>
+                android:padding="12dp"/>
 
             <TextView
                 android:id="@+id/txtAutores"
@@ -49,8 +51,9 @@
                 android:background="?attr/colorSurfaceVariant"
                 android:layout_marginBottom="10dp"
                 android:text="Autores"
+                android:fontFamily="@font/manrope_medium"
                 android:textColor="?attr/colorOnSurface"
-                android:padding="8dp"/>
+                android:padding="12dp"/>
 
             <TextView
                 android:id="@+id/txtCategorias"
@@ -58,52 +61,73 @@
                 android:layout_height="wrap_content"
                 android:background="?attr/colorSurfaceVariant"
                 android:layout_marginBottom="10dp"
-                android:padding="8dp"
+                android:padding="12dp"
                 android:text="Categorias"
+                android:fontFamily="@font/manrope_medium"
                 android:textColor="?attr/colorOnSurface" />
 
-            <EditText
-                android:id="@+id/txtDescricao"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:ems="10"
-                android:gravity="start|top"
-                android:inputType="textMultiLine"
-                android:textColor="?attr/colorOnSurface"
-                android:textColorHint="?attr/colorOnSurfaceVariant"
-                android:hint="Descrição (opcional)"/>
+                android:hint="Descrição (opcional)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtDescricao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|top"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:fontFamily="@font/manrope_regular"
+                    android:textColor="?attr/colorOnSurface" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status do anúncio:"
+                android:fontFamily="@font/manrope_bold"
+                android:layout_marginTop="8dp"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <Spinner
                 android:id="@+id/spinnerStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp" />
 
             <Button
                 android:id="@+id/btnAnunciar"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="24dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Anunciar" />
+                android:layout_height="56dp"
+                android:fontFamily="@font/manrope_bold"
+                android:text="PUBLICAR ANÚNCIO"
+                app:backgroundTint="?attr/colorPrimary"
+                android:textColor="?attr/colorOnPrimary" />
 
             <Button
                 android:id="@+id/btnVoltar"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Voltar ou Anunciar outro Livro"/>
+                android:fontFamily="@font/manrope_semibold"
+                android:text="Voltar"/>
 
         </LinearLayout>
 
     </ScrollView>
 
-    <!-- MENU INFERIOR FIXO -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
-        app:itemIconTint="?attr/colorOnSurface"
-        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="?attr/colorOnSurfaceVariant"
+        app:itemTextColor="?attr/colorOnSurfaceVariant"
+        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_bottom"/>
 

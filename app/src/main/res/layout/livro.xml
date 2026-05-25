@@ -17,6 +17,7 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:fontFamily="@font/manrope_regular"
         android:maxLines="2"
         android:ellipsize="end"/>
 </LinearLayout>

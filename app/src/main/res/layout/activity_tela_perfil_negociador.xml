@@ -33,12 +33,15 @@
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imagePerfil"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/placeholder_usuario" />
+                    android:src="@drawable/placeholder_usuario"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="?attr/colorPrimary"/>
 
                 <TextView
                     android:id="@+id/textNome"
@@ -46,6 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="Nome do Negociador(a):"
+                    android:fontFamily="@font/manrope_bold"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -56,8 +60,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="Trocas realizadas: 0"
+                    android:fontFamily="@font/manrope_medium"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/textVendas"
@@ -65,8 +70,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Vendas realizadas: 0"
+                    android:fontFamily="@font/manrope_medium"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/textNegociacoes"
@@ -74,8 +80,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Total de negociações: 0"
+                    android:fontFamily="@font/manrope_medium"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
@@ -84,21 +91,23 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Livros Disponíveis"
+                    android:fontFamily="@font/manrope_bold"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="26sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerLivros"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="24dp"
                     tools:listitem="@layout/livro_card" />
 
             </LinearLayout>
@@ -112,8 +121,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
-        app:itemIconTint="?attr/colorOnSurface"
-        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="?attr/colorOnSurfaceVariant"
+        app:itemTextColor="?attr/colorOnSurfaceVariant"
+        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/menu_bottom" />

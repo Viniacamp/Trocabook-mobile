@@ -36,6 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Nome"
+                android:fontFamily="@font/manrope_regular"
                 android:textColor="?attr/colorOnSurface"
                 android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -52,6 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Sobrenome"
+                android:fontFamily="@font/manrope_regular"
                 android:textColor="?attr/colorOnSurface"
                 android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -68,6 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="E-mail"
+                android:fontFamily="@font/manrope_regular"
                 android:textColor="?attr/colorOnSurface"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -85,6 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Senha"
+                android:fontFamily="@font/manrope_regular"
                 android:textColor="?attr/colorOnSurface"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -102,6 +106,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Confirmar senha"
+                android:fontFamily="@font/manrope_regular"
                 android:textColor="?attr/colorOnSurface"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -111,9 +116,9 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="PRÓXIMA"
+            android:fontFamily="@font/manrope_bold"
             app:backgroundTint="?attr/colorPrimary"
-            android:textColor="?attr/colorOnPrimary"
-            android:layout_marginTop="8dp" />
+            android:textColor="?attr/colorOnPrimary" />
 
         <Button
             android:id="@+id/btnVoltarCadastro"
@@ -121,6 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/manrope_semibold"
             android:text="Voltar" />
 
     </LinearLayout>

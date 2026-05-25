@@ -7,6 +7,7 @@
     android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.activities.DetalhesAnuncioActivity">
 
     <ScrollView
@@ -30,9 +31,10 @@
                 <!-- CAPA -->
                 <ImageView
                     android:id="@+id/imageCapa"
-                    android:layout_width="170dp"
-                    android:layout_height="250dp"
+                    android:layout_width="150dp"
+                    android:layout_height="220dp"
                     android:scaleType="centerCrop"
+                    android:background="?attr/colorSurfaceVariant"
                     android:src="@drawable/placeholder_capa" />
 
                 <!-- INFORMAÇÕES -->
@@ -48,44 +50,46 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Livro"
+                        android:fontFamily="@font/manrope_bold"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="28sp"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/textTipoNegociacao"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="8dp"
                         android:text="Tipo: TROCA"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="18sp" />
+                        android:fontFamily="@font/manrope_medium"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="16sp" />
 
                     <!-- USUÁRIO -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginTop="20dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/imageUsuario"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:clipToOutline="true"
-                            android:background="@android:color/transparent"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/placeholder_usuario" />
+                            android:src="@drawable/placeholder_usuario"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"/>
 
                         <TextView
                             android:id="@+id/textUsuario"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="10dp"
                             android:text="Negociante"
+                            android:fontFamily="@font/manrope_semibold"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <!-- BOTÃO -->
@@ -93,10 +97,11 @@
                         android:id="@+id/buttonNegociar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="28dp"
+                        android:layout_marginTop="24dp"
                         android:text="Negociar"
+                        android:fontFamily="@font/manrope_bold"
                         android:textAllCaps="false"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                 </LinearLayout>
 
@@ -106,21 +111,23 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="32dp"
                 android:text="Descrição"
+                android:fontFamily="@font/manrope_bold"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="28sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textDescricao"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:lineSpacingExtra="4dp"
                 android:text="Descrição do livro..."
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp" />
+                android:fontFamily="@font/manrope_regular"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -131,8 +138,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"
-        app:itemIconTint="?attr/colorOnSurface"
-        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="?attr/colorOnSurfaceVariant"
+        app:itemTextColor="?attr/colorOnSurfaceVariant"
+        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/menu_bottom" />

@@ -31,6 +31,7 @@
                 android:text="Criar anúncio"
                 android:textSize="28sp"
                 android:textStyle="bold"
+                android:fontFamily="@font/manrope_bold"
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="24dp" />
@@ -47,6 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Título do livro"
+                    android:fontFamily="@font/manrope_regular"
                     android:textColor="?attr/colorOnSurface"
                     android:padding="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -61,6 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Autores"
+                    android:fontFamily="@font/manrope_regular"
                     android:textColor="?attr/colorOnSurface"
                     android:padding="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -77,6 +80,7 @@
                     android:hint="Categorias"
                     android:focusable="false"
                     android:clickable="true"
+                    android:fontFamily="@font/manrope_regular"
                     android:textColor="?attr/colorOnSurface"
                     android:padding="16dp"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -92,6 +96,7 @@
                     android:layout_height="140dp"
                     android:gravity="top"
                     android:hint="Descrição do anúncio"
+                    android:fontFamily="@font/manrope_regular"
                     android:textColor="?attr/colorOnSurface"
                     android:inputType="textMultiLine"
                     android:padding="16dp"/>
@@ -132,6 +137,7 @@
                     android:layout_marginTop="8dp"
                     android:text="Selecione uma imagem da capa"
                     android:textSize="14sp"
+                    android:fontFamily="@font/manrope_regular"
                     android:textColor="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
 
@@ -143,6 +149,7 @@
                 android:background="@drawable/gradiente_trocabook"
                 android:text="Anunciar"
                 android:textAllCaps="false"
+                android:fontFamily="@font/manrope_bold"
                 app:backgroundTint="@null"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"/>

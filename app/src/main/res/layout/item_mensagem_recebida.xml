@@ -13,6 +13,7 @@
         android:background="@drawable/bg_mensagem_recebida"
         android:padding="12dp"
         android:text="Mensagem"
+        android:fontFamily="@font/manrope_regular"
         android:textColor="@android:color/black"
-        android:textSize="16sp"/>
+        android:textSize="14sp"/>
 </LinearLayout>

@@ -28,14 +28,16 @@
     <Button
         android:id="@+id/btnIrLogin"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
+        android:fontFamily="@font/manrope_bold"
         android:text="Entrar" />
 
     <Button
         android:id="@+id/btnIrCadastro"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
+        android:fontFamily="@font/manrope_bold"
         android:text="Criar Conta"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="12dp" />
 
 </LinearLayout>

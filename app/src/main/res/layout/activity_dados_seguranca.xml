@@ -37,6 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Telefone"
+                android:fontFamily="@font/manrope_regular"
                 android:inputType="phone"
                 android:maxLength="15"
                 android:textColor="?attr/colorOnSurface"/>
@@ -54,6 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email de recuperação"
+                android:fontFamily="@font/manrope_regular"
                 android:inputType="textEmailAddress"
                 android:textColor="?attr/colorOnSurface"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -72,6 +74,7 @@
                 android:hint="Data de nascimento"
                 android:focusable="false"
                 android:clickable="true"
+                android:fontFamily="@font/manrope_regular"
                 android:inputType="none"
                 android:textColor="?attr/colorOnSurface"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -81,6 +84,7 @@
             android:layout_height="wrap_content"
             android:text="Gênero"
             android:textStyle="bold"
+            android:fontFamily="@font/manrope_bold"
             android:textColor="?attr/colorOnSurface"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"/>
@@ -91,9 +95,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="16dp">
-            <RadioButton android:id="@+id/radioMasculino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masculino" android:textColor="?attr/colorOnSurface"/>
-            <RadioButton android:id="@+id/radioFeminino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Feminino" android:textColor="?attr/colorOnSurface"/>
-            <RadioButton android:id="@+id/radioOutro" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Outro" android:textColor="?attr/colorOnSurface"/>
+            <RadioButton android:id="@+id/radioMasculino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masculino" android:fontFamily="@font/manrope_medium" android:textColor="?attr/colorOnSurface"/>
+            <RadioButton android:id="@+id/radioFeminino" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Feminino" android:fontFamily="@font/manrope_medium" android:textColor="?attr/colorOnSurface"/>
+            <RadioButton android:id="@+id/radioOutro" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Outro" android:fontFamily="@font/manrope_medium" android:textColor="?attr/colorOnSurface"/>
         </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -108,6 +112,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="CPF"
+                android:fontFamily="@font/manrope_regular"
                 android:inputType="number"
                 android:maxLength="14"
                 android:textColor="?attr/colorOnSurface"/>
@@ -124,6 +129,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="RG"
+                android:fontFamily="@font/manrope_regular"
                 android:inputType="number"
                 android:maxLength="12"
                 android:textColor="?attr/colorOnSurface"/>
@@ -134,6 +140,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Enviar Código de Verificação"
+            android:fontFamily="@font/manrope_bold"
             app:backgroundTint="?attr/colorPrimary"
             android:textColor="?attr/colorOnPrimary"
             android:layout_marginBottom="8dp"/>
@@ -143,6 +150,7 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/manrope_semibold"
             android:text="Voltar"/>
     </LinearLayout>
 </ScrollView>

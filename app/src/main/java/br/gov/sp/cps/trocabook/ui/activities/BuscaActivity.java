@@ -18,15 +18,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Livro;
+import br.gov.sp.cps.trocabook.model.dto.LivroBuscaOutput;
+import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.LivroService;
-import br.gov.sp.cps.trocabook.ui.adapters.LivroAdapter;
+import br.gov.sp.cps.trocabook.ui.adapters.LivroBuscaAdapter;
 
 public class BuscaActivity extends AppCompatActivity {
 
@@ -38,20 +39,17 @@ public class BuscaActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewLivros;
 
-    private LivroAdapter livroAdapter;
+    private LivroBuscaAdapter livroBuscaAdapter;
 
-    private List<Livro> listaLivros = new ArrayList<>();
+    private List<LivroBuscaOutput> listaLivros = new ArrayList<>();
 
     private AuthService authService;
-
     private LivroService livroService;
 
     private BottomNavigationView bottomNavigation;
 
     private CardView layoutLoading;
-
     private ImageView imgLoading;
-
     private Animation animacaoLoading;
 
     @Override
@@ -60,10 +58,10 @@ public class BuscaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_busca_livro);
+
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
         authService = new AuthService(this);
-
         livroService = new LivroService();
 
         if (authService.getUsuarioAtual() == null) {
@@ -72,11 +70,8 @@ public class BuscaActivity extends AppCompatActivity {
         }
 
         inicializarComponentes();
-
         configurarMenu();
-
         configurarRecycler();
-
         configurarEventos();
     }
 
@@ -97,8 +92,6 @@ public class BuscaActivity extends AppCompatActivity {
         recyclerViewLivros =
                 findViewById(R.id.recyclerViewLivros);
 
-
-
         layoutLoading =
                 findViewById(R.id.layoutLoading);
 
@@ -118,30 +111,76 @@ public class BuscaActivity extends AppCompatActivity {
                 new LinearLayoutManager(this)
         );
 
-        livroAdapter = new LivroAdapter(
+        livroBuscaAdapter = new LivroBuscaAdapter(
                 listaLivros,
-                livro -> {
-
-                    Intent intent = new Intent(
-                            BuscaActivity.this,
-                            AnuncioActivity.class
-                    );
-
-                    intent.putExtra(
-                            "livro",
-                            (Serializable) livro
-                    );
-
-                    startActivity(intent);
-                }
+                this::selecionarLivro
         );
 
-        recyclerViewLivros.setAdapter(livroAdapter);
+        recyclerViewLivros.setAdapter(livroBuscaAdapter);
+    }
+
+    private void selecionarLivro(LivroBuscaOutput livroOutput) {
+
+        if (livroOutput == null) {
+            return;
+        }
+
+        mostrarLoading();
+
+
+        livroService.cadastrarLivroGoogleBooks(
+                livroOutput,
+                new LivroService.Callback<Livro>() {
+
+                    @Override
+                    public void onSucesso(Livro livro) {
+
+                        runOnUiThread(() -> {
+
+                            esconderLoading();
+
+                            abrirAnuncioActivity(livro);
+                        });
+                    }
+
+                    @Override
+                    public void onErro(Exception e) {
+
+                        runOnUiThread(() -> {
+
+                            esconderLoading();
+
+                            Log.e(
+                                    "BUSCA",
+                                    "Erro ao cadastrar livro",
+                                    e
+                            );
+                        });
+                    }
+                }
+        );
+    }
+
+    private void abrirAnuncioActivity(Livro livro) {
+
+        Intent intent = new Intent(
+                BuscaActivity.this,
+                AnuncioActivity.class
+        );
+
+        intent.putExtra(
+                "livro",
+                livro
+        );
+
+        startActivity(intent);
     }
 
     private void configurarEventos() {
 
-        btnBuscar.setOnClickListener(v -> buscarLivro());
+        btnBuscar.setOnClickListener(
+                v -> buscarLivro()
+        );
 
         btnAnunciarManualmente.setOnClickListener(v -> {
 
@@ -178,10 +217,11 @@ public class BuscaActivity extends AppCompatActivity {
 
         livroService.buscarLivros(
                 titulo,
-                new LivroService.Callback<List<Livro>>() {
+                new LivroService.Callback<List<LivroBuscaOutput>>() {
 
                     @Override
-                    public void onSucesso(List<Livro> livros) {
+                    public void onSucesso(
+                            List<LivroBuscaOutput> livros) {
 
                         runOnUiThread(() -> {
 
@@ -209,21 +249,28 @@ public class BuscaActivity extends AppCompatActivity {
         );
     }
 
-    private void atualizarLista(List<Livro> livros) {
+    private void atualizarLista(
+            List<LivroBuscaOutput> livros) {
 
-        livroAdapter.atualizarLista(livros);
+        livroBuscaAdapter.atualizarLista(livros);
     }
 
     private void mostrarLoading() {
 
-        layoutLoading.setVisibility(View.VISIBLE);
+        layoutLoading.setVisibility(
+                View.VISIBLE
+        );
 
-        imgLoading.startAnimation(animacaoLoading);
+        imgLoading.startAnimation(
+                animacaoLoading
+        );
     }
 
     private void esconderLoading() {
 
-        layoutLoading.setVisibility(View.GONE);
+        layoutLoading.setVisibility(
+                View.GONE
+        );
 
         imgLoading.clearAnimation();
     }

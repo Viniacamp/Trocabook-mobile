@@ -21,6 +21,7 @@ import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
+import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
@@ -47,28 +48,31 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         EdgeToEdge.enable(this);
 
         setContentView(R.layout.activity_tela_perfil_negociador);
+
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
+        ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.main),
+                (v, insets) -> {
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+                    Insets systemBars =
+                            insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(
+                            systemBars.left,
+                            systemBars.top,
+                            systemBars.right,
+                            systemBars.bottom
+                    );
 
-            v.setPadding(
-                    systemBars.left,
-                    systemBars.top,
-                    systemBars.right,
-                    systemBars.bottom
-            );
-
-            return insets;
-        });
+                    return insets;
+                }
+        );
 
         inicializarViews();
 
@@ -76,7 +80,9 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
         negociacoesService = new NegociacoesService();
         anuncioService = new AnuncioService();
         authService = new AuthService(this);
+
         FirebaseUser user = authService.getUsuarioAtual();
+
         if (user == null) {
             finish();
             return;
@@ -84,12 +90,14 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
         String userId = getIntent().getStringExtra("userId");
 
+        if (userId == null || userId.trim().isEmpty()) {
+            finish();
+            return;
+        }
+
         carregarUsuario(userId);
-
         carregarLivros(userId);
-
         carregarTrocas(userId);
-
         carregarVendas(userId);
 
         configurarMenu();
@@ -122,22 +130,26 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
                 new UsuarioService.ServiceCallback<Usuario>() {
 
                     @Override
-                    public void onSuccess(Usuario usuario) {
+                    public void onSucesso(Usuario usuario) {
+
+                        if (usuario == null) {
+                            return;
+                        }
 
                         textNome.setText(
                                 "Email do Negociador(a): "
-                                        + usuario.getEmail_principal()
+                                        + usuario.getEmailPrincipal()
                         );
 
                         Glide.with(TelaPerfilNegociadorActivity.this)
-                                .load(usuario.getFoto_perfil())
+                                .load(usuario.getFotoPerfil())
                                 .placeholder(R.drawable.placeholder_usuario)
                                 .into(imagePerfil);
                     }
 
                     @Override
-                    public void onError(String erro) {
-
+                    public void onErro(String erro) {
+                        // Não interrompe a visualização do perfil.
                     }
                 }
         );
@@ -153,20 +165,35 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(List<Anuncio> dados) {
 
+                        if (dados == null) {
+                            return;
+                        }
+
                         LivroHorizontalAdapter<Anuncio> adapter =
-                                new LivroHorizontalAdapter<>(dados, anuncio ->{
-                                    Intent intent = new Intent(TelaPerfilNegociadorActivity.this, DetalhesAnuncioActivity.class);
-                                    intent.putExtra("anuncioId", anuncio.getId());
-                                    startActivity(intent);
-                                    finish();
-                                });
+                                new LivroHorizontalAdapter<>(
+                                        dados,
+                                        anuncio -> {
+
+                                            Intent intent = new Intent(
+                                                    TelaPerfilNegociadorActivity.this,
+                                                    DetalhesAnuncioActivity.class
+                                            );
+
+                                            intent.putExtra(
+                                                    "anuncioId",
+                                                    anuncio.getId()
+                                            );
+
+                                            startActivity(intent);
+                                        }
+                                );
 
                         recyclerLivros.setAdapter(adapter);
                     }
 
                     @Override
                     public void onError(String erro) {
-
+                        // Não interrompe a visualização do perfil.
                     }
                 }
         );
@@ -174,17 +201,19 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
     private void carregarTrocas(String userId) {
 
-        negociacoesService.contarTipoNegociacao(
+        negociacoesService.contarNegociacoesPorUsuarioETipo(
                 userId,
-                "TROCA",
+                Negociacao.TipoNegociacao.TROCA,
 
-                new NegociacoesService.Callback<Integer>() {
+                new NegociacoesService.Callback<Long>() {
 
                     @Override
-                    public void onSuccess(Integer dados) {
+                    public void onSuccess(Long dados) {
+
+                        long totalTrocas = dados != null ? dados : 0;
 
                         textTrocas.setText(
-                                "Trocas realizadas: " + dados
+                                "Trocas realizadas: " + totalTrocas
                         );
 
                         atualizarTotal();
@@ -192,7 +221,7 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String erro) {
-
+                        // Mantém o valor padrão.
                     }
                 }
         );
@@ -200,17 +229,19 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
     private void carregarVendas(String userId) {
 
-        negociacoesService.contarTipoNegociacao(
+        negociacoesService.contarNegociacoesPorUsuarioETipo(
                 userId,
-                "VENDA",
+                Negociacao.TipoNegociacao.VENDA,
 
-                new NegociacoesService.Callback<Integer>() {
+                new NegociacoesService.Callback<Long>() {
 
                     @Override
-                    public void onSuccess(Integer dados) {
+                    public void onSuccess(Long dados) {
+
+                        long totalVendas = dados != null ? dados : 0;
 
                         textVendas.setText(
-                                "Vendas realizadas: " + dados
+                                "Vendas realizadas: " + totalVendas
                         );
 
                         atualizarTotal();
@@ -218,7 +249,7 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String erro) {
-
+                        // Mantém o valor padrão.
                     }
                 }
         );
@@ -227,16 +258,21 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
     private void atualizarTotal() {
 
         String trocasTexto = textTrocas.getText().toString();
-
         String vendasTexto = textVendas.getText().toString();
 
-        int trocas = Integer.parseInt(
-                trocasTexto.replaceAll("\\D+", "")
-        );
+        String trocasNumeros =
+                trocasTexto.replaceAll("\\D+", "");
 
-        int vendas = Integer.parseInt(
-                vendasTexto.replaceAll("\\D+", "")
-        );
+        String vendasNumeros =
+                vendasTexto.replaceAll("\\D+", "");
+
+        int trocas = trocasNumeros.isEmpty()
+                ? 0
+                : Integer.parseInt(trocasNumeros);
+
+        int vendas = vendasNumeros.isEmpty()
+                ? 0
+                : Integer.parseInt(vendasNumeros);
 
         int total = trocas + vendas;
 

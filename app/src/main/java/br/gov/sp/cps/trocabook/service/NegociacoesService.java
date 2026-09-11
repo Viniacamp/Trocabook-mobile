@@ -232,4 +232,18 @@ public class NegociacoesService {
                 }
         );
     }
+
+    public void buscarTodos(Callback<List<Negociacao>> callback){
+        negociacaoRepository.buscarTodos(new NegociacaoRepository.Callback<List<Negociacao>>() {
+            @Override
+            public void onSucesso(List<Negociacao> dados) {
+                callback.onSuccess(dados);
+            }
+
+            @Override
+            public void onErro(Exception e) {
+                callback.onError(e.getMessage());
+            }
+        });
+    }
 }

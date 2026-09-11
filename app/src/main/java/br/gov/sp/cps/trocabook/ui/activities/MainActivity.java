@@ -10,7 +10,6 @@ import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,7 +21,7 @@ import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
-import br.gov.sp.cps.trocabook.model.Livro;
+import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
@@ -38,34 +37,26 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigation;
 
     private RecyclerView recyclerUsuarios;
-
     private RecyclerView recyclerLivrosDestaque;
-
     private RecyclerView recyclerPropostas;
-
     private RecyclerView recyclerResultadosBusca;
 
-    private CardView cardResultadosPesquisa;
-
+    private View cardResultadosPesquisa;
     private View layoutLoading;
-
     private View layoutSemResultados;
 
     private ImageView imgLoading;
-
     private EditText editPesquisa;
 
     private UsuarioService usuarioService;
-
     private AnuncioService anuncioService;
-
     private NegociacoesService negociacoesService;
-
     private AuthService authService;
 
     private ResultadoBuscaAdapter resultadoBuscaAdapter;
 
-    private List<Anuncio> listaResultados;
+    private final List<Anuncio> listaResultados =
+            new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,34 +67,49 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        bottomNavigation =
-                findViewById(R.id.bottomNavigation);
-
         iniciarComponentes();
 
-        FirebaseUser user =
+        FirebaseUser usuarioAtual =
                 authService.getUsuarioAtual();
 
-        if (user == null) {
-
+        if (usuarioAtual == null) {
             finish();
-
             return;
         }
 
         configurarRecyclerViews();
-
+        configurarPesquisa();
         configurarBottomNavigation();
 
-        configurarPesquisa();
-
         PopularBancoService popularBancoService =
-                new PopularBancoService();
+                new PopularBancoService(this);
 
         mostrarLoading(true);
 
         popularBancoService.iniciarBanco(
-                this::carregarDados
+                new PopularBancoService.Callback() {
+
+                    @Override
+                    public void onComplete() {
+                        android.util.Log.d(
+                                "HOME_DEBUG",
+                                ">>> PopularBancoService terminou"
+                        );
+                        carregarDados();
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+                        android.util.Log.e(
+                                "HOME_DEBUG",
+                                ">>> PopularBancoService ERRO: " + erro
+                        );
+
+                        runOnUiThread(() ->
+                                mostrarLoading(false)
+                        );
+                    }
+                }
         );
     }
 
@@ -120,6 +126,9 @@ public class MainActivity extends AppCompatActivity {
 
         authService =
                 new AuthService(this);
+
+        bottomNavigation =
+                findViewById(R.id.bottomNavigation);
 
         recyclerUsuarios =
                 findViewById(R.id.recyclerUsuarios);
@@ -147,9 +156,6 @@ public class MainActivity extends AppCompatActivity {
 
         editPesquisa =
                 findViewById(R.id.editPesquisa);
-
-        listaResultados =
-                new ArrayList<>();
     }
 
     private void configurarRecyclerViews() {
@@ -217,9 +223,7 @@ public class MainActivity extends AppCompatActivity {
                             CharSequence s,
                             int start,
                             int count,
-                            int after
-                    ) {
-
+                            int after) {
                     }
 
                     @Override
@@ -227,8 +231,7 @@ public class MainActivity extends AppCompatActivity {
                             CharSequence s,
                             int start,
                             int before,
-                            int count
-                    ) {
+                            int count) {
 
                         String texto =
                                 s.toString().trim();
@@ -251,26 +254,14 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void afterTextChanged(
-                            android.text.Editable s
-                    ) {
-
-                    }
-                }
-        );
-
-        editPesquisa.setOnFocusChangeListener(
-                (v, hasFocus) -> {
-
-                    if (!hasFocus) {
-
-                        cardResultadosPesquisa
-                                .setVisibility(View.GONE);
+                            android.text.Editable s) {
                     }
                 }
         );
     }
 
-    private void buscarAnuncios(String texto) {
+    private void buscarAnuncios(
+            String texto) {
 
         cardResultadosPesquisa
                 .setVisibility(View.VISIBLE);
@@ -288,22 +279,33 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onSuccess(
-                            List<Anuncio> dados
-                    ) {
+                            List<Anuncio> dados) {
 
                         runOnUiThread(() -> {
 
                             listaResultados.clear();
 
-                            for (Anuncio anuncio : dados) {
+                            if (dados != null) {
 
-                                if (anuncio.getTitulo()
-                                        .toLowerCase()
-                                        .contains(
-                                                texto.toLowerCase()
-                                        )) {
+                                String textoBusca =
+                                        texto.toLowerCase();
 
-                                    listaResultados.add(anuncio);
+                                for (Anuncio anuncio : dados) {
+                                    android.util.Log.d(
+                                            "HOME_CAPA",
+                                            "Título: " + anuncio.getTitulo()
+                                                    + " | Capa: " + anuncio.getCapa()
+                                    );
+
+                                    if (anuncio.getTitulo() != null
+                                            && anuncio.getTitulo()
+                                            .toLowerCase()
+                                            .contains(textoBusca)) {
+
+                                        listaResultados.add(
+                                                anuncio
+                                        );
+                                    }
                                 }
                             }
 
@@ -326,7 +328,8 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(String mensagem) {
+                    public void onError(
+                            String erro) {
 
                         runOnUiThread(() -> {
 
@@ -341,27 +344,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void carregarDados() {
+        android.util.Log.d(
+                "HOME_DEBUG",
+                ">>> carregarDados() foi chamado"
+        );
+
+        carregarUsuarios();
+
+        carregarAnuncios();
+
+        carregarNegociacoes();
+    }
+
+    private void carregarUsuarios() {
 
         usuarioService.buscarUsuarios(
                 new UsuarioService.ServiceCallback<List<Usuario>>() {
 
                     @Override
-                    public void onSuccess(List<Usuario> data) {
+                    public void onSucesso(
+                            List<Usuario> dados) {
 
                         runOnUiThread(() -> {
 
+                            if (dados == null) {
+                                return;
+                            }
+
                             UsuarioHorizontalAdapter adapter =
                                     new UsuarioHorizontalAdapter(
-                                            data,
+                                            dados,
                                             usuario -> {
+
+                                                FirebaseUser usuarioAtual =
+                                                        authService
+                                                                .getUsuarioAtual();
+
+                                                if (usuarioAtual == null) {
+                                                    return;
+                                                }
 
                                                 Intent intent;
 
-                                                if (usuario.getId().equals(
-                                                        authService
-                                                                .getUsuarioAtual()
-                                                                .getUid()
-                                                )) {
+                                                if (usuario.getId()
+                                                        .equals(
+                                                                usuarioAtual
+                                                                        .getUid()
+                                                        )) {
 
                                                     intent =
                                                             new Intent(
@@ -393,25 +422,55 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(String erro) {
-
+                    public void onErro(
+                            String erro) {
                     }
                 }
         );
+    }
+
+    private void carregarAnuncios() {
+        android.util.Log.d(
+                "HOME_DEBUG",
+                ">>> carregarAnuncios() foi chamado"
+        );
+
 
         anuncioService.buscarTodosOsAnuncios(
                 new AnuncioService.Callback<List<Anuncio>>() {
 
+
                     @Override
                     public void onSuccess(
-                            List<Anuncio> dados
-                    ) {
+                            List<Anuncio> dados) {
+                        android.util.Log.d(
+                                "HOME_DEBUG",
+                                ">>> buscarTodosOsAnuncios SUCCESS. Quantidade: "
+                                        + (dados == null ? "null" : dados.size())
+                        );
+
+
+                        if (dados != null) {
+                            for (Anuncio anuncio : dados) {
+                                android.util.Log.d(
+                                        "HOME_CAPA",
+                                        "Título: " + anuncio.getTitulo()
+                                                + " | Capa: " + anuncio.getCapa()
+                                );
+                            }
+                        }
+
+
+                        final List<Anuncio> anuncios =
+                                dados != null
+                                        ? dados
+                                        : new ArrayList<>();
 
                         runOnUiThread(() -> {
 
                             LivroHorizontalAdapter<Anuncio> adapter =
                                     new LivroHorizontalAdapter<>(
-                                            dados,
+                                            anuncios,
                                             anuncio -> {
 
                                                 Intent intent =
@@ -437,7 +496,12 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(String mensagem) {
+                    public void onError(
+                            String erro) {
+                        android.util.Log.e(
+                                "HOME_DEBUG",
+                                ">>> ERRO ao carregar anúncios: " + erro
+                        );
 
                         runOnUiThread(() ->
                                 mostrarLoading(false)
@@ -445,19 +509,30 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
 
-        negociacoesService.buscarTodasNegociacoes(
-                new NegociacoesService.Callback<List<Livro>>() {
+    private void carregarNegociacoes() {
+
+        negociacoesService.buscarTodos(
+                new NegociacoesService.Callback<List<Negociacao>>() {
 
                     @Override
-                    public void onSuccess(List<Livro> dados) {
+                    public void onSuccess(
+                            List<Negociacao> dados) {
+
+                        final List<Negociacao> negociacoes =
+                                dados != null
+                                        ? dados
+                                        : new ArrayList<>();
 
                         runOnUiThread(() -> {
 
-                            LivroHorizontalAdapter<Livro> adapter =
+                            LivroHorizontalAdapter<Negociacao> adapter =
                                     new LivroHorizontalAdapter<>(
-                                            dados,
-                                            livro -> {}
+                                            negociacoes,
+                                            negociacao -> {
+                                                // Ação ao clicar na proposta
+                                            }
                                     );
 
                             recyclerPropostas
@@ -466,14 +541,15 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(String erro) {
-
+                    public void onError(
+                            String erro) {
                     }
                 }
         );
     }
 
-    private void mostrarLoading(boolean mostrar) {
+    private void mostrarLoading(
+            boolean mostrar) {
 
         if (mostrar) {
 
@@ -483,20 +559,27 @@ public class MainActivity extends AppCompatActivity {
             recyclerResultadosBusca
                     .setVisibility(View.GONE);
 
-            Animation rotate =
-                    AnimationUtils.loadAnimation(
-                            this,
-                            R.anim.rotacao_loading
-                    );
+            if (imgLoading != null) {
 
-            imgLoading.startAnimation(rotate);
+                Animation rotate =
+                        AnimationUtils.loadAnimation(
+                                this,
+                                R.anim.rotacao_loading
+                        );
+
+                imgLoading.startAnimation(
+                        rotate
+                );
+            }
 
         } else {
 
             layoutLoading
                     .setVisibility(View.GONE);
 
-            imgLoading.clearAnimation();
+            if (imgLoading != null) {
+                imgLoading.clearAnimation();
+            }
         }
     }
 
@@ -506,48 +589,57 @@ public class MainActivity extends AppCompatActivity {
                 R.id.menu_home
         );
 
-        bottomNavigation.setOnItemSelectedListener(item -> {
+        bottomNavigation.setOnItemSelectedListener(
+                item -> {
 
-            int id = item.getItemId();
+                    int id =
+                            item.getItemId();
 
-            Class<?> tela = null;
+                    Class<?> tela = null;
 
-            if (id == R.id.menu_home) {
+                    if (id == R.id.menu_home) {
 
-                tela = MainActivity.class;
+                        return true;
 
-            } else if (id == R.id.menu_anuncio) {
+                    } else if (id == R.id.menu_anuncio) {
 
-                tela = BuscaActivity.class;
+                        tela =
+                                BuscaActivity.class;
 
-            } else if (id == R.id.menu_livros) {
+                    } else if (id == R.id.menu_livros) {
 
-                tela = MeusLivrosActivity.class;
+                        tela =
+                                MeusLivrosActivity.class;
 
-            } else if (id == R.id.menu_chat) {
+                    } else if (id == R.id.menu_chat) {
 
-                tela = ConversasActivity.class;
+                        tela =
+                                ConversasActivity.class;
 
-            } else if (id == R.id.menu_perfil) {
+                    } else if (id == R.id.menu_perfil) {
 
-                return true;
-            }
+                        return true;
+                    }
 
-            if (tela != null) {
+                    if (tela != null) {
 
-                Intent intent =
-                        new Intent(this, tela);
+                        Intent intent =
+                                new Intent(
+                                        this,
+                                        tela
+                                );
 
-                intent.setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                Intent.FLAG_ACTIVITY_SINGLE_TOP
-                );
+                        intent.setFlags(
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        );
 
-                startActivity(intent);
-            }
+                        startActivity(intent);
+                    }
 
-            return true;
-        });
+                    return true;
+                }
+        );
     }
 
     @Override
@@ -558,7 +650,9 @@ public class MainActivity extends AppCompatActivity {
         if (bottomNavigation != null) {
 
             bottomNavigation.getMenu()
-                    .findItem(R.id.menu_home)
+                    .findItem(
+                            R.id.menu_home
+                    )
                     .setChecked(true);
         }
     }

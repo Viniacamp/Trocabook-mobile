@@ -208,6 +208,19 @@ public class NegociacaoRepository {
                 .addOnFailureListener(callback::onErro);
     }
 
+    public void buscarTodos(Callback<List<Negociacao>> callback){
+        db
+                .collection(COLECAO)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Negociacao> negociacoes = converterDocumentos(queryDocumentSnapshots.getDocuments());
+
+                    callback.onSucesso(negociacoes);
+                })
+                .addOnFailureListener(callback::onErro);
+
+    }
+
     private List<Negociacao> converterDocumentos(
             List<DocumentSnapshot> documentos) {
 

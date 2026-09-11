@@ -66,13 +66,10 @@ public class ConversasActivity extends AppCompatActivity {
 
         inicializarComponentes();
 
-        FirebaseUser user =
-                authService.getUsuarioAtual();
+        FirebaseUser user = authService.getUsuarioAtual();
 
         if (user == null) {
-
             finish();
-
             return;
         }
 
@@ -87,29 +84,21 @@ public class ConversasActivity extends AppCompatActivity {
 
     private void inicializarComponentes() {
 
-        rvConversas =
-                findViewById(R.id.recyclerConversas);
+        rvConversas = findViewById(R.id.recyclerConversas);
 
-        layoutSemConversas =
-                findViewById(R.id.layoutSemConversas);
+        layoutSemConversas = findViewById(R.id.layoutSemConversas);
 
-        layoutLoading =
-                findViewById(R.id.layoutLoading);
+        layoutLoading = findViewById(R.id.layoutLoading);
 
-        imgLoading =
-                findViewById(R.id.imgLoading);
+        imgLoading = findViewById(R.id.imgLoading);
 
-        listaConversas =
-                new ArrayList<>();
+        listaConversas = new ArrayList<>();
 
-        chatService =
-                new ChatService();
+        chatService = new ChatService();
 
-        usuarioService =
-                new UsuarioService();
+        usuarioService = new UsuarioService();
 
-        authService =
-                new AuthService(this);
+        authService = new AuthService(this);
     }
 
     private void configurarRecycler() {
@@ -119,11 +108,15 @@ public class ConversasActivity extends AppCompatActivity {
                 uidUsuarioLogado,
                 conversa -> {
 
-                    Intent intent =
-                            new Intent(
-                                    ConversasActivity.this,
-                                    ChatActivity.class
-                            );
+                    if (conversa == null
+                            || conversa.getUltimaMensagem() == null) {
+                        return;
+                    }
+
+                    Intent intent = new Intent(
+                            ConversasActivity.this,
+                            ChatActivity.class
+                    );
 
                     intent.putExtra(
                             "anuncioId",
@@ -166,24 +159,28 @@ public class ConversasActivity extends AppCompatActivity {
 
                             listaConversas.clear();
 
-                            if (mensagens.isEmpty()) {
+                            if (mensagens == null || mensagens.isEmpty()) {
 
                                 esconderLoading();
 
-                                layoutSemConversas
-                                        .setVisibility(View.VISIBLE);
+                                layoutSemConversas.setVisibility(
+                                        View.VISIBLE
+                                );
 
-                                rvConversas
-                                        .setVisibility(View.GONE);
+                                rvConversas.setVisibility(
+                                        View.GONE
+                                );
 
                                 return;
                             }
 
-                            layoutSemConversas
-                                    .setVisibility(View.GONE);
+                            layoutSemConversas.setVisibility(
+                                    View.GONE
+                            );
 
-                            rvConversas
-                                    .setVisibility(View.VISIBLE);
+                            rvConversas.setVisibility(
+                                    View.VISIBLE
+                            );
 
                             final int totalMensagens =
                                     mensagens.size();
@@ -192,10 +189,18 @@ public class ConversasActivity extends AppCompatActivity {
 
                             for (MensagemDTO mensagem : mensagens) {
 
+                                if (mensagem == null) {
+
+                                    carregadas[0]++;
+
+                                    continue;
+                                }
+
                                 String outroUsuarioId;
 
-                                if (mensagem.getUidRemetente()
-                                        .equals(uidUsuarioLogado)) {
+                                if (uidUsuarioLogado.equals(
+                                        mensagem.getUidRemetente()
+                                )) {
 
                                     outroUsuarioId =
                                             mensagem.getUidDestinatario();
@@ -206,53 +211,86 @@ public class ConversasActivity extends AppCompatActivity {
                                             mensagem.getUidRemetente();
                                 }
 
+                                if (outroUsuarioId == null
+                                        || outroUsuarioId.trim().isEmpty()) {
+
+                                    carregadas[0]++;
+
+                                    continue;
+                                }
+
+                                final String uidOutroUsuario =
+                                        outroUsuarioId;
+
                                 usuarioService.buscarUsuarioPorId(
-                                        outroUsuarioId,
+                                        uidOutroUsuario,
                                         new UsuarioService.ServiceCallback<Usuario>() {
 
                                             @Override
-                                            public void onSuccess(
+                                            public void onSucesso(
                                                     Usuario usuario
                                             ) {
 
-                                                ConversaDTO conversa =
-                                                        new ConversaDTO();
+                                                if (usuario != null) {
 
-                                                conversa.setUsuario(usuario);
+                                                    ConversaDTO conversa =
+                                                            new ConversaDTO();
 
-                                                conversa.setOutroUsuarioId(
-                                                        outroUsuarioId
-                                                );
+                                                    conversa.setUsuario(
+                                                            usuario
+                                                    );
 
-                                                conversa.setUltimaMensagem(
-                                                        mensagem
-                                                );
+                                                    conversa.setOutroUsuarioId(
+                                                            uidOutroUsuario
+                                                    );
 
-                                                listaConversas.add(conversa);
+                                                    conversa.setUltimaMensagem(
+                                                            mensagem
+                                                    );
 
-                                                adapter.notifyDataSetChanged();
+                                                    listaConversas.add(
+                                                            conversa
+                                                    );
+
+                                                    adapter.notifyDataSetChanged();
+                                                }
 
                                                 carregadas[0]++;
 
                                                 if (carregadas[0]
-                                                        == totalMensagens) {
+                                                        >= totalMensagens) {
 
                                                     esconderLoading();
                                                 }
                                             }
 
                                             @Override
-                                            public void onError(String erro) {
+                                            public void onErro(
+                                                    String erro
+                                            ) {
 
                                                 carregadas[0]++;
 
                                                 if (carregadas[0]
-                                                        == totalMensagens) {
+                                                        >= totalMensagens) {
 
                                                     esconderLoading();
                                                 }
                                             }
                                         }
+                                );
+                            }
+
+                            if (totalMensagens == 0) {
+
+                                esconderLoading();
+
+                                layoutSemConversas.setVisibility(
+                                        View.VISIBLE
+                                );
+
+                                rvConversas.setVisibility(
+                                        View.GONE
                                 );
                             }
                         });
@@ -265,11 +303,13 @@ public class ConversasActivity extends AppCompatActivity {
 
                             esconderLoading();
 
-                            layoutSemConversas
-                                    .setVisibility(View.VISIBLE);
+                            layoutSemConversas.setVisibility(
+                                    View.VISIBLE
+                            );
 
-                            rvConversas
-                                    .setVisibility(View.GONE);
+                            rvConversas.setVisibility(
+                                    View.GONE
+                            );
                         });
                     }
                 }
@@ -278,12 +318,15 @@ public class ConversasActivity extends AppCompatActivity {
 
     private void mostrarLoading() {
 
-        layoutLoading.setVisibility(View.VISIBLE);
-
-        Animation animation = AnimationUtils.loadAnimation(
-                this,
-                R.anim.rotacao_loading
+        layoutLoading.setVisibility(
+                View.VISIBLE
         );
+
+        Animation animation =
+                AnimationUtils.loadAnimation(
+                        this,
+                        R.anim.rotacao_loading
+                );
 
         imgLoading.startAnimation(animation);
     }
@@ -292,12 +335,16 @@ public class ConversasActivity extends AppCompatActivity {
 
         imgLoading.clearAnimation();
 
-        layoutLoading.setVisibility(View.GONE);
+        layoutLoading.setVisibility(
+                View.GONE
+        );
     }
 
-    private void configurarMenu(){
+    private void configurarMenu() {
 
-        bottomNavigation.setSelectedItemId(R.id.menu_home);
+        bottomNavigation.setSelectedItemId(
+                R.id.menu_chat
+        );
 
         bottomNavigation.setOnItemSelectedListener(item -> {
 
@@ -319,7 +366,7 @@ public class ConversasActivity extends AppCompatActivity {
 
             } else if (id == R.id.menu_chat) {
 
-                tela = ConversasActivity.class;
+                return true;
 
             } else if (id == R.id.menu_perfil) {
 
@@ -328,11 +375,12 @@ public class ConversasActivity extends AppCompatActivity {
 
             if (tela != null) {
 
-                Intent intent = new Intent(this, tela);
+                Intent intent =
+                        new Intent(this, tela);
 
                 intent.setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                | Intent.FLAG_ACTIVITY_SINGLE_TOP
                 );
 
                 startActivity(intent);
@@ -340,7 +388,6 @@ public class ConversasActivity extends AppCompatActivity {
 
             return true;
         });
-
     }
 
     @Override

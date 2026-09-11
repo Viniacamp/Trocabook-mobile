@@ -3,6 +3,9 @@ package br.gov.sp.cps.trocabook.repository;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.gov.sp.cps.trocabook.model.Autor;
 
 public class AutorRepository {
@@ -92,5 +95,26 @@ public class AutorRepository {
                     callback.onSucesso(autor);
                 })
                 .addOnFailureListener(callback::onErro);
+    }
+
+    public void buscarTodos(Callback<List<Autor>> callback){
+        db.collection(COLECAO)
+                .get()
+                .addOnSuccessListener(query -> {
+                    List<Autor> autores = new ArrayList<>();
+
+                    for (DocumentSnapshot documento : query.getDocuments()) {
+                        Autor autor = documento.toObject(Autor.class);
+                        if (autor != null) {
+                            autor.setId(documento.getId());
+                            autores.add(autor);
+                        }
+                    }
+
+                    callback.onSucesso(autores);
+
+                })
+                .addOnFailureListener(callback::onErro);
+
     }
 }

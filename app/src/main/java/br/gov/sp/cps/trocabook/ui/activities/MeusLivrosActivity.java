@@ -19,7 +19,6 @@ import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
-import br.gov.sp.cps.trocabook.model.Livro;
 import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
@@ -31,11 +30,11 @@ public class MeusLivrosActivity extends AppCompatActivity {
     private RecyclerView recyclerAnuncios;
     private RecyclerView recyclerNegociados;
 
-    private LivroHorizontalAdapter adapterAnuncios;
-    private LivroHorizontalAdapter adapterNegociados;
+    private LivroHorizontalAdapter<Anuncio> adapterAnuncios;
+    private LivroHorizontalAdapter<Negociacao> adapterNegociados;
 
     private List<Anuncio> listaAnuncios = new ArrayList<>();
-    private List<Livro> listaNegociados = new ArrayList<>();
+    private List<Negociacao> listaNegociados = new ArrayList<>();
 
     private AuthService authService;
     private AnuncioService anuncioService;
@@ -56,11 +55,11 @@ public class MeusLivrosActivity extends AppCompatActivity {
         negociacaoService = new NegociacoesService();
 
         FirebaseUser user = authService.getUsuarioAtual();
+
         if (user == null) {
             finish();
             return;
         }
-
 
         String userId = user.getUid();
 
@@ -70,6 +69,72 @@ public class MeusLivrosActivity extends AppCompatActivity {
         txtVazioAnuncios = findViewById(R.id.txtVazioAnuncios);
         txtVazioNegociados = findViewById(R.id.txtVazioNegociados);
         bottomNavigation = findViewById(R.id.bottomNavigation);
+        btnVoltar = findViewById(R.id.btnVoltar);
+
+        configurarBottomNavigation();
+
+        recyclerAnuncios.setLayoutManager(
+                new LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
+                )
+        );
+
+        recyclerNegociados.setLayoutManager(
+                new LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
+                )
+        );
+
+        adapterAnuncios = new LivroHorizontalAdapter<>(
+                listaAnuncios,
+                anuncio -> {
+                    Intent intent = new Intent(
+                            MeusLivrosActivity.this,
+                            DetalhesAnuncioActivity.class
+                    );
+
+                    intent.putExtra(
+                            "anuncioId",
+                            anuncio.getId()
+                    );
+
+                    startActivity(intent);
+                }
+        );
+
+        adapterNegociados = new LivroHorizontalAdapter<>(
+                listaNegociados,
+                negociacao -> {
+                    // Ação ao clicar em uma negociação.
+                }
+        );
+
+        recyclerAnuncios.setAdapter(adapterAnuncios);
+        recyclerNegociados.setAdapter(adapterNegociados);
+
+        carregarAnuncios(userId);
+        carregarNegociacoes(userId);
+
+        btnVoltar.setOnClickListener(v -> {
+            Intent intent = new Intent(
+                    MeusLivrosActivity.this,
+                    MainActivity.class
+            );
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP
+            );
+
+            startActivity(intent);
+        });
+    }
+
+    private void configurarBottomNavigation() {
 
         bottomNavigation.setSelectedItemId(R.id.menu_livros);
 
@@ -80,27 +145,33 @@ public class MeusLivrosActivity extends AppCompatActivity {
             Class<?> tela = null;
 
             if (id == R.id.menu_home) {
+
                 tela = MainActivity.class;
 
             } else if (id == R.id.menu_anuncio) {
+
                 tela = BuscaActivity.class;
 
             } else if (id == R.id.menu_livros) {
-                tela = MeusLivrosActivity.class;
+
+                return true;
 
             } else if (id == R.id.menu_chat) {
 
-                tela = ConversasActivity.class;;
+                tela = ConversasActivity.class;
 
             } else if (id == R.id.menu_perfil) {
 
-                // futura tela perfil
+                // Futura tela de perfil.
                 return true;
             }
 
             if (tela != null) {
 
-                Intent intent = new Intent(this, tela);
+                Intent intent = new Intent(
+                        MeusLivrosActivity.this,
+                        tela
+                );
 
                 intent.setFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
@@ -112,81 +183,109 @@ public class MeusLivrosActivity extends AppCompatActivity {
 
             return true;
         });
-
-        recyclerAnuncios.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
-
-        recyclerNegociados.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
-
-        adapterAnuncios = new LivroHorizontalAdapter<Anuncio>(listaAnuncios, anuncio -> {});
-        adapterNegociados = new LivroHorizontalAdapter<Livro>(listaNegociados, negociao -> {});
-
-        recyclerAnuncios.setAdapter(adapterAnuncios);
-        recyclerNegociados.setAdapter(adapterNegociados);
-
-        btnVoltar = findViewById(R.id.btnVoltar);
-
-        carregarAnuncios(userId);
-        carregarNegociacoes(userId);
-
-        btnVoltar.setOnClickListener(v ->{
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-        });
     }
 
     private void carregarAnuncios(String userId) {
 
-        anuncioService.buscarAnunciosUsuario(userId, new AnuncioService.Callback<List<Anuncio>>() {
+        anuncioService.buscarAnunciosUsuario(
+                userId,
+                new AnuncioService.Callback<List<Anuncio>>() {
 
-            @Override
-            public void onSuccess(List<Anuncio> lista) {
+                    @Override
+                    public void onSuccess(List<Anuncio> lista) {
 
-                listaAnuncios.clear();
-                listaAnuncios.addAll(lista);
+                        listaAnuncios.clear();
 
-                txtVazioAnuncios.setVisibility(lista.isEmpty() ? View.VISIBLE : View.GONE);
-                adapterAnuncios.notifyDataSetChanged();
-            }
+                        if (lista != null) {
+                            listaAnuncios.addAll(lista);
+                        }
 
-            @Override
-            public void onError(String erro) {
+                        txtVazioAnuncios.setVisibility(
+                                listaAnuncios.isEmpty()
+                                        ? View.VISIBLE
+                                        : View.GONE
+                        );
 
-            }
-        });
+                        adapterAnuncios.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+
+                        Toast.makeText(
+                                MeusLivrosActivity.this,
+                                erro,
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                }
+        );
     }
 
     private void carregarNegociacoes(String userId) {
 
-        negociacaoService.buscarNegociacoesUsuario(userId, new NegociacoesService.Callback<List<Livro>>() {
+        negociacaoService.buscarTodos(
+                new NegociacoesService.Callback<List<Negociacao>>() {
 
-            @Override
-            public void onSuccess(List<Livro> lista) {
+                    @Override
+                    public void onSuccess(List<Negociacao> lista) {
 
-                listaNegociados.clear();
-                listaNegociados.addAll(lista);
+                        listaNegociados.clear();
 
-                txtVazioNegociados.setVisibility(lista.isEmpty() ? View.VISIBLE : View.GONE);
-                adapterNegociados.notifyDataSetChanged();
-            }
+                        if (lista != null) {
 
-            @Override
-            public void onError(String erro) {
-                Toast.makeText(MeusLivrosActivity.this, erro, Toast.LENGTH_SHORT).show();
-            }
-        });
+                            for (Negociacao negociacao : lista) {
+
+                                if (negociacao == null) {
+                                    continue;
+                                }
+
+                                boolean eAnunciante =
+                                        userId.equals(
+                                                negociacao.getUsuarioAnuncianteId()
+                                        );
+
+                                boolean eComprador =
+                                        userId.equals(
+                                                negociacao.getUsuarioCompradorId()
+                                        );
+
+                                if (eAnunciante || eComprador) {
+                                    listaNegociados.add(negociacao);
+                                }
+                            }
+                        }
+
+                        txtVazioNegociados.setVisibility(
+                                listaNegociados.isEmpty()
+                                        ? View.VISIBLE
+                                        : View.GONE
+                        );
+
+                        adapterNegociados.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+
+                        Toast.makeText(
+                                MeusLivrosActivity.this,
+                                erro,
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                }
+        );
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        bottomNavigation.getMenu()
-                .findItem(R.id.menu_livros)
-                .setChecked(true);
+        if (bottomNavigation != null) {
+            bottomNavigation.getMenu()
+                    .findItem(R.id.menu_livros)
+                    .setChecked(true);
+        }
     }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,100 +35,239 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
     private TextView textTipoNegociacao;
 
     private Button buttonNegociar;
+
     private AuthService authService;
     private AnuncioService anuncioService;
     private UsuarioService usuarioService;
+
     private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_detalhes_anuncio);
+
         bottomNavigation = findViewById(R.id.bottomNavigation);
+
         inicializarComponentes();
+
         FirebaseUser user = authService.getUsuarioAtual();
+
         if (user == null) {
             finish();
             return;
         }
 
         configurarMenu();
+
         String anuncioId = getIntent().getStringExtra("anuncioId");
-        anuncioService.buscarAnuncioPorId(anuncioId, new AnuncioService.Callback<Anuncio>() {
-            @Override
-            public void onSuccess(Anuncio dados) {
-                configurarUsuario(dados.getUserId());
-                configurarInformacoesLivro(dados.getCapa(), dados.getTitulo(), dados.getDescricao(), dados.getTipoNegociacao());
-                buttonNegociar.setOnClickListener(v -> {
-                    Intent intent = new Intent(DetalhesAnuncioActivity.this, ChatActivity.class);
-                    intent.putExtra("anuncioId", anuncioId);
-                    intent.putExtra("userDestinatario", dados.getUserId());
-                    startActivity(intent);
-                    finish();
-                });
-            }
 
-            @Override
-            public void onError(String mensagem) {
+        if (anuncioId == null || anuncioId.trim().isEmpty()) {
+            Toast.makeText(
+                    this,
+                    "Anúncio inválido",
+                    Toast.LENGTH_SHORT
+            ).show();
 
-            }
-        });
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+            finish();
+            return;
+        }
+
+        carregarAnuncio(anuncioId);
+
+        ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.main),
+                (v, insets) -> {
+
+                    Insets systemBars =
+                            insets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars()
+                            );
+
+                    v.setPadding(
+                            systemBars.left,
+                            systemBars.top,
+                            systemBars.right,
+                            systemBars.bottom
+                    );
+
+                    return insets;
+                }
+        );
     }
 
-    private void configurarUsuario(String userId){
-        usuarioService.buscarUsuarioPorId(userId, new UsuarioService.ServiceCallback<Usuario>() {
-            @Override
-            public void onSuccess(Usuario usuario) {
-                textUsuario.setText(usuario.getEmail_principal()); // por enquanto email, depois sera nome
-                System.out.println(usuario.getEmail_principal());
-                Glide.with(DetalhesAnuncioActivity.this)
-                        .load(usuario.getFoto_perfil())
-                        .placeholder(R.drawable.placeholder_usuario)
-                        .into(imageUsuario);
-            }
-            @Override
-            public void onError(String erro) {
-                textUsuario.setText("Usuário não encontrado");
-            }
-        });
+    private void carregarAnuncio(String anuncioId) {
+
+        anuncioService.buscarAnuncioPorId(
+                anuncioId,
+                new AnuncioService.Callback<Anuncio>() {
+
+                    @Override
+                    public void onSuccess(Anuncio dados) {
+
+                        if (dados == null) {
+                            Toast.makeText(
+                                    DetalhesAnuncioActivity.this,
+                                    "Anúncio não encontrado",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            finish();
+                            return;
+                        }
+
+                        configurarUsuario(
+                                dados.getUidUsuario()
+                        );
+
+                        configurarInformacoesLivro(
+                                dados.getCapa(),
+                                dados.getTitulo(),
+                                dados.getDescricao(),
+                                dados.getTipoNegociacao()
+                        );
+
+                        buttonNegociar.setOnClickListener(v -> {
+
+                            Intent intent = new Intent(
+                                    DetalhesAnuncioActivity.this,
+                                    ChatActivity.class
+                            );
+
+                            intent.putExtra(
+                                    "anuncioId",
+                                    dados.getId()
+                            );
+
+                            intent.putExtra(
+                                    "userDestinatario",
+                                    dados.getUidUsuario()
+                            );
+
+                            startActivity(intent);
+                        });
+                    }
+
+                    @Override
+                    public void onError(String mensagem) {
+
+                        Toast.makeText(
+                                DetalhesAnuncioActivity.this,
+                                mensagem,
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        finish();
+                    }
+                }
+        );
     }
 
-    private void configurarInformacoesLivro(String capa, String titulo, String descricao, String tipoNegociacao){
-        System.out.println(capa);
-        System.out.println(titulo);
-        System.out.println(descricao);
-        System.out.println(tipoNegociacao);
+    private void configurarUsuario(String userId) {
+
+        usuarioService.buscarUsuarioPorId(
+                userId,
+                new UsuarioService.ServiceCallback<Usuario>() {
+
+                    @Override
+                    public void onSucesso(Usuario usuario) {
+
+                        if (usuario == null) {
+                            textUsuario.setText(
+                                    "Usuário não encontrado"
+                            );
+                            return;
+                        }
+
+                        // Por enquanto, exibindo o email.
+                        // Depois pode ser alterado para o nome.
+                        textUsuario.setText(
+                                usuario.getEmailPrincipal()
+                        );
+
+                        Glide.with(
+                                        DetalhesAnuncioActivity.this
+                                )
+                                .load(usuario.getFotoPerfil())
+                                .placeholder(
+                                        R.drawable.placeholder_usuario
+                                )
+                                .into(imageUsuario);
+                    }
+
+                    @Override
+                    public void onErro(String erro) {
+
+                        textUsuario.setText(
+                                "Usuário não encontrado"
+                        );
+                    }
+                }
+        );
+    }
+
+    private void configurarInformacoesLivro(
+            String capa,
+            String titulo,
+            String descricao,
+            Anuncio.TipoNegociacao tipoNegociacao
+    ) {
+
         Glide.with(this)
                 .load(capa)
                 .placeholder(R.drawable.placeholder_capa)
                 .into(imageCapa);
-        textTitulo.setText(titulo);
-        textDescricao.setText(descricao);
-        textTipoNegociacao.setText("Tipo: " + tipoNegociacao);
+
+        textTitulo.setText(
+                titulo != null
+                        ? titulo
+                        : "Título não informado"
+        );
+
+        textDescricao.setText(
+                descricao != null && !descricao.trim().isEmpty()
+                        ? descricao
+                        : "Anunciante não informou uma descrição"
+        );
+
+        if (tipoNegociacao != null) {
+
+            textTipoNegociacao.setText(
+                    "Tipo: " + tipoNegociacao.name()
+            );
+
+        } else {
+
+            textTipoNegociacao.setText(
+                    "Tipo: não informado"
+            );
+        }
     }
 
-    private void inicializarComponentes(){
+    private void inicializarComponentes() {
+
         imageCapa = findViewById(R.id.imageCapa);
         imageUsuario = findViewById(R.id.imageUsuario);
+
         textTitulo = findViewById(R.id.textTitulo);
         textDescricao = findViewById(R.id.textDescricao);
         textUsuario = findViewById(R.id.textUsuario);
         textTipoNegociacao = findViewById(R.id.textTipoNegociacao);
+
         buttonNegociar = findViewById(R.id.buttonNegociar);
+
         authService = new AuthService(this);
         anuncioService = new AnuncioService();
         usuarioService = new UsuarioService();
-
     }
 
-    private void configurarMenu(){
-        bottomNavigation.setSelectedItemId(R.id.menu_home);
+    private void configurarMenu() {
+
+        bottomNavigation.setSelectedItemId(
+                R.id.menu_home
+        );
 
         bottomNavigation.setOnItemSelectedListener(item -> {
 
@@ -158,11 +298,14 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
 
             if (tela != null) {
 
-                Intent intent = new Intent(this, tela);
+                Intent intent = new Intent(
+                        this,
+                        tela
+                );
 
                 intent.setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                | Intent.FLAG_ACTIVITY_SINGLE_TOP
                 );
 
                 startActivity(intent);
@@ -170,7 +313,6 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
 
             return true;
         });
-
     }
 
     @Override
@@ -178,8 +320,11 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
 
         super.onResume();
 
-        bottomNavigation.getMenu()
-                .findItem(R.id.menu_home)
-                .setChecked(true);
+        if (bottomNavigation != null) {
+
+            bottomNavigation.getMenu()
+                    .findItem(R.id.menu_home)
+                    .setChecked(true);
+        }
     }
 }

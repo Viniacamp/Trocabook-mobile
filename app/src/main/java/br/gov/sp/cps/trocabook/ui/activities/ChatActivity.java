@@ -8,9 +8,6 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,6 +40,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatService chatService;
 
     private AuthService authService;
+
     private UsuarioService usuarioService;
 
     private ChatAdapter adapter;
@@ -56,6 +54,7 @@ public class ChatActivity extends AppCompatActivity {
     private String userRemetente;
 
     private ImageView imgUsuarioChat;
+
     private TextView txtNomeUsuarioChat;
 
     @Override
@@ -66,16 +65,28 @@ public class ChatActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
 
         setContentView(R.layout.activity_chat);
-        bottomNavigation = findViewById(R.id.bottomNavigation);
+
         inicializarComponentes();
+
         FirebaseUser user = authService.getUsuarioAtual();
+
         if (user == null) {
             finish();
             return;
         }
-        configurarMenu();
 
         receberDadosIntent();
+
+        if (anuncioId == null
+                || anuncioId.trim().isEmpty()
+                || userDestinatario == null
+                || userDestinatario.trim().isEmpty()) {
+
+            finish();
+            return;
+        }
+
+        configurarMenu();
 
         carregarUsuarioChat();
 
@@ -84,30 +95,58 @@ public class ChatActivity extends AppCompatActivity {
         carregarMensagens();
 
         configurarEnvioMensagem();
-
     }
 
     private void inicializarComponentes() {
 
-        bottomNavigation = findViewById(R.id.bottomNavigation);
+        bottomNavigation =
+                findViewById(R.id.bottomNavigation);
 
-        rvMensagens = findViewById(R.id.rvMensagens);
+        rvMensagens =
+                findViewById(R.id.rvMensagens);
 
-        imgUsuarioChat = findViewById(R.id.imgUsuarioChat);
+        imgUsuarioChat =
+                findViewById(R.id.imgUsuarioChat);
 
-        txtNomeUsuarioChat = findViewById(R.id.txtNomeUsuarioChat);
+        txtNomeUsuarioChat =
+                findViewById(R.id.txtNomeUsuarioChat);
 
-        editMensagem = findViewById(R.id.editMensagem);
+        editMensagem =
+                findViewById(R.id.editMensagem);
 
-        btnEnviarMensagem = findViewById(R.id.btnEnviarMensagem);
+        btnEnviarMensagem =
+                findViewById(R.id.btnEnviarMensagem);
 
-        chatService = new ChatService();
+        chatService =
+                new ChatService();
 
-        authService = new AuthService(this);
+        authService =
+                new AuthService(this);
 
-        listaMensagens = new ArrayList<>();
+        usuarioService =
+                new UsuarioService();
 
-        usuarioService = new UsuarioService();
+        listaMensagens =
+                new ArrayList<>();
+    }
+
+    private void receberDadosIntent() {
+
+        anuncioId =
+                getIntent().getStringExtra("anuncioId");
+
+        userDestinatario =
+                getIntent().getStringExtra(
+                        "userDestinatario"
+                );
+
+        FirebaseUser user =
+                authService.getUsuarioAtual();
+
+        if (user != null) {
+            userRemetente =
+                    user.getUid();
+        }
     }
 
     private void carregarUsuarioChat() {
@@ -117,14 +156,27 @@ public class ChatActivity extends AppCompatActivity {
                 new UsuarioService.ServiceCallback<Usuario>() {
 
                     @Override
-                    public void onSuccess(Usuario usuario) {
+                    public void onSucesso(
+                            Usuario usuario
+                    ) {
+
+                        if (usuario == null) {
+
+                            txtNomeUsuarioChat.setText(
+                                    "Usuário"
+                            );
+
+                            return;
+                        }
 
                         txtNomeUsuarioChat.setText(
-                                usuario.getEmail_principal()
+                                usuario.getEmailPrincipal()
                         );
 
-                        Glide.with(ChatActivity.this)
-                                .load(usuario.getFoto_perfil())
+                        Glide.with(
+                                        ChatActivity.this
+                                )
+                                .load(usuario.getFotoPerfil())
                                 .placeholder(
                                         R.drawable.placeholder_usuario
                                 )
@@ -132,7 +184,9 @@ public class ChatActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(String erro) {
+                    public void onErro(
+                            String erro
+                    ) {
 
                         txtNomeUsuarioChat.setText(
                                 "Usuário"
@@ -140,17 +194,6 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 }
         );
-    }
-
-    private void receberDadosIntent() {
-
-        anuncioId = getIntent().getStringExtra("anuncioId");
-
-        userDestinatario =
-                getIntent().getStringExtra("userDestinatario");
-
-        userRemetente =
-                authService.getUsuarioAtual().getUid();
     }
 
     private void configurarRecycler() {
@@ -176,22 +219,31 @@ public class ChatActivity extends AppCompatActivity {
                 new ChatService.Callback<List<MensagemDTO>>() {
 
                     @Override
-                    public void onSuccess(List<MensagemDTO> dados) {
+                    public void onSuccess(
+                            List<MensagemDTO> dados
+                    ) {
 
                         listaMensagens.clear();
 
-                        listaMensagens.addAll(dados);
+                        if (dados != null) {
+                            listaMensagens.addAll(dados);
+                        }
 
                         adapter.notifyDataSetChanged();
 
-                        rvMensagens.scrollToPosition(
-                                listaMensagens.size() - 1
-                        );
+                        if (!listaMensagens.isEmpty()) {
+
+                            rvMensagens.scrollToPosition(
+                                    listaMensagens.size() - 1
+                            );
+                        }
                     }
 
                     @Override
-                    public void onError(String erro) {
-
+                    public void onError(
+                            String erro
+                    ) {
+                        // Erro no carregamento das mensagens.
                     }
                 }
         );
@@ -202,28 +254,48 @@ public class ChatActivity extends AppCompatActivity {
         btnEnviarMensagem.setOnClickListener(v -> {
 
             String conteudo =
-                    editMensagem.getText().toString().trim();
+                    editMensagem
+                            .getText()
+                            .toString()
+                            .trim();
 
             if (conteudo.isEmpty()) {
                 return;
             }
 
-            MensagemDTO mensagem = new MensagemDTO();
+            if (userRemetente == null
+                    || userDestinatario == null
+                    || anuncioId == null) {
+                return;
+            }
 
-            mensagem.setUidRemetente(userRemetente);
+            MensagemDTO mensagem =
+                    new MensagemDTO();
 
-            mensagem.setUidDestinatario(userDestinatario);
+            mensagem.setUidRemetente(
+                    userRemetente
+            );
 
-            mensagem.setUidAnuncio(anuncioId);
+            mensagem.setUidDestinatario(
+                    userDestinatario
+            );
 
-            mensagem.setConteudo(conteudo);
+            mensagem.setUidAnuncio(
+                    anuncioId
+            );
+
+            mensagem.setConteudo(
+                    conteudo
+            );
 
             chatService.salvarMensagem(
                     mensagem,
                     new ChatService.Callback<MensagemDTO>() {
 
                         @Override
-                        public void onSuccess(MensagemDTO dados) {
+                        public void onSuccess(
+                                MensagemDTO dados
+                        ) {
 
                             editMensagem.setText("");
 
@@ -231,70 +303,94 @@ public class ChatActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onError(String erro) {
-
+                        public void onError(
+                                String erro
+                        ) {
+                            // Erro ao enviar mensagem.
                         }
                     }
             );
         });
     }
 
+    private void configurarMenu() {
 
+        bottomNavigation.setSelectedItemId(
+                R.id.menu_chat
+        );
 
+        bottomNavigation.setOnItemSelectedListener(
+                item -> {
 
-    private void configurarMenu(){
-        bottomNavigation.setSelectedItemId(R.id.menu_home);
+                    int id =
+                            item.getItemId();
 
-        bottomNavigation.setOnItemSelectedListener(item -> {
+                    Class<?> tela = null;
 
-            int id = item.getItemId();
+                    if (id == R.id.menu_home) {
 
-            Class<?> tela = null;
+                        tela =
+                                MainActivity.class;
 
-            if (id == R.id.menu_home) {
+                    } else if (
+                            id == R.id.menu_anuncio
+                    ) {
 
-                tela = MainActivity.class;
+                        tela =
+                                BuscaActivity.class;
 
-            } else if (id == R.id.menu_anuncio) {
+                    } else if (
+                            id == R.id.menu_livros
+                    ) {
 
-                tela = BuscaActivity.class;
+                        tela =
+                                MeusLivrosActivity.class;
 
-            } else if (id == R.id.menu_livros) {
+                    } else if (
+                            id == R.id.menu_chat
+                    ) {
 
-                tela = MeusLivrosActivity.class;
+                        return true;
 
-            } else if (id == R.id.menu_chat) {
+                    } else if (
+                            id == R.id.menu_perfil
+                    ) {
 
-                tela = ConversasActivity.class;
+                        return true;
+                    }
 
-            } else if (id == R.id.menu_perfil) {
+                    if (tela != null) {
 
-                return true;
-            }
+                        Intent intent =
+                                new Intent(
+                                        this,
+                                        tela
+                                );
 
-            if (tela != null) {
+                        intent.setFlags(
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        );
 
-                Intent intent = new Intent(this, tela);
+                        startActivity(intent);
+                    }
 
-                intent.setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                Intent.FLAG_ACTIVITY_SINGLE_TOP
-                );
-
-                startActivity(intent);
-            }
-
-            return true;
-        });
-
+                    return true;
+                }
+        );
     }
 
     @Override
     protected void onResume() {
+
         super.onResume();
 
-        bottomNavigation.getMenu()
-                .findItem(R.id.menu_chat)
-                .setChecked(true);
+        if (bottomNavigation != null) {
+
+            bottomNavigation
+                    .getMenu()
+                    .findItem(R.id.menu_chat)
+                    .setChecked(true);
+        }
     }
 }

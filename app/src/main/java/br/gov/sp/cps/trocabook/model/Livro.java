@@ -9,19 +9,35 @@ import br.gov.sp.cps.trocabook.model.utils.ItemComCapa;
 public class Livro implements Serializable, ItemComCapa {
 
     private String id;
+    private String googleBooksId;
     private String titulo;
-    private List<String> autores = new ArrayList<>();
-    private List<String> categorias = new ArrayList<>();
-    private String capa;
+    private List<String> idsAutores = new ArrayList<>();
+    private List<String> idsCategorias = new ArrayList<>();
+    private String publicadora;
+    private String dataPublicacao;
+    private String urlImagem;
 
-    public Livro() {}
+    public Livro() {
+    }
 
-    public Livro(String id, String titulo, List<String> autores, List<String> categorias, String capa) {
+    public Livro(
+            String id,
+            String googleBooksId,
+            String titulo,
+            List<String> idsAutores,
+            List<String> idsCategorias,
+            String publicadora,
+            String dataPublicacao,
+            String urlImagem
+    ) {
         this.id = id;
+        this.googleBooksId = googleBooksId;
         this.titulo = titulo;
-        this.autores = autores;
-        this.categorias = categorias;
-        this.capa = capa;
+        this.idsAutores = idsAutores != null ? idsAutores : new ArrayList<>();
+        this.idsCategorias = idsCategorias != null ? idsCategorias : new ArrayList<>();
+        this.publicadora = publicadora;
+        this.dataPublicacao = dataPublicacao;
+        this.urlImagem = urlImagem;
     }
 
     public String getId() {
@@ -32,6 +48,14 @@ public class Livro implements Serializable, ItemComCapa {
         this.id = id;
     }
 
+    public String getGoogleBooksId() {
+        return googleBooksId;
+    }
+
+    public void setGoogleBooksId(String googleBooksId) {
+        this.googleBooksId = googleBooksId;
+    }
+
     public String getTitulo() {
         return titulo;
     }
@@ -40,27 +64,52 @@ public class Livro implements Serializable, ItemComCapa {
         this.titulo = titulo;
     }
 
-    public List<String> getAutores() {
-        return autores;
+    public List<String> getIdsAutores() {
+        return idsAutores;
     }
 
-    public void setAutores(List<String> autores) {
-        this.autores = (autores != null) ? autores : new ArrayList<>();
+    public void setIdsAutores(List<String> idsAutores) {
+        this.idsAutores = idsAutores != null
+                ? idsAutores
+                : new ArrayList<>();
     }
 
-    public List<String> getCategorias() {
-        return categorias;
+    public List<String> getIdsCategorias() {
+        return idsCategorias;
     }
 
-    public void setCategorias(List<String> categorias) {
-        this.categorias = (categorias != null) ? categorias : new ArrayList<>();
+    public void setIdsCategorias(List<String> idsCategorias) {
+        this.idsCategorias = idsCategorias != null
+                ? idsCategorias
+                : new ArrayList<>();
     }
 
+    public String getPublicadora() {
+        return publicadora;
+    }
+
+    public void setPublicadora(String publicadora) {
+        this.publicadora = publicadora;
+    }
+
+    public String getDataPublicacao() {
+        return dataPublicacao;
+    }
+
+    public void setDataPublicacao(String dataPublicacao) {
+        this.dataPublicacao = dataPublicacao;
+    }
+
+    public String getUrlImagem() {
+        return urlImagem;
+    }
+
+    public void setUrlImagem(String urlImagem) {
+        this.urlImagem = urlImagem;
+    }
+
+    @Override
     public String getCapa() {
-        return capa;
-    }
-
-    public void setCapa(String capa) {
-        this.capa = capa;
+        return urlImagem;
     }
 }

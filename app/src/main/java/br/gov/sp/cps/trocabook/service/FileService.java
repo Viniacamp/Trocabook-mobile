@@ -21,7 +21,13 @@ public class FileService {
         void onError(String erro);
     }
 
-    public void salvarImagem(Uri imageUri, Callback<String> callback) {
+    /**
+     * Salva uma imagem recebida através de uma Uri
+     * no armazenamento interno do aplicativo.
+     */
+    public void salvarImagem(
+            Uri imageUri,
+            Callback<String> callback) {
 
         if (imageUri == null) {
             callback.onError("Imagem inválida");
@@ -31,11 +37,7 @@ public class FileService {
         try {
 
             File pastaCapas =
-                    new File(context.getFilesDir(), "capas");
-
-            if (!pastaCapas.exists()) {
-                pastaCapas.mkdirs();
-            }
+                    criarPastaCapas();
 
             String nomeArquivo =
                     "capa_" + System.currentTimeMillis() + ".jpg";
@@ -47,36 +49,146 @@ public class FileService {
                     context.getContentResolver()
                             .openInputStream(imageUri);
 
+            if (inputStream == null) {
+                callback.onError(
+                        "Não foi possível abrir a imagem"
+                );
+                return;
+            }
+
             OutputStream outputStream =
                     new FileOutputStream(arquivo);
 
-            byte[] buffer = new byte[1024];
-            int length;
-
-            while ((length = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, length);
-            }
+            copiarArquivo(
+                    inputStream,
+                    outputStream
+            );
 
             inputStream.close();
             outputStream.close();
 
-            callback.onSuccess(arquivo.getAbsolutePath());
+            callback.onSuccess(
+                    arquivo.getAbsolutePath()
+            );
 
         } catch (Exception e) {
-            callback.onError("Erro ao salvar imagem");
+
+            callback.onError(
+                    "Erro ao salvar imagem"
+            );
         }
     }
 
-    public void deletarImagem(String caminho) {
+    /**
+     * Copia uma imagem localizada na pasta assets
+     * para o armazenamento interno do aplicativo.
+     *
+     * @param caminhoAsset caminho relativo dentro de assets
+     */
+    public void salvarImagemAsset(
+            String caminhoAsset,
+            Callback<String> callback) {
 
-        if (caminho == null || caminho.isEmpty()) {
+        if (caminhoAsset == null
+                || caminhoAsset.trim().isEmpty()) {
+
+            callback.onError(
+                    "Caminho da imagem inválido"
+            );
             return;
         }
 
-        File arquivo = new File(caminho);
+        try {
+
+            File pastaCapas =
+                    criarPastaCapas();
+
+            String nomeArquivo =
+                    "capa_" + System.currentTimeMillis() + ".jpg";
+
+            File arquivo =
+                    new File(pastaCapas, nomeArquivo);
+
+            InputStream inputStream =
+                    context.getAssets()
+                            .open(caminhoAsset);
+
+            OutputStream outputStream =
+                    new FileOutputStream(arquivo);
+
+            copiarArquivo(
+                    inputStream,
+                    outputStream
+            );
+
+            inputStream.close();
+            outputStream.close();
+
+            callback.onSuccess(
+                    arquivo.getAbsolutePath()
+            );
+
+        } catch (Exception e) {
+
+            callback.onError(
+                    "Erro ao salvar imagem dos assets"
+            );
+        }
+    }
+
+    /**
+     * Exclui uma imagem salva no armazenamento interno.
+     */
+    public void deletarImagem(String caminho) {
+
+        if (caminho == null
+                || caminho.isEmpty()) {
+            return;
+        }
+
+        File arquivo =
+                new File(caminho);
 
         if (arquivo.exists()) {
             arquivo.delete();
         }
+    }
+
+    private File criarPastaCapas() {
+
+        File pastaCapas =
+                new File(
+                        context.getFilesDir(),
+                        "capas"
+                );
+
+        if (!pastaCapas.exists()) {
+            pastaCapas.mkdirs();
+        }
+
+        return pastaCapas;
+    }
+
+    private void copiarArquivo(
+            InputStream inputStream,
+            OutputStream outputStream)
+            throws Exception {
+
+        byte[] buffer =
+                new byte[4096];
+
+        int length;
+
+        while ((length =
+                inputStream.read(buffer)) != -1) {
+
+            outputStream.write(
+                    buffer,
+                    0,
+                    length
+            );
+        }
+
+        outputStream.flush();
     }
 }

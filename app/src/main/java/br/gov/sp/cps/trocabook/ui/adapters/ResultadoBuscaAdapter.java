@@ -80,21 +80,21 @@ public class ResultadoBuscaAdapter
                 .into(holder.imgLivro);
 
         usuarioService.buscarUsuarioPorId(
-                anuncio.getUserId(),
+                anuncio.getUidUsuario(),
                 new UsuarioService.ServiceCallback<Usuario>() {
 
                     @Override
-                    public void onSuccess(Usuario usuario) {
+                    public void onSucesso(Usuario usuario) {
 
                         Glide.with(holder.itemView.getContext())
-                                .load(usuario.getFoto_perfil())
+                                .load(usuario.getFotoPerfil())
                                 .placeholder(R.drawable.placeholder_usuario)
                                 .circleCrop()
                                 .into(holder.imgUsuario);
                     }
 
                     @Override
-                    public void onError(String erro) {
+                    public void onErro(String erro) {
 
                     }
                 }

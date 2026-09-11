@@ -76,7 +76,7 @@ public class ConversaAdapter
                 conversa.getUltimaMensagem();
 
         holder.textNome.setText(
-                usuario.getEmail_principal()
+                usuario.getEmailPrincipal()
         );
 
         String ultimaMensagem;
@@ -90,7 +90,7 @@ public class ConversaAdapter
         } else {
 
             ultimaMensagem =
-                    usuario.getEmail_principal()
+                    usuario.getEmailPrincipal()
                             + ": "
                             + mensagem.getConteudo();
         }
@@ -99,7 +99,7 @@ public class ConversaAdapter
                 .setText(ultimaMensagem);
 
         Glide.with(holder.itemView.getContext())
-                .load(usuario.getFoto_perfil())
+                .load(usuario.getFotoPerfil())
                 .placeholder(
                         R.drawable.placeholder_usuario
                 )

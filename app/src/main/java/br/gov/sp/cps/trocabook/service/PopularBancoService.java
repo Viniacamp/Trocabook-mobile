@@ -1,382 +1,439 @@
 package br.gov.sp.cps.trocabook.service;
 
-import java.util.Arrays;
-import java.util.Collections;
+import android.content.Context;
 
+import br.gov.sp.cps.trocabook.model.Anuncio;
 import br.gov.sp.cps.trocabook.model.Livro;
+import br.gov.sp.cps.trocabook.model.Usuario;
+
+import java.util.Collections;
 
 public class PopularBancoService {
 
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
+    private final LivroService livroService;
+    private final AnuncioService anuncioService;
+    private final FileService fileService;
 
-    private LivroService livroService;
+    public interface Callback {
+        void onComplete();
 
-    private AnuncioService anuncioService;
-
-    private NegociacoesService negociacoesService;
-
-    public PopularBancoService() {
-
-        usuarioService = new UsuarioService();
-
-        livroService = new LivroService();
-
-        anuncioService = new AnuncioService();
-
-        negociacoesService = new NegociacoesService();
+        void onError(String erro);
     }
 
-    public void popularBanco() {
+    public PopularBancoService(Context context) {
 
-        System.out.println("popular");
+        Context appContext =
+                context.getApplicationContext();
 
-        criarUsuarioPedro();
+        this.usuarioService =
+                new UsuarioService();
 
-        criarUsuarioVinicius();
+        this.livroService =
+                new LivroService();
 
-        criarUsuarioRafaela();
+        this.anuncioService =
+                new AnuncioService();
 
-        criarUsuarioSquirtle();
+        this.fileService =
+                new FileService(appContext);
     }
 
-    private void criarUsuarioPedro() {
+    /**
+     * Inicia o povoamento do banco.
+     */
+    public void popularBanco(Callback callback) {
 
-        System.out.println("Criando usuario pedro");
+        criarUsuarioPedro(callback);
+    }
 
-        String userId = "user_pedro";
+    /**
+     * Cria o usuário Pedro Lucas.
+     */
+    private void criarUsuarioPedro(
+            Callback callback) {
 
-        usuarioService.usuarioExiste(
-                userId,
-
-                new UsuarioService.ServiceCallback<Boolean>() {
-
-                    @Override
-                    public void onSuccess(Boolean existe) {
-
-                        if (existe) return;
-
-                        usuarioService.salvarDadosUsuario(
-                                userId,
-                                "pedro@gmail.com",
-                                "pedro.rec@gmail.com",
-                                "(11)99999-1111",
-                                "52998224725",
-                                "12.345.678-9",
-                                "15/10/2000",
-                                "Masculino",
-                                "file:///android_asset/perfil/foto_pedro_lucas.png",
-
-                                new UsuarioService.ServiceCallback<Void>() {
-
-                                    @Override
-                                    public void onSuccess(Void data) {
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "Drácula",
-                                                "file:///android_asset/capas/capa_dracula.png",
-                                                "VENDA"
-                                        );
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "Harry Potter",
-                                                "file:///android_asset/capas/capa_harry_potter.png",
-                                                "TROCA"
-                                        );
-                                    }
-
-                                    @Override
-                                    public void onError(String erro) {
-
-                                    }
-                                }
-                        );
-                    }
-
-                    @Override
-                    public void onError(String erro) {
-
-                    }
-                }
+        criarUsuario(
+                "user_pedro",
+                "Pedro Lucas",
+                "pedro@gmail.com",
+                "pedro.rec@gmail.com",
+                "(11)99999-1111",
+                "52998224725",
+                "12.345.678-9",
+                "15/10/2000",
+                "Masculino",
+                "file:///android_asset/perfil/foto_pedro_lucas.png",
+                callback,
+                () -> criarLivrosPedro(callback)
         );
     }
 
-    private void criarUsuarioVinicius() {
+    /**
+     * Cria os livros e anúncios do Pedro.
+     */
+    private void criarLivrosPedro(
+            Callback callback) {
 
-        System.out.println("Criando usuario vinicius");
-
-        String userId = "user_vinicius";
-
-        usuarioService.usuarioExiste(
-                userId,
-
-                new UsuarioService.ServiceCallback<Boolean>() {
-
-                    @Override
-                    public void onSuccess(Boolean existe) {
-
-                        if (existe) return;
-
-                        usuarioService.salvarDadosUsuario(
-                                userId,
-                                "vinicius@gmail.com",
-                                "vinicius.rec@gmail.com",
-                                "(11)98888-2222",
-                                "11144477735",
-                                "98.765.432-1",
-                                "10/08/1998",
-                                "Masculino",
-                                "file:///android_asset/perfil/foto_vini.png",
-
-                                new UsuarioService.ServiceCallback<Void>() {
-
-                                    @Override
-                                    public void onSuccess(Void data) {
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "Floresta Sombria",
-                                                "file:///android_asset/capas/capa_floresta_sombria.png",
-                                                "VENDA"
-                                        );
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "Fundamentos de HTML5 e CSS3",
-                                                "file:///android_asset/capas/capa_a_era_da_ia.png",
-                                                "TROCA"
-                                        );
-                                    }
-
-                                    @Override
-                                    public void onError(String erro) {
-
-                                    }
-                                }
-                        );
-                    }
-
-                    @Override
-                    public void onError(String erro) {
-
-                    }
-                }
+        criarLivroCompleto(
+                "Drácula",
+                "VENDA",
+                "capas/capa_dracula.png",
+                "user_pedro",
+                callback,
+                () -> criarLivroCompleto(
+                        "Harry Potter",
+                        "TROCA",
+                        "capas/capa_harry_potter.png",
+                        "user_pedro",
+                        callback,
+                        () -> criarUsuarioVinicius(callback)
+                )
         );
     }
 
-    private void criarUsuarioRafaela() {
+    /**
+     * Cria o usuário Vinicius.
+     */
+    private void criarUsuarioVinicius(
+            Callback callback) {
 
-        String userId = "user_rafaela";
-
-        usuarioService.usuarioExiste(
-                userId,
-
-                new UsuarioService.ServiceCallback<Boolean>() {
-
-                    @Override
-                    public void onSuccess(Boolean existe) {
-
-                        if (existe) return;
-
-                        usuarioService.salvarDadosUsuario(
-                                userId,
-                                "rafaela@gmail.com",
-                                "rafaela.rec@gmail.com",
-                                "(11)97777-3333",
-                                "12345678909",
-                                "55.666.777-8",
-                                "01/05/1999",
-                                "Feminino",
-                                "file:///android_asset/perfil/foto_rafaela.png",
-
-                                new UsuarioService.ServiceCallback<Void>() {
-
-                                    @Override
-                                    public void onSuccess(Void data) {
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "Reflexões",
-                                                "file:///android_asset/capas/capa_reflexoes.png",
-                                                "VENDA"
-                                        );
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "O Pequeno Príncipe",
-                                                "file:///android_asset/capas/capa_o_pequeno_principe.png",
-                                                "TROCA"
-                                        );
-                                    }
-
-                                    @Override
-                                    public void onError(String erro) {
-
-                                    }
-                                }
-                        );
-                    }
-
-                    @Override
-                    public void onError(String erro) {
-
-                    }
-                }
+        criarUsuario(
+                "user_vinicius",
+                "Vinicius",
+                "vinicius@gmail.com",
+                "vinicius.rec@gmail.com",
+                "(11)98888-2222",
+                "11144477735",
+                "98.765.432-1",
+                "10/08/1998",
+                "Masculino",
+                "file:///android_asset/perfil/foto_vini.png",
+                callback,
+                () -> criarLivrosVinicius(callback)
         );
     }
 
-    private void criarUsuarioSquirtle() {
+    /**
+     * Cria os livros e anúncios do Vinicius.
+     */
+    private void criarLivrosVinicius(
+            Callback callback) {
 
-        String userId = "user_squirtle";
-
-        usuarioService.usuarioExiste(
-                userId,
-
-                new UsuarioService.ServiceCallback<Boolean>() {
-
-                    @Override
-                    public void onSuccess(Boolean existe) {
-
-                        if (existe) return;
-
-                        usuarioService.salvarDadosUsuario(
-                                userId,
-                                "squirtle@gmail.com",
-                                "squirtle.rec@gmail.com",
-                                "(11)96666-4444",
-                                "98765432100",
-                                "11.222.333-4",
-                                "20/03/1997",
-                                "Masculino",
-                                "file:///android_asset/perfil/foto_squirtle_boladao.png",
-
-                                new UsuarioService.ServiceCallback<Void>() {
-
-                                    @Override
-                                    public void onSuccess(Void data) {
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "A Era da IA",
-                                                "file:///android_asset/capas/capa_a_era_da_ia.png",
-                                                "VENDA"
-                                        );
-
-                                        criarLivroCompleto(
-                                                userId,
-                                                "Coleção de Livros",
-                                                "file:///android_asset/capas/capa_reflexoes.png",
-                                                "TROCA"
-                                        );
-                                    }
-
-                                    @Override
-                                    public void onError(String erro) {
-
-                                    }
-                                }
-                        );
-                    }
-
-                    @Override
-                    public void onError(String erro) {
-
-                    }
-                }
+        criarLivroCompleto(
+                "Floresta Sombria",
+                "VENDA",
+                "capas/capa_floresta_sombria.png",
+                "user_vinicius",
+                callback,
+                () -> criarUsuarioRafaela(callback)
         );
     }
 
-    private void criarLivroCompleto(
+    /**
+     * Cria a usuária Rafaela.
+     */
+    private void criarUsuarioRafaela(
+            Callback callback) {
+
+        criarUsuario(
+                "user_rafaela",
+                "Rafaela",
+                "rafaela@gmail.com",
+                "rafaela.rec@gmail.com",
+                "(11)97777-3333",
+                "12345678909",
+                "55.666.777-8",
+                "01/05/1999",
+                "Feminino",
+                "file:///android_asset/perfil/foto_rafaela.png",
+                callback,
+                () -> criarLivrosRafaela(callback)
+        );
+    }
+
+    /**
+     * Cria os livros e anúncios da Rafaela.
+     */
+    private void criarLivrosRafaela(
+            Callback callback) {
+
+        criarLivroCompleto(
+                "Reflexões",
+                "VENDA",
+                "capas/capa_reflexoes.png",
+                "user_rafaela",
+                callback,
+                () -> criarLivroCompleto(
+                        "O Pequeno Príncipe",
+                        "TROCA",
+                        "capas/capa_o_pequeno_principe.png",
+                        "user_rafaela",
+                        callback,
+                        () -> criarUsuarioSquirtle(callback)
+                )
+        );
+    }
+
+    /**
+     * Cria o usuário Squirtle.
+     */
+    private void criarUsuarioSquirtle(
+            Callback callback) {
+
+        criarUsuario(
+                "user_squirtle",
+                "Squirtle",
+                "squirtle@gmail.com",
+                "squirtle.rec@gmail.com",
+                "(11)96666-4444",
+                "98765432100",
+                "11.222.333-4",
+                "20/03/1997",
+                "Masculino",
+                "file:///android_asset/perfil/foto_squirtle_boladao.png",
+                callback,
+                () -> criarLivrosSquirtle(callback)
+        );
+    }
+
+    /**
+     * Cria os livros e anúncios do Squirtle.
+     */
+    private void criarLivrosSquirtle(
+            Callback callback) {
+
+        criarLivroCompleto(
+                "A Era da IA",
+                "VENDA",
+                "capas/capa_a_era_da_ia.png",
+                "user_squirtle",
+                callback,
+                callback::onComplete
+        );
+    }
+
+    /**
+     * Cria um usuário caso ele ainda não exista.
+     */
+    private void criarUsuario(
             String userId,
+            String nome,
+            String emailPrincipal,
+            String emailRecuperacao,
+            String telefone,
+            String cpf,
+            String rg,
+            String nascimento,
+            String genero,
+            String fotoPerfil,
+            Callback callback,
+            Runnable proximo) {
+
+        usuarioService.usuarioExiste(
+                userId,
+                new UsuarioService.ServiceCallback<Boolean>() {
+
+                    @Override
+                    public void onSucesso(
+                            Boolean existe) {
+
+                        if (Boolean.TRUE.equals(existe)) {
+
+                            proximo.run();
+                            return;
+                        }
+
+                        usuarioService.salvarDadosUsuario(
+                                userId,
+                                nome,
+                                emailPrincipal,
+                                emailRecuperacao,
+                                telefone,
+                                cpf,
+                                rg,
+                                nascimento,
+                                genero,
+                                fotoPerfil,
+                                new UsuarioService.ServiceCallback<Usuario>() {
+
+                                    @Override
+                                    public void onSucesso(
+                                            Usuario usuario) {
+
+                                        proximo.run();
+                                    }
+
+                                    @Override
+                                    public void onErro(
+                                            String erro) {
+
+                                        callback.onError(
+                                                "Erro ao criar usuário "
+                                                        + nome
+                                                        + ": "
+                                                        + erro
+                                        );
+                                    }
+                                }
+                        );
+                    }
+
+                    @Override
+                    public void onErro(
+                            String erro) {
+
+                        callback.onError(
+                                "Erro ao verificar usuário "
+                                        + userId
+                                        + ": "
+                                        + erro
+                        );
+                    }
+                }
+        );
+    }
+
+    /**
+     * Cria um livro a partir de uma imagem dos assets
+     * e, após salvá-lo, cria seu anúncio.
+     */
+    private void criarLivroCompleto(
             String titulo,
+            String tipoNegociacao,
             String caminhoImagem,
-            String tipoNegociacao
-    ) {
+            String userId,
+            Callback callback,
+            Runnable proximo) {
 
         livroService.salvarLivroAssets(
                 titulo,
-                Arrays.asList("Autor Desconhecido"),
-                Collections.singletonList("Literatura"),
+                Collections.singletonList(
+                        "Autor Desconhecido"
+                ),
+                Collections.singletonList(
+                        "Literatura"
+                ),
                 caminhoImagem,
-
+                fileService,
                 new LivroService.Callback<Livro>() {
 
                     @Override
-                    public void onSucesso(Livro livro) {
+                    public void onSucesso(
+                            Livro livro) {
 
-                        anuncioService.criarAnuncio(
+                        criarAnuncio(
                                 livro,
-                                "Livro disponível para negociação",
                                 tipoNegociacao,
                                 userId,
-
-                                new AnuncioService.Callback<Void>() {
-
-                                    @Override
-                                    public void onSuccess(Void dados) {
-
-                                        negociacoesService.criarNegociacao(
-                                                livro,
-                                                userId,
-                                                tipoNegociacao,
-
-                                                new NegociacoesService.Callback<Void>() {
-
-                                                    @Override
-                                                    public void onSuccess(Void dados) {
-
-                                                    }
-
-                                                    @Override
-                                                    public void onError(String erro) {
-
-                                                    }
-                                                }
-                                        );
-                                    }
-
-                                    @Override
-                                    public void onError(String mensagem) {
-
-                                    }
-                                }
+                                callback,
+                                proximo
                         );
                     }
 
                     @Override
-                    public void onErro(Exception e) {
+                    public void onErro(
+                            Exception e) {
 
-                        e.printStackTrace();
+                        callback.onError(
+                                "Erro ao criar livro "
+                                        + titulo
+                                        + ": "
+                                        + obterMensagemErro(e)
+                        );
                     }
                 }
         );
     }
 
-    public void iniciarBanco(Runnable onComplete) {
+    /**
+     * Cria o anúncio relacionado ao livro.
+     */
+    private void criarAnuncio(
+            Livro livro,
+            String tipoNegociacao,
+            String userId,
+            Callback callback,
+            Runnable proximo) {
 
-        usuarioService.usuarioExiste(
-                "user_pedro",
-
-                new UsuarioService.ServiceCallback<Boolean>() {
+        anuncioService.criarAnuncio(
+                livro,
+                "Livro disponível para negociação",
+                tipoNegociacao,
+                userId,
+                new AnuncioService.Callback<Anuncio>() {
 
                     @Override
-                    public void onSuccess(Boolean existe) {
+                    public void onSuccess(
+                            Anuncio anuncio) {
 
-                        if (!existe) {
-
-                            popularBanco();
-                        }
-
-                        onComplete.run();
+                        proximo.run();
                     }
 
                     @Override
-                    public void onError(String erro) {
+                    public void onError(
+                            String erro) {
 
-                        onComplete.run();
+                        callback.onError(
+                                "Erro ao criar anúncio de "
+                                        + livro.getTitulo()
+                                        + ": "
+                                        + erro
+                        );
                     }
                 }
         );
+    }
+
+    /**
+     * Verifica se o banco já foi populado.
+     *
+     * Caso o usuário Pedro ainda não exista,
+     * inicia o povoamento.
+     */
+    public void iniciarBanco(
+            Callback callback) {
+
+        usuarioService.usuarioExiste(
+                "user_pedro",
+                new UsuarioService.ServiceCallback<Boolean>() {
+
+                    @Override
+                    public void onSucesso(
+                            Boolean existe) {
+
+                        if (Boolean.TRUE.equals(existe)) {
+
+                            callback.onComplete();
+                            return;
+                        }
+
+                        popularBanco(callback);
+                    }
+
+                    @Override
+                    public void onErro(
+                            String erro) {
+
+                        callback.onError(
+                                "Erro ao verificar banco: "
+                                        + erro
+                        );
+                    }
+                }
+        );
+    }
+
+    private String obterMensagemErro(
+            Exception e) {
+
+        if (e == null
+                || e.getMessage() == null
+                || e.getMessage().isEmpty()) {
+
+            return "erro desconhecido";
+        }
+
+        return e.getMessage();
     }
 }

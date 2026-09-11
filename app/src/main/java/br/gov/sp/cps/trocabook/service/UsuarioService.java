@@ -1,132 +1,157 @@
 package br.gov.sp.cps.trocabook.service;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.repository.UsuarioRepository;
 
 public class UsuarioService {
 
-    private UsuarioRepository repository;
-
-    public interface ServiceCallback<T> {
-        void onSuccess(T data);
-        void onError(String erro);
-    }
+    private final UsuarioRepository usuarioRepository;
 
     public UsuarioService() {
-        repository = new UsuarioRepository();
+        this.usuarioRepository = new UsuarioRepository();
     }
 
+    public interface ServiceCallback<T> {
+        void onSucesso(T data);
+        void onErro(String erro);
+    }
 
+    /**
+     * Salva os dados do usuário no Firestore.
+     *
+     * O usuário do Firebase Authentication já deve ter sido criado
+     * anteriormente. O ID recebido deve ser o UID desse usuário.
+     */
     public void salvarDadosUsuario(
             String userId,
+            String nome,
             String emailPrincipal,
-            String emailRec,
+            String emailRecuperacao,
             String telefone,
             String cpf,
             String rg,
             String nascimento,
             String genero,
-            String foto_perfil,
-            ServiceCallback<Void> callback
+            String fotoPerfil,
+            ServiceCallback<Usuario> callback
     ) {
 
-        if (!validarEmailRecuperacao(emailPrincipal, emailRec)) {
-            callback.onError("Email de recuperação inválido");
+        if (userId == null || userId.trim().isEmpty()) {
+            callback.onErro("Usuário inválido");
+            return;
+        }
+
+        if (nome == null || nome.trim().isEmpty()) {
+            callback.onErro("Nome inválido");
+            return;
+        }
+
+        if (!validarEmailRecuperacao(emailPrincipal, emailRecuperacao)) {
+            callback.onErro("Email de recuperação inválido");
             return;
         }
 
         if (!isCpfValido(cpf)) {
-            callback.onError("CPF inválido");
+            callback.onErro("CPF inválido");
             return;
         }
 
-        this.cpfExiste(cpf, new ServiceCallback<Boolean>() {
+        cpfExiste(cpf, new ServiceCallback<Boolean>() {
 
             @Override
-            public void onSuccess(Boolean existe) {
+            public void onSucesso(Boolean existe) {
 
-                if (existe) {
-                    callback.onError("CPF já cadastrado");
+                if (Boolean.TRUE.equals(existe)) {
+                    callback.onErro("CPF já cadastrado");
                     return;
                 }
 
-                Map<String, Object> usuario = montarUsuario(
-                        emailPrincipal,
-                        emailRec,
-                        telefone,
-                        cpf,
-                        rg,
-                        nascimento,
-                        genero,
-                        foto_perfil
+                Usuario usuario = new Usuario();
+
+                usuario.setId(userId);
+                usuario.setNome(nome.trim());
+                usuario.setCpf(cpf);
+                usuario.setEmailPrincipal(emailPrincipal);
+                usuario.setEmailRecuperacao(emailRecuperacao);
+                usuario.setTelefone(telefone);
+                usuario.setRg(rg);
+                usuario.setNascimento(nascimento);
+                usuario.setGenero(genero);
+                usuario.setFotoPerfil(fotoPerfil);
+
+                // Usuário novo começa sem avaliação.
+                usuario.setAvaliacao(0.0);
+
+                usuarioRepository.cadastrar(
+                        usuario,
+                        new UsuarioRepository.Callback<Usuario>() {
+
+                            @Override
+                            public void onSucesso(Usuario usuarioSalvo) {
+                                callback.onSucesso(usuarioSalvo);
+                            }
+
+                            @Override
+                            public void onErro(Exception erro) {
+                                callback.onErro(erro.getMessage());
+                            }
+                        }
                 );
-
-                repository.salvarUsuario(userId, usuario, new UsuarioRepository.Callback<Void>() {
-
-                    @Override
-                    public void onSuccess(Void resultado) {
-                        callback.onSuccess(null);
-                    }
-
-                    @Override
-                    public void onError(String erro) {
-                        callback.onError(erro);
-                    }
-                });
             }
 
             @Override
-            public void onError(String erro) {
-                callback.onError(erro);
+            public void onErro(String erro) {
+                callback.onErro(erro);
             }
         });
     }
 
-
-    private Map<String, Object> montarUsuario(
+    public boolean validarEmailRecuperacao(
             String emailPrincipal,
-            String emailRec,
-            String telefone,
-            String cpf,
-            String rg,
-            String nascimento,
-            String genero,
-            String foto_perfil
+            String emailRecuperacao
     ) {
 
-        Map<String, Object> usuario = new HashMap<>();
-        usuario.put("email_principal", emailPrincipal);
-        usuario.put("email_recuperacao", emailRec);
-        usuario.put("telefone", telefone);
-        usuario.put("cpf", cpf);
-        usuario.put("rg", rg);
-        usuario.put("nascimento", nascimento);
-        usuario.put("genero", genero);
-        usuario.put("foto_perfil", foto_perfil);
+        if (emailPrincipal == null || emailRecuperacao == null) {
+            return false;
+        }
 
-        return usuario;
-    }
+        if (!emailRecuperacao.endsWith("@gmail.com")) {
+            return false;
+        }
 
-    public boolean validarEmailRecuperacao(String principal, String rec) {
-        if (rec == null || !rec.endsWith("@gmail.com")) return false;
-        return !rec.equalsIgnoreCase(principal);
+        return !emailRecuperacao.equalsIgnoreCase(emailPrincipal);
     }
 
     public boolean isCpfValido(String cpf) {
-        if (cpf == null || cpf.length() != 11 || cpf.matches("(\\d)\\1{10}")) return false;
+
+        if (cpf == null) {
+            return false;
+        }
+
+        cpf = cpf.replaceAll("\\D", "");
+
+        if (cpf.length() != 11 || cpf.matches("(\\d)\\1{10}")) {
+            return false;
+        }
 
         try {
-            int d1 = 0, d2 = 0, peso = 10;
+
+            int d1 = 0;
+            int d2 = 0;
+            int peso = 10;
 
             for (int i = 0; i < 9; i++) {
-                int num = Integer.parseInt(cpf.substring(i, i + 1));
-                d1 += num * peso;
-                d2 += num * (peso + 1);
+
+                int numero = Integer.parseInt(
+                        cpf.substring(i, i + 1)
+                );
+
+                d1 += numero * peso;
+                d2 += numero * (peso + 1);
+
                 peso--;
             }
 
@@ -138,99 +163,268 @@ public class UsuarioService {
             int r2 = 11 - (d2 % 11);
             int digito2 = (r2 > 9) ? 0 : r2;
 
-            return cpf.substring(9).equals("" + digito1 + digito2);
+            return cpf.substring(9).equals(
+                    "" + digito1 + digito2
+            );
 
         } catch (Exception e) {
             return false;
         }
     }
 
-    public boolean isMaiorDeIdade(int year, int month, int day) {
+    public boolean isMaiorDeIdade(
+            int year,
+            int month,
+            int day
+    ) {
 
         Calendar nascimento = Calendar.getInstance();
         nascimento.set(year, month, day);
 
         Calendar hoje = Calendar.getInstance();
 
-        int idade = hoje.get(Calendar.YEAR) - nascimento.get(Calendar.YEAR);
+        int idade =
+                hoje.get(Calendar.YEAR)
+                        - nascimento.get(Calendar.YEAR);
 
-        if (hoje.get(Calendar.DAY_OF_YEAR) < nascimento.get(Calendar.DAY_OF_YEAR)) {
+        if (hoje.get(Calendar.DAY_OF_YEAR)
+                < nascimento.get(Calendar.DAY_OF_YEAR)) {
+
             idade--;
         }
 
         return idade >= 18;
     }
 
-    public void usuarioExiste(String userId, ServiceCallback<Boolean> callback) {
+    public void usuarioExiste(
+            String userId,
+            ServiceCallback<Boolean> callback
+    ) {
 
-        repository.usuarioExiste(userId, new UsuarioRepository.Callback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean existe) {
-                callback.onSuccess(existe);
-            }
+        if (userId == null || userId.trim().isEmpty()) {
+            callback.onErro("Usuário inválido");
+            return;
+        }
 
-            @Override
-            public void onError(String erro) {
-                callback.onError(erro);
-            }
-        });
+        usuarioRepository.buscarPorUid(
+                userId,
+                new UsuarioRepository.Callback<Usuario>() {
+
+                    @Override
+                    public void onSucesso(Usuario usuario) {
+                        callback.onSucesso(usuario != null);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
     }
 
-    public void cpfExiste(String CPF, ServiceCallback<Boolean> callback) {
-        repository.cpfExiste(CPF, new UsuarioRepository.Callback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean existe) {
-                callback.onSuccess(existe);
-            }
+    public void cpfExiste(
+            String cpf,
+            ServiceCallback<Boolean> callback
+    ) {
 
-            @Override
-            public void onError(String erro) {
-                callback.onError(erro);
-            }
-        });
+        if (cpf == null || cpf.trim().isEmpty()) {
+            callback.onErro("CPF inválido");
+            return;
+        }
 
+        usuarioRepository.buscarPorCpf(
+                cpf,
+                new UsuarioRepository.Callback<Usuario>() {
+
+                    @Override
+                    public void onSucesso(Usuario usuario) {
+                        callback.onSucesso(usuario != null);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
     }
 
-    public void buscarUsuarios(ServiceCallback<List<Usuario>> callback) {
+    public void buscarUsuarioPorId(
+            String userId,
+            ServiceCallback<Usuario> callback
+    ) {
 
-        repository.buscarUsuarios(new UsuarioRepository.Callback<List<Usuario>>() {
+        if (userId == null || userId.trim().isEmpty()) {
+            callback.onErro("Usuário inválido");
+            return;
+        }
 
-            @Override
-            public void onSuccess(List<Usuario> data) {
-                callback.onSuccess(data);
-            }
+        usuarioRepository.buscarPorUid(
+                userId,
+                new UsuarioRepository.Callback<Usuario>() {
 
-            @Override
-            public void onError(String erro) {
-                callback.onError(erro);
-            }
-        });
+                    @Override
+                    public void onSucesso(Usuario usuario) {
+                        callback.onSucesso(usuario);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
     }
 
-    public void isVazio(ServiceCallback<Integer> callback){
-        repository.isVazio(new UsuarioRepository.Callback<Integer>() {
+    public void buscarUsuarioPorEmail(
+            String email,
+            ServiceCallback<Usuario> callback
+    ) {
 
-            @Override
-            public void onSuccess(Integer data) {
-                callback.onSuccess(data);
-            }
-            @Override
-            public void onError(String erro) {
-                callback.onError(erro);
-            }
-        });
+        if (email == null || email.trim().isEmpty()) {
+            callback.onErro("Email inválido");
+            return;
+        }
+
+        usuarioRepository.buscarPorEmail(
+                email.trim(),
+                new UsuarioRepository.Callback<Usuario>() {
+
+                    @Override
+                    public void onSucesso(Usuario usuario) {
+                        callback.onSucesso(usuario);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
     }
 
-    public void buscarUsuarioPorId(String userId, ServiceCallback<Usuario> callback) {
-        repository.buscarUsuarioPorId(userId, new UsuarioRepository.Callback<Usuario>() {
-            @Override
-            public void onSuccess(Usuario usuario) {
-                callback.onSuccess(usuario);
-            }
-            @Override
-            public void onError(String erro) {
-                callback.onError(erro);
-            }
-        });
+    public void buscarUsuarios(
+            ServiceCallback<List<Usuario>> callback
+    ) {
+
+        usuarioRepository.buscarTodos(
+                new UsuarioRepository.Callback<List<Usuario>>() {
+
+                    @Override
+                    public void onSucesso(List<Usuario> usuarios) {
+                        callback.onSucesso(usuarios);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
+    }
+
+    public void buscarMelhoresAvaliados(
+            ServiceCallback<List<Usuario>> callback
+    ) {
+
+        usuarioRepository.buscaTop6Avaliacao(
+                new UsuarioRepository.Callback<List<Usuario>>() {
+
+                    @Override
+                    public void onSucesso(List<Usuario> usuarios) {
+                        callback.onSucesso(usuarios);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
+    }
+
+    public void buscarUsuariosPorIds(
+            List<String> ids,
+            ServiceCallback<List<Usuario>> callback
+    ) {
+
+        if (ids == null || ids.isEmpty()) {
+            callback.onSucesso(new java.util.ArrayList<>());
+            return;
+        }
+
+        usuarioRepository.buscarPorUids(
+                ids,
+                new UsuarioRepository.Callback<List<Usuario>>() {
+
+                    @Override
+                    public void onSucesso(List<Usuario> usuarios) {
+                        callback.onSucesso(usuarios);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
+    }
+
+    public void atualizarUsuario(
+            Usuario usuario,
+            ServiceCallback<Usuario> callback
+    ) {
+
+        if (usuario == null
+                || usuario.getId() == null
+                || usuario.getId().trim().isEmpty()) {
+
+            callback.onErro("Usuário inválido");
+            return;
+        }
+
+        usuarioRepository.atualizar(
+                usuario,
+                new UsuarioRepository.Callback<Usuario>() {
+
+                    @Override
+                    public void onSucesso(Usuario usuarioAtualizado) {
+                        callback.onSucesso(usuarioAtualizado);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
+    }
+
+    public void deletarUsuario(
+            String userId,
+            ServiceCallback<Void> callback
+    ) {
+
+        if (userId == null || userId.trim().isEmpty()) {
+            callback.onErro("Usuário inválido");
+            return;
+        }
+
+        usuarioRepository.deletar(
+                userId,
+                new UsuarioRepository.Callback<Void>() {
+
+                    @Override
+                    public void onSucesso(Void resultado) {
+                        callback.onSucesso(null);
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        callback.onErro(erro.getMessage());
+                    }
+                }
+        );
     }
 }

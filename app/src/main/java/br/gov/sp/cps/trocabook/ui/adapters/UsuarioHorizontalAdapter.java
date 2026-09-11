@@ -56,7 +56,7 @@ public class UsuarioHorizontalAdapter
 
         Usuario usuario = lista.get(position);
 
-        String caminhoImagem = usuario.getFoto_perfil();
+        String caminhoImagem = usuario.getFotoPerfil();
 
         if (caminhoImagem == null || caminhoImagem.isEmpty()) {
 

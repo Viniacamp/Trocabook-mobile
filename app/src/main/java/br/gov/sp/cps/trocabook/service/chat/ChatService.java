@@ -83,6 +83,57 @@ public class ChatService {
 
     }
 
+    public void buscarMensagemPorId(
+            String id,
+            Callback<MensagemDTO> callback
+    ) {
+
+        if (id == null || id.trim().isEmpty()) {
+            callback.onError("Mensagem inválida");
+            return;
+        }
+
+        api.buscarMensagemPorId(id)
+                .enqueue(
+                        new retrofit2.Callback<ApiResponse<MensagemDTO>>() {
+
+                            @Override
+                            public void onResponse(
+                                    Call<ApiResponse<MensagemDTO>> call,
+                                    Response<ApiResponse<MensagemDTO>> response
+                            ) {
+
+                                if (response.isSuccessful()
+                                        && response.body() != null) {
+
+                                    callback.onSuccess(
+                                            response.body().getData()
+                                    );
+
+                                    return;
+                                }
+
+                                callback.onError(
+                                        "Não foi possível buscar a mensagem"
+                                );
+                            }
+
+                            @Override
+                            public void onFailure(
+                                    Call<ApiResponse<MensagemDTO>> call,
+                                    Throwable t
+                            ) {
+
+                                callback.onError(
+                                        t.getMessage() != null
+                                                ? t.getMessage()
+                                                : "Erro ao buscar mensagem"
+                                );
+                            }
+                        }
+                );
+    }
+
     public void atualizarMensagem(
             String id,
             AtualizarMensagemDTO mensagemDTO,

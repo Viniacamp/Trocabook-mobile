@@ -1,6 +1,7 @@
 package br.gov.sp.cps.trocabook.model;
 
 import java.io.Serializable;
+import com.google.firebase.Timestamp;
 
 import br.gov.sp.cps.trocabook.model.utils.ItemComCapa;
 
@@ -10,11 +11,13 @@ public class Negociacao implements Serializable, ItemComCapa {
 
     private String usuarioAnuncianteId;
     private String usuarioCompradorId;
+
     private String anuncioId;
 
-    private String dataNegociacao;
+    private Timestamp dataNegociacao;
 
     private TipoNegociacao tipoNegociacao;
+    private StatusNegociacao status;
 
     private String nmAnunciante;
     private String fotoPerfilAnunciante;
@@ -25,6 +28,14 @@ public class Negociacao implements Serializable, ItemComCapa {
     private String titulo;
     private String capa;
 
+    private boolean confirmacaoAnunciante;
+    private boolean confirmacaoComprador;
+
+    private String anuncioOferecidoId;
+    private String tituloLivroOferecido;
+    private String capaLivroOferecido;
+    private String descricaoOferta;
+
     public Negociacao() {
     }
 
@@ -33,14 +44,21 @@ public class Negociacao implements Serializable, ItemComCapa {
             String usuarioAnuncianteId,
             String usuarioCompradorId,
             String anuncioId,
-            String dataNegociacao,
+            Timestamp dataNegociacao,
             TipoNegociacao tipoNegociacao,
+            StatusNegociacao status,
             String nmAnunciante,
             String fotoPerfilAnunciante,
             String nmComprador,
             String fotoPerfilComprador,
             String titulo,
-            String capa
+            String capa,
+            boolean confirmacaoAnunciante,
+            boolean confirmacaoComprador,
+            String anuncioOferecidoId,
+            String tituloLivroOferecido,
+            String capaLivroOferecido,
+            String descricaoOferta
     ) {
         this.id = id;
         this.usuarioAnuncianteId = usuarioAnuncianteId;
@@ -48,12 +66,19 @@ public class Negociacao implements Serializable, ItemComCapa {
         this.anuncioId = anuncioId;
         this.dataNegociacao = dataNegociacao;
         this.tipoNegociacao = tipoNegociacao;
+        this.status = status;
         this.nmAnunciante = nmAnunciante;
         this.fotoPerfilAnunciante = fotoPerfilAnunciante;
         this.nmComprador = nmComprador;
         this.fotoPerfilComprador = fotoPerfilComprador;
         this.titulo = titulo;
         this.capa = capa;
+        this.confirmacaoAnunciante = confirmacaoAnunciante;
+        this.confirmacaoComprador = confirmacaoComprador;
+        this.anuncioOferecidoId = anuncioOferecidoId;
+        this.tituloLivroOferecido = tituloLivroOferecido;
+        this.capaLivroOferecido = capaLivroOferecido;
+        this.descricaoOferta = descricaoOferta;
     }
 
     public String getId() {
@@ -88,11 +113,11 @@ public class Negociacao implements Serializable, ItemComCapa {
         this.anuncioId = anuncioId;
     }
 
-    public String getDataNegociacao() {
+    public Timestamp getDataNegociacao() {
         return dataNegociacao;
     }
 
-    public void setDataNegociacao(String dataNegociacao) {
+    public void setDataNegociacao(Timestamp dataNegociacao) {
         this.dataNegociacao = dataNegociacao;
     }
 
@@ -102,6 +127,14 @@ public class Negociacao implements Serializable, ItemComCapa {
 
     public void setTipoNegociacao(TipoNegociacao tipoNegociacao) {
         this.tipoNegociacao = tipoNegociacao;
+    }
+
+    public StatusNegociacao getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusNegociacao status) {
+        this.status = status;
     }
 
     public String getNmAnunciante() {
@@ -151,6 +184,62 @@ public class Negociacao implements Serializable, ItemComCapa {
 
     public void setCapa(String capa) {
         this.capa = capa;
+    }
+
+    public boolean isConfirmacaoAnunciante() {
+        return confirmacaoAnunciante;
+    }
+
+    public void setConfirmacaoAnunciante(boolean confirmacaoAnunciante) {
+        this.confirmacaoAnunciante = confirmacaoAnunciante;
+    }
+
+    public boolean isConfirmacaoComprador() {
+        return confirmacaoComprador;
+    }
+
+    public void setConfirmacaoComprador(boolean confirmacaoComprador) {
+        this.confirmacaoComprador = confirmacaoComprador;
+    }
+
+    public String getAnuncioOferecidoId() {
+        return anuncioOferecidoId;
+    }
+
+    public void setAnuncioOferecidoId(String anuncioOferecidoId) {
+        this.anuncioOferecidoId = anuncioOferecidoId;
+    }
+
+    public String getTituloLivroOferecido() {
+        return tituloLivroOferecido;
+    }
+
+    public void setTituloLivroOferecido(String tituloLivroOferecido) {
+        this.tituloLivroOferecido = tituloLivroOferecido;
+    }
+
+    public String getCapaLivroOferecido() {
+        return capaLivroOferecido;
+    }
+
+    public void setCapaLivroOferecido(String capaLivroOferecido) {
+        this.capaLivroOferecido = capaLivroOferecido;
+    }
+
+    public String getDescricaoOferta() {
+        return descricaoOferta;
+    }
+
+    public void setDescricaoOferta(String descricaoOferta) {
+        this.descricaoOferta = descricaoOferta;
+    }
+
+    public enum StatusNegociacao {
+        PENDENTE,
+        EM_ANDAMENTO,
+        RECUSADA,
+        CANCELADA,
+        FINALIZADA
     }
 
     public enum TipoNegociacao {

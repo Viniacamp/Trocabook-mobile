@@ -1,9 +1,11 @@
 package br.gov.sp.cps.trocabook.repository;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import br.gov.sp.cps.trocabook.model.Anuncio;
 
@@ -60,19 +62,60 @@ public class AnuncioRepository {
                 );
     }
 
-    public void listarTodosPorTipoNegociacao(
-            Anuncio.TipoNegociacao tipoNegociacao,
-            Callback<List<Anuncio>> callback) {
+    public void listarTodosPorStatus(Anuncio.StatusAnuncio statusAnuncio,
+                                     Callback<List<Anuncio>> callback) {
+        Query query = db.collection(COLECAO);
 
-        db.collection(COLECAO)
-                .whereEqualTo("tipoNegociacao", tipoNegociacao.name())
-                .get()
-                .addOnSuccessListener(snapshot -> {
+        if (statusAnuncio != null){
+            query = query.whereEqualTo("status", statusAnuncio.name());
+        }
+        query.get().addOnSuccessListener(snapshot -> {
 
                     List<Anuncio> lista = new ArrayList<>();
 
                     snapshot.getDocuments().forEach(documento -> {
                         Anuncio anuncio = documento.toObject(Anuncio.class);
+
+                        if (anuncio != null) {
+                            anuncio.setId(documento.getId());
+                            lista.add(anuncio);
+                        }
+                    });
+
+                    callback.onSuccess(lista);
+                })
+                .addOnFailureListener(e ->
+                        callback.onError("Erro ao buscar todos os anúncios: " + e.getMessage())
+                );
+    }
+
+    public void listarTodosPorTipoNegociacao(
+            Anuncio.TipoNegociacao tipoNegociacao,
+            Anuncio.StatusAnuncio status,
+            Callback<List<Anuncio>> callback
+    ) {
+
+        Query query = db.collection(COLECAO)
+                .whereEqualTo(
+                        "tipoNegociacao",
+                        tipoNegociacao.name()
+                );
+
+        if (status != null) {
+            query = query.whereEqualTo(
+                    "status",
+                    status.name()
+            );
+        }
+
+        query.get()
+                .addOnSuccessListener(snapshot -> {
+
+                    List<Anuncio> lista = new ArrayList<>();
+
+                    snapshot.getDocuments().forEach(documento -> {
+                        Anuncio anuncio =
+                                documento.toObject(Anuncio.class);
 
                         if (anuncio != null) {
                             anuncio.setId(documento.getId());
@@ -92,6 +135,7 @@ public class AnuncioRepository {
 
     public void buscarPorUid(
             String uid,
+            Anuncio.StatusAnuncio status,
             Callback<Anuncio> callback) {
 
         db.collection(COLECAO)
@@ -111,6 +155,13 @@ public class AnuncioRepository {
                         return;
                     }
 
+                    if (status != null
+                            && anuncio.getStatus() != status) {
+
+                        callback.onSuccess(null);
+                        return;
+                    }
+
                     anuncio.setId(documento.getId());
                     callback.onSuccess(anuncio);
                 })
@@ -121,17 +172,31 @@ public class AnuncioRepository {
 
     public void buscarPorUidUsuario(
             String uidUsuario,
-            Callback<List<Anuncio>> callback) {
+            Anuncio.StatusAnuncio status,
+            Callback<List<Anuncio>> callback
+    ) {
 
-        db.collection(COLECAO)
-                .whereEqualTo("uidUsuario", uidUsuario)
-                .get()
+        Query query = db.collection(COLECAO)
+                .whereEqualTo(
+                        "uidUsuario",
+                        uidUsuario
+                );
+
+        if (status != null) {
+            query = query.whereEqualTo(
+                    "status",
+                    status.name()
+            );
+        }
+
+        query.get()
                 .addOnSuccessListener(snapshot -> {
 
                     List<Anuncio> lista = new ArrayList<>();
 
                     snapshot.getDocuments().forEach(documento -> {
-                        Anuncio anuncio = documento.toObject(Anuncio.class);
+                        Anuncio anuncio =
+                                documento.toObject(Anuncio.class);
 
                         if (anuncio != null) {
                             anuncio.setId(documento.getId());
@@ -152,18 +217,35 @@ public class AnuncioRepository {
     public void buscarPorUidUsuarioETipoNegociacao(
             String uidUsuario,
             Anuncio.TipoNegociacao tipoNegociacao,
-            Callback<List<Anuncio>> callback) {
+            Anuncio.StatusAnuncio status,
+            Callback<List<Anuncio>> callback
+    ) {
 
-        db.collection(COLECAO)
-                .whereEqualTo("uidUsuario", uidUsuario)
-                .whereEqualTo("tipoNegociacao", tipoNegociacao.name())
-                .get()
+        Query query = db.collection(COLECAO)
+                .whereEqualTo(
+                        "uidUsuario",
+                        uidUsuario
+                )
+                .whereEqualTo(
+                        "tipoNegociacao",
+                        tipoNegociacao.name()
+                );
+
+        if (status != null) {
+            query = query.whereEqualTo(
+                    "status",
+                    status.name()
+            );
+        }
+
+        query.get()
                 .addOnSuccessListener(snapshot -> {
 
                     List<Anuncio> lista = new ArrayList<>();
 
                     snapshot.getDocuments().forEach(documento -> {
-                        Anuncio anuncio = documento.toObject(Anuncio.class);
+                        Anuncio anuncio =
+                                documento.toObject(Anuncio.class);
 
                         if (anuncio != null) {
                             anuncio.setId(documento.getId());
@@ -183,17 +265,31 @@ public class AnuncioRepository {
 
     public void buscarPorUidLivro(
             String uidLivro,
-            Callback<List<Anuncio>> callback) {
+            Anuncio.StatusAnuncio status,
+            Callback<List<Anuncio>> callback
+    ) {
 
-        db.collection(COLECAO)
-                .whereEqualTo("uidLivro", uidLivro)
-                .get()
+        Query query = db.collection(COLECAO)
+                .whereEqualTo(
+                        "uidLivro",
+                        uidLivro
+                );
+
+        if (status != null) {
+            query = query.whereEqualTo(
+                    "status",
+                    status.name()
+            );
+        }
+
+        query.get()
                 .addOnSuccessListener(snapshot -> {
 
                     List<Anuncio> lista = new ArrayList<>();
 
                     snapshot.getDocuments().forEach(documento -> {
-                        Anuncio anuncio = documento.toObject(Anuncio.class);
+                        Anuncio anuncio =
+                                documento.toObject(Anuncio.class);
 
                         if (anuncio != null) {
                             anuncio.setId(documento.getId());
@@ -213,19 +309,36 @@ public class AnuncioRepository {
 
     public void buscarPorTitulo(
             String titulo,
-            Callback<List<Anuncio>> callback) {
+            Anuncio.StatusAnuncio status,
+            Callback<List<Anuncio>> callback
+    ) {
 
-        db.collection(COLECAO)
-                .orderBy("titulo")
-                .startAt(titulo)
-                .endAt(titulo + "\uf8ff")
-                .get()
+        Query query = db.collection(COLECAO);
+
+        if (status != null) {
+            query = query.whereEqualTo(
+                    "status",
+                    status.name()
+            );
+        }
+
+        String tituloNormalizado = titulo
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        query = query
+                .orderBy("tituloBusca")
+                .startAt(tituloNormalizado)
+                .endAt(tituloNormalizado + "\uf8ff");
+
+        query.get()
                 .addOnSuccessListener(snapshot -> {
 
                     List<Anuncio> lista = new ArrayList<>();
 
                     snapshot.getDocuments().forEach(documento -> {
-                        Anuncio anuncio = documento.toObject(Anuncio.class);
+                        Anuncio anuncio =
+                                documento.toObject(Anuncio.class);
 
                         if (anuncio != null) {
                             anuncio.setId(documento.getId());

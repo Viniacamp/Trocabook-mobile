@@ -43,7 +43,7 @@ public class AnuncioManualActivity extends AppCompatActivity {
 
     private ImageView capa;
 
-    private Spinner status;
+    private Spinner spinnerTipoNegocicacao;
 
     private TextView textoUpload;
 
@@ -100,7 +100,7 @@ public class AnuncioManualActivity extends AppCompatActivity {
 
         textoUpload = findViewById(R.id.txtUpload);
 
-        status = findViewById(R.id.spinnerStatus);
+        spinnerTipoNegocicacao = findViewById(R.id.spinnerStatus);
 
         capa = findViewById(R.id.imgCapa);
 
@@ -123,7 +123,7 @@ public class AnuncioManualActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_dropdown_item
         );
 
-        status.setAdapter(adapter);
+        spinnerTipoNegocicacao.setAdapter(adapter);
     }
 
     private void configurarCategorias() {
@@ -438,7 +438,7 @@ public class AnuncioManualActivity extends AppCompatActivity {
                         .trim();
 
         String tipo =
-                status.getSelectedItem()
+                spinnerTipoNegocicacao.getSelectedItem()
                         .toString();
 
         String uidUsuario =

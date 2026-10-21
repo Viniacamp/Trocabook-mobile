@@ -45,15 +45,35 @@
                     android:layout_marginStart="20dp"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/textTitulo"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Livro"
-                        android:fontFamily="@font/manrope_bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/textTitulo"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Livro"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:id="@+id/buttonEditar"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:padding="8dp"
+                            android:src="@drawable/editar_lapis_icone"
+                            android:tint="?attr/colorOnSurfaceVariant"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Editar anúncio"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/textTipoNegociacao"
@@ -102,6 +122,7 @@
                         android:fontFamily="@font/manrope_bold"
                         android:textAllCaps="false"
                         android:textSize="18sp" />
+
 
                 </LinearLayout>
 

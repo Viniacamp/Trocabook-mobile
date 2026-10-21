@@ -78,8 +78,6 @@ public class ConversasActivity extends AppCompatActivity {
         configurarMenu();
 
         configurarRecycler();
-
-        carregarConversas();
     }
 
     private void inicializarComponentes() {
@@ -395,8 +393,17 @@ public class ConversasActivity extends AppCompatActivity {
 
         super.onResume();
 
-        bottomNavigation.getMenu()
-                .findItem(R.id.menu_chat)
-                .setChecked(true);
+        if (bottomNavigation != null) {
+
+            bottomNavigation.getMenu()
+                    .findItem(R.id.menu_chat)
+                    .setChecked(true);
+        }
+
+        if (uidUsuarioLogado != null
+                && !uidUsuarioLogado.trim().isEmpty()) {
+
+            carregarConversas();
+        }
     }
 }

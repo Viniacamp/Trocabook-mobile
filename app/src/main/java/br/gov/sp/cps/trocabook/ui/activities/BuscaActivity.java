@@ -264,6 +264,8 @@ public class BuscaActivity extends AppCompatActivity {
         imgLoading.startAnimation(
                 animacaoLoading
         );
+
+        btnBuscar.setEnabled(false);
     }
 
     private void esconderLoading() {
@@ -273,6 +275,8 @@ public class BuscaActivity extends AppCompatActivity {
         );
 
         imgLoading.clearAnimation();
+
+        btnBuscar.setEnabled(true);
     }
 
     private void configurarMenu() {

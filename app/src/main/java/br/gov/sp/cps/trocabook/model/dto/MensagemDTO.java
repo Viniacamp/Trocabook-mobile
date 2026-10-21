@@ -1,6 +1,6 @@
 package br.gov.sp.cps.trocabook.model.dto;
 
-import java.time.LocalDateTime;
+
 
 public class MensagemDTO {
     private String id;

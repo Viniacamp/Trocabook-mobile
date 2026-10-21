@@ -40,7 +40,7 @@ public class AnuncioActivity extends AppCompatActivity {
     private Button btnAnunciar;
     private Button btnVoltar;
 
-    private Spinner status;
+    private Spinner spinnerTipoNegocicacao;
 
     private ImageView capa;
 
@@ -101,7 +101,7 @@ public class AnuncioActivity extends AppCompatActivity {
 
         descricao = findViewById(R.id.txtDescricao);
 
-        status = findViewById(R.id.spinnerStatus);
+        spinnerTipoNegocicacao = findViewById(R.id.spinnerStatus);
 
         btnAnunciar = findViewById(R.id.btnAnunciar);
         btnVoltar = findViewById(R.id.btnVoltar);
@@ -173,7 +173,7 @@ public class AnuncioActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_dropdown_item
         );
 
-        status.setAdapter(adapter);
+        spinnerTipoNegocicacao.setAdapter(adapter);
     }
 
     private void carregarInformacoes(Livro livro) {
@@ -365,7 +365,7 @@ public class AnuncioActivity extends AppCompatActivity {
         return livro != null &&
                 livro.getTitulo() != null &&
                 !livro.getTitulo().trim().isEmpty() &&
-                status.getSelectedItem() != null;
+                spinnerTipoNegocicacao.getSelectedItem() != null;
     }
 
     private void salvarAnuncioBanco() {
@@ -379,7 +379,7 @@ public class AnuncioActivity extends AppCompatActivity {
                         .trim();
 
         String tipo =
-                status.getSelectedItem()
+                spinnerTipoNegocicacao.getSelectedItem()
                         .toString();
 
         anuncioService.criarAnuncio(

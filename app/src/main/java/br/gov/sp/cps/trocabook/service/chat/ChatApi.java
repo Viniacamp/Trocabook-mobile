@@ -27,6 +27,11 @@ public interface ChatApi {
             @Query("anuncio") String anuncio
     );
 
+    @GET("mensagens/{id}")
+    Call<ApiResponse<MensagemDTO>> buscarMensagemPorId(
+            @Path("id") String id
+    );
+
     @PUT("mensagens/{id}")
     Call<ApiResponse<MensagemDTO>> atualizarMensagem(
             @Path("id") String id,

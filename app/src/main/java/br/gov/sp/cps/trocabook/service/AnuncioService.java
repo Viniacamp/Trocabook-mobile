@@ -85,10 +85,11 @@ public class AnuncioService {
                                 usuario.getFotoPerfil(),
                                 livro.getCapa(),
                                 livro.getIdsAutores(),
-                                livro.getIdsCategorias()
+                                livro.getIdsCategorias(),
+                                descricaoFinal,
+                                Anuncio.StatusAnuncio.ATIVO
                         );
 
-                        anuncio.setDescricao(descricaoFinal);
 
                         anuncioRepository.salvar(
                                 anuncio,
@@ -131,6 +132,7 @@ public class AnuncioService {
 
         anuncioRepository.buscarPorUid(
                 anuncioId,
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<Anuncio>() {
 
                     @Override
@@ -150,7 +152,8 @@ public class AnuncioService {
             Callback<List<Anuncio>> callback
     ) {
 
-        anuncioRepository.listarTodos(
+        anuncioRepository.listarTodosPorStatus(
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<List<Anuncio>>() {
 
                     @Override
@@ -178,6 +181,7 @@ public class AnuncioService {
 
         anuncioRepository.listarTodosPorTipoNegociacao(
                 tipoNegociacao,
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<List<Anuncio>>() {
 
                     @Override
@@ -205,6 +209,7 @@ public class AnuncioService {
 
         anuncioRepository.buscarPorUidUsuario(
                 uidUsuario,
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<List<Anuncio>>() {
 
                     @Override
@@ -239,6 +244,7 @@ public class AnuncioService {
         anuncioRepository.buscarPorUidUsuarioETipoNegociacao(
                 uidUsuario,
                 tipoNegociacao,
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<List<Anuncio>>() {
 
                     @Override
@@ -266,6 +272,7 @@ public class AnuncioService {
 
         anuncioRepository.buscarPorUidLivro(
                 uidLivro,
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<List<Anuncio>>() {
 
                     @Override
@@ -293,6 +300,7 @@ public class AnuncioService {
 
         anuncioRepository.buscarPorTitulo(
                 titulo.trim(),
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<List<Anuncio>>() {
 
                     @Override
@@ -310,21 +318,75 @@ public class AnuncioService {
 
     public void atualizarAnuncio(
             Anuncio anuncio,
+            String uidUsuario,
             Callback<Anuncio> callback
     ) {
 
-        if (anuncio == null || anuncio.getId() == null || anuncio.getId().isEmpty()) {
+        if (anuncio == null
+                || anuncio.getId() == null
+                || anuncio.getId().trim().isEmpty()) {
+
             callback.onError("Anúncio inválido");
             return;
         }
 
-        anuncioRepository.atualizar(
-                anuncio,
+        if (uidUsuario == null || uidUsuario.trim().isEmpty()) {
+            callback.onError("Usuário inválido");
+            return;
+        }
+
+        anuncioRepository.buscarPorUid(
+                anuncio.getId(),
+                Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<Anuncio>() {
 
                     @Override
-                    public void onSuccess(Anuncio anuncioAtualizado) {
-                        callback.onSuccess(anuncioAtualizado);
+                    public void onSuccess(Anuncio anuncioExistente) {
+
+                        if (anuncioExistente == null) {
+                            callback.onError(
+                                    "Anúncio não encontrado ou já finalizado"
+                            );
+                            return;
+                        }
+
+                        if (!uidUsuario.equals(
+                                anuncioExistente.getUidUsuario()
+                        )) {
+                            callback.onError(
+                                    "Você não pode editar este anúncio"
+                            );
+                            return;
+                        }
+
+                        // Somente os campos editáveis.
+                        anuncioExistente.setDescricao(
+                                anuncio.getDescricao()
+                        );
+
+                        anuncioExistente.setTipoNegociacao(
+                                anuncio.getTipoNegociacao()
+                        );
+
+                        anuncioRepository.atualizar(
+                                anuncioExistente,
+                                new AnuncioRepository.Callback<Anuncio>() {
+
+                                    @Override
+                                    public void onSuccess(
+                                            Anuncio anuncioAtualizado
+                                    ) {
+                                        callback.onSuccess(
+                                                anuncioAtualizado
+                                        );
+                                    }
+
+                                    @Override
+                                    public void onError(String erro) {
+                                        callback.onError(erro);
+                                    }
+                                }
+                        );
                     }
 
                     @Override
@@ -352,6 +414,63 @@ public class AnuncioService {
                     @Override
                     public void onSuccess(Void resultado) {
                         callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+                        callback.onError(erro);
+                    }
+                }
+        );
+    }
+    public void finalizarAnuncio(
+            String anuncioId,
+            Callback<Anuncio> callback
+    ) {
+
+        if (anuncioId == null || anuncioId.trim().isEmpty()) {
+            callback.onError("Anúncio inválido");
+            return;
+        }
+
+        anuncioRepository.buscarPorUid(
+                anuncioId,
+                Anuncio.StatusAnuncio.ATIVO,
+                new AnuncioRepository.Callback<Anuncio>() {
+
+                    @Override
+                    public void onSuccess(Anuncio anuncio) {
+
+                        if (anuncio == null) {
+                            callback.onError(
+                                    "Anúncio não encontrado ou já finalizado"
+                            );
+                            return;
+                        }
+
+                        anuncio.setStatus(
+                                Anuncio.StatusAnuncio.FINALIZADO
+                        );
+
+                        anuncioRepository.atualizar(
+                                anuncio,
+                                new AnuncioRepository.Callback<Anuncio>() {
+
+                                    @Override
+                                    public void onSuccess(
+                                            Anuncio anuncioAtualizado
+                                    ) {
+                                        callback.onSuccess(
+                                                anuncioAtualizado
+                                        );
+                                    }
+
+                                    @Override
+                                    public void onError(String erro) {
+                                        callback.onError(erro);
+                                    }
+                                }
+                        );
                     }
 
                     @Override

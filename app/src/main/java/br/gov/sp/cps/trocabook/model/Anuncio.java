@@ -2,6 +2,7 @@ package br.gov.sp.cps.trocabook.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 
 import br.gov.sp.cps.trocabook.model.utils.ItemComCapa;
 
@@ -13,12 +14,15 @@ public class Anuncio implements Serializable, ItemComCapa {
     private String nomeUsuario;
     private TipoNegociacao tipoNegociacao;
     private String titulo;
+    private String tituloBusca;
 
     private String descricao;
     private String fotoPerfil;
     private String capa;
     private List<String> autores;
     private List<String> categorias;
+
+    private StatusAnuncio status;
 
     public Anuncio() {
     }
@@ -33,18 +37,22 @@ public class Anuncio implements Serializable, ItemComCapa {
             String fotoPerfil,
             String capa,
             List<String> autores,
-            List<String> categorias
+            List<String> categorias,
+            String descricao,
+            StatusAnuncio status
     ) {
         this.id = id;
         this.uidUsuario = uidUsuario;
         this.uidLivro = uidLivro;
         this.nomeUsuario = nomeUsuario;
         this.tipoNegociacao = tipoNegociacao;
-        this.titulo = titulo;
+        this.setTitulo(titulo);
         this.fotoPerfil = fotoPerfil;
         this.capa = capa;
         this.autores = autores;
         this.categorias = categorias;
+        this.descricao = descricao;
+        this.status = status;
     }
 
     public String getId() {
@@ -93,6 +101,7 @@ public class Anuncio implements Serializable, ItemComCapa {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
+        this.tituloBusca = normalizarTitulo(titulo);
     }
 
     public String getDescricao() {
@@ -135,10 +144,41 @@ public class Anuncio implements Serializable, ItemComCapa {
         this.categorias = categorias;
     }
 
+    public StatusAnuncio getStatus() {
+        return status != null
+                ? status
+                : StatusAnuncio.ATIVO;
+    }
+
+    public void setStatus(StatusAnuncio status) {
+        this.status = status;
+    }
+
+    public String getTituloBusca() {
+        return tituloBusca;
+    }
+
+    public void setTituloBusca(String tituloBusca) {
+        this.tituloBusca = tituloBusca;
+    }
+
     public enum TipoNegociacao {
         TROCA,
         VENDA,
         AMBOS
+    }
+
+    public enum StatusAnuncio {
+        ATIVO,
+        FINALIZADO
+    }
+
+    private static String normalizarTitulo(String titulo) {
+        if (titulo == null) {
+            return "";
+        }
+
+        return titulo.toLowerCase(Locale.ROOT);
     }
 
 

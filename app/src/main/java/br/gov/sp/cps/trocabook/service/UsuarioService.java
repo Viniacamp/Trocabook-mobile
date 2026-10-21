@@ -1,5 +1,7 @@
 package br.gov.sp.cps.trocabook.service;
 
+import com.google.firebase.Timestamp;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -81,6 +83,10 @@ public class UsuarioService {
                 usuario.setNascimento(nascimento);
                 usuario.setGenero(genero);
                 usuario.setFotoPerfil(fotoPerfil);
+                usuario.setDataCriacao(Timestamp.now());
+                usuario.setRole(Usuario.Role.USER);
+                usuario.setStatus(Usuario.StatusUsuario.ATIVO);
+
 
                 // Usuário novo começa sem avaliação.
                 usuario.setAvaliacao(0.0);

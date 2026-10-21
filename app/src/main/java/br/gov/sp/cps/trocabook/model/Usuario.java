@@ -1,5 +1,7 @@
 package br.gov.sp.cps.trocabook.model;
 
+import com.google.firebase.Timestamp;
+
 import java.io.Serializable;
 
 public class Usuario implements Serializable {
@@ -16,6 +18,13 @@ public class Usuario implements Serializable {
     private String telefone;
     private double avaliacao;
 
+    private Timestamp dataCriacao;
+
+    private Role role;
+
+    private StatusUsuario status;
+
+
     public Usuario() {
     }
 
@@ -30,7 +39,10 @@ public class Usuario implements Serializable {
             String nascimento,
             String rg,
             String telefone,
-            double avaliacao
+            double avaliacao,
+            Timestamp dataCriacao,
+            Role role,
+            StatusUsuario status
     ) {
         this.id = id;
         this.nome = nome;
@@ -43,6 +55,9 @@ public class Usuario implements Serializable {
         this.rg = rg;
         this.telefone = telefone;
         this.avaliacao = avaliacao;
+        this.dataCriacao = dataCriacao;
+        this.role = role;
+        this.status = status;
     }
 
     public String getId() {
@@ -131,5 +146,44 @@ public class Usuario implements Serializable {
 
     public void setAvaliacao(double avaliacao) {
         this.avaliacao = avaliacao;
+    }
+
+    public Timestamp getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(Timestamp dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public StatusUsuario getStatus() {
+        return status != null
+                ? status
+                : StatusUsuario.ATIVO;
+    }
+
+    public void setStatus(StatusUsuario status) {
+        this.status = status;
+    }
+
+
+    public Role getRole() {
+        return role != null
+                ? role
+                : Role.USER;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public enum Role {
+        USER,
+        ADMIN
+    }
+
+    public enum StatusUsuario {
+        ATIVO,
+        INATIVO
     }
 }

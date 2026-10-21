@@ -221,6 +221,8 @@ public class NegociacoesService {
                     Timestamp.now()
             );
 
+            negociacaoExistente.setDataFinalizacao(null);
+
             negociacaoExistente.setConfirmacaoAnunciante(
                     false
             );
@@ -1571,6 +1573,8 @@ public class NegociacoesService {
         negociacao.setStatus(
                 Negociacao.StatusNegociacao.FINALIZADA
         );
+
+        negociacao.setDataFinalizacao(Timestamp.now());
 
         anuncioService.finalizarAnuncio(
                 negociacao.getAnuncioId(),

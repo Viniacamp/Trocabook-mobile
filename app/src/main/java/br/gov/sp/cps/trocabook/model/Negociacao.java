@@ -16,6 +16,8 @@ public class Negociacao implements Serializable, ItemComCapa {
 
     private Timestamp dataNegociacao;
 
+    private Timestamp dataFinalizacao;
+
     private TipoNegociacao tipoNegociacao;
     private StatusNegociacao status;
 
@@ -45,6 +47,7 @@ public class Negociacao implements Serializable, ItemComCapa {
             String usuarioCompradorId,
             String anuncioId,
             Timestamp dataNegociacao,
+            Timestamp dataFinalizacao,
             TipoNegociacao tipoNegociacao,
             StatusNegociacao status,
             String nmAnunciante,
@@ -65,6 +68,7 @@ public class Negociacao implements Serializable, ItemComCapa {
         this.usuarioCompradorId = usuarioCompradorId;
         this.anuncioId = anuncioId;
         this.dataNegociacao = dataNegociacao;
+        this.dataFinalizacao = dataFinalizacao;
         this.tipoNegociacao = tipoNegociacao;
         this.status = status;
         this.nmAnunciante = nmAnunciante;
@@ -232,6 +236,14 @@ public class Negociacao implements Serializable, ItemComCapa {
 
     public void setDescricaoOferta(String descricaoOferta) {
         this.descricaoOferta = descricaoOferta;
+    }
+
+    public Timestamp getDataFinalizacao() {
+        return dataFinalizacao;
+    }
+
+    public void setDataFinalizacao(Timestamp dataFinalizacao) {
+        this.dataFinalizacao = dataFinalizacao;
     }
 
     public enum StatusNegociacao {

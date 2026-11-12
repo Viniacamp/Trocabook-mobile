@@ -3,6 +3,7 @@ package br.gov.sp.cps.trocabook.service.chat;
 import java.util.List;
 
 import br.gov.sp.cps.trocabook.model.dto.ApiResponse;
+import br.gov.sp.cps.trocabook.model.dto.AtualizarFcmTokenDTO;
 import br.gov.sp.cps.trocabook.model.dto.AtualizarMensagemDTO;
 import br.gov.sp.cps.trocabook.model.dto.MensagemDTO;
 import retrofit2.Call;
@@ -18,6 +19,11 @@ public interface ChatApi {
     @POST("mensagens")
     Call<ApiResponse<MensagemDTO>> enviarMensagem(
             @Body MensagemDTO mensagem
+    );
+
+    @POST("notificacoes/status-usuario")
+    Call<ApiResponse<Void>> registrarOuAtualizarStatusUsuario(
+            @Body AtualizarFcmTokenDTO status
     );
 
     @GET("mensagens")

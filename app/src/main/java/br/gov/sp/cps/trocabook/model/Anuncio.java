@@ -1,5 +1,7 @@
 package br.gov.sp.cps.trocabook.model;
 
+import com.google.firebase.Timestamp;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +26,8 @@ public class Anuncio implements Serializable, ItemComCapa {
 
     private StatusAnuncio status;
 
+    private Timestamp dataCriacao;
+
     public Anuncio() {
     }
 
@@ -39,7 +43,8 @@ public class Anuncio implements Serializable, ItemComCapa {
             List<String> autores,
             List<String> categorias,
             String descricao,
-            StatusAnuncio status
+            StatusAnuncio status,
+            Timestamp dataCriacao
     ) {
         this.id = id;
         this.uidUsuario = uidUsuario;
@@ -53,6 +58,7 @@ public class Anuncio implements Serializable, ItemComCapa {
         this.categorias = categorias;
         this.descricao = descricao;
         this.status = status;
+        this.dataCriacao = dataCriacao;
     }
 
     public String getId() {
@@ -160,6 +166,14 @@ public class Anuncio implements Serializable, ItemComCapa {
 
     public void setTituloBusca(String tituloBusca) {
         this.tituloBusca = tituloBusca;
+    }
+
+    public Timestamp getDataCriacao() {
+        return this.dataCriacao;
+    }
+
+    public void setDataCriacao(Timestamp dataCriacao) {
+        this.dataCriacao = dataCriacao;
     }
 
     public enum TipoNegociacao {

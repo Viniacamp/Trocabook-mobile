@@ -1,5 +1,7 @@
 package br.gov.sp.cps.trocabook.service;
 
+import com.google.firebase.Timestamp;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -87,7 +89,8 @@ public class AnuncioService {
                                 livro.getIdsAutores(),
                                 livro.getIdsCategorias(),
                                 descricaoFinal,
-                                Anuncio.StatusAnuncio.ATIVO
+                                Anuncio.StatusAnuncio.ATIVO,
+                                Timestamp.now()
                         );
 
 

@@ -1,6 +1,9 @@
 package br.gov.sp.cps.trocabook.ui.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.content.DialogInterface;
 import android.util.Log;
@@ -17,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
@@ -34,12 +38,15 @@ import java.util.Objects;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
+import br.gov.sp.cps.trocabook.model.Interacao;
 import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.model.dto.MensagemDTO;
 import br.gov.sp.cps.trocabook.model.dto.AtualizarMensagemDTO;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
+import br.gov.sp.cps.trocabook.service.InteracaoService;
+import br.gov.sp.cps.trocabook.service.MeuFirebaseMessagingService;
 import br.gov.sp.cps.trocabook.service.NegociacoesService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.service.chat.ChatService;
@@ -54,24 +61,14 @@ public class ChatActivity extends AppCompatActivity {
 
     private EditText editMensagem;
 
-    private final Handler handler = new Handler(Looper.getMainLooper());
-
-    private final Runnable atualizarChatRunnable =
-            new Runnable() {
-
-                @Override
-                public void run() {
-
-                    carregarMensagens();
-
-                    atualizarNegociacao();
-
-                    handler.postDelayed(
-                            this,
-                            4000
-                    );
-                }
-            };
+    private final BroadcastReceiver chatReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Assim que o FCM avisa que houve alteração, recarregamos as mensagens instantaneamente!
+            carregarMensagens();
+            atualizarNegociacao();
+        }
+    };
 
     private FloatingActionButton btnEnviarMensagem;
 
@@ -84,6 +81,8 @@ public class ChatActivity extends AppCompatActivity {
     private AnuncioService anuncioService;
 
     private NegociacoesService negociacoesService;
+
+    private InteracaoService interacaoService;
 
     private ChatAdapter adapter;
 
@@ -1230,6 +1229,24 @@ public class ChatActivity extends AppCompatActivity {
                             MensagemDTO dados
                     ) {
 
+                        FirebaseUser usuarioAtual = authService.getUsuarioAtual();
+                        if (usuarioAtual != null && anuncioAtual != null && !usuarioEhAnunciante) {
+                            interacaoService.registrarInicioConversa(
+                                    usuarioAtual.getUid(),
+                                    anuncioAtual.getUidLivro(),
+                                    anuncioId,
+                                    new InteracaoService.Callback<Interacao>() {
+                                        @Override
+                                        public void onSuccess(Interacao dados) {
+
+                                        }
+                                        @Override
+                                        public void onError(String erro) {
+                                            android.util.Log.e("INTERACAO_LOG", "Erro ao registrar início de conversa: " + erro);
+                                        }
+                                    }
+                            );
+                        }
                         carregarMensagens();
                     }
 
@@ -2034,6 +2051,25 @@ public class ChatActivity extends AppCompatActivity {
 
                             editMensagem.setText("");
 
+                            FirebaseUser usuarioAtual = authService.getUsuarioAtual();
+                            if (usuarioAtual != null && anuncioAtual != null && !usuarioEhAnunciante) {
+                                interacaoService.registrarInicioConversa(
+                                        usuarioAtual.getUid(),
+                                        anuncioAtual.getUidLivro(),
+                                        anuncioId,
+                                        new InteracaoService.Callback<Interacao>() {
+                                            @Override
+                                            public void onSuccess(Interacao dados) {
+
+                                            }
+                                            @Override
+                                            public void onError(String erro) {
+                                                android.util.Log.e("INTERACAO_LOG", "Erro ao registrar início de conversa: " + erro);
+                                            }
+                                        }
+                                );
+                            }
+
                             carregarMensagens();
                         }
 
@@ -2237,32 +2273,22 @@ public class ChatActivity extends AppCompatActivity {
                     .setChecked(true);
         }
 
-        iniciarAtualizacaoChat();
+        // Registra para escutar eventos de mensagens novas em tempo real via FCM
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                chatReceiver,
+                new IntentFilter(MeuFirebaseMessagingService.ACTION_ATUALIZAR_CHAT)
+        );
+
+        // Carrega o estado atual ao entrar na tela
+        carregarMensagens();
+        atualizarNegociacao();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        pararAtualizacaoChat();
-    }
-
-    private void iniciarAtualizacaoChat() {
-
-        handler.removeCallbacks(
-                atualizarChatRunnable
-        );
-
-        handler.postDelayed(
-                atualizarChatRunnable,
-                4000
-        );
-    }
-
-    private void pararAtualizacaoChat() {
-
-        handler.removeCallbacks(
-                atualizarChatRunnable
-        );
+        // Remove o registro do receptor para evitar vazamento de memória (Memory Leak)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(chatReceiver);
     }
 }

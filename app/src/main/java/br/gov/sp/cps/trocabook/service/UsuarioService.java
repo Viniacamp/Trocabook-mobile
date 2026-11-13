@@ -7,6 +7,7 @@ import java.util.List;
 
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.repository.UsuarioRepository;
+import br.gov.sp.cps.trocabook.service.chat.ChatService;
 
 public class UsuarioService {
 
@@ -405,6 +406,66 @@ public class UsuarioService {
                     }
                 }
         );
+    }
+
+    public void atualizarFcmToken(String uid, String fcmToken, ServiceCallback<Void> callback) {
+        if (uid == null || uid.trim().isEmpty() || fcmToken == null || fcmToken.trim().isEmpty()) {
+            if (callback != null) callback.onErro("Dados inválidos para atualizar o token FCM");
+            return;
+        }
+
+        // 1. Busca o usuário no banco de dados local (Firestore)
+        usuarioRepository.buscarPorUid(uid, new UsuarioRepository.Callback<Usuario>() {
+            @Override
+            public void onSucesso(Usuario usuario) {
+                if (usuario == null) {
+                    if (callback != null) callback.onErro("Usuário não encontrado");
+                    return;
+                }
+
+                // 2. Atualiza o campo fcmToken na entidade e salva no Firestore
+                usuario.setFcmToken(fcmToken);
+                usuarioRepository.atualizar(usuario, new UsuarioRepository.Callback<Usuario>() {
+                    @Override
+                    public void onSucesso(Usuario usuarioAtualizado) {
+                        android.util.Log.d("FCM_LOG", "Token FCM atualizado no Firestore com sucesso!");
+
+                        // 3. Sincroniza com o microsserviço de chat (exatamente como na Web)
+                        ChatService chatService =
+                                new ChatService();
+
+                        chatService.registrarOuAtualizarStatusUsuario(
+                                usuario.getId(),
+                                fcmToken,
+                                new br.gov.sp.cps.trocabook.service.chat.ChatService.Callback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void dados) {
+                                        android.util.Log.d("FCM_LOG", "Token FCM sincronizado com o microsserviço de chat.");
+                                        if (callback != null) callback.onSucesso(null);
+                                    }
+
+                                    @Override
+                                    public void onError(String erro) {
+                                        android.util.Log.e("FCM_LOG", "Erro ao sincronizar com microsserviço de chat: " + erro);
+                                        // Mesmo se falhar no chat, o Firestore foi atualizado, mas reportamos o erro se necessário
+                                        if (callback != null) callback.onSucesso(null);
+                                    }
+                                }
+                        );
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        if (callback != null) callback.onErro(erro.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            public void onErro(Exception erro) {
+                if (callback != null) callback.onErro(erro.getMessage());
+            }
+        });
     }
 
     public void deletarUsuario(

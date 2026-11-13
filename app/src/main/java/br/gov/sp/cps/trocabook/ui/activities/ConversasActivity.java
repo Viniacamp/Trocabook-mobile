@@ -1,6 +1,9 @@
 package br.gov.sp.cps.trocabook.ui.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -11,6 +14,7 @@ import android.widget.LinearLayout;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,6 +29,7 @@ import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.model.dto.ConversaDTO;
 import br.gov.sp.cps.trocabook.model.dto.MensagemDTO;
 import br.gov.sp.cps.trocabook.service.AuthService;
+import br.gov.sp.cps.trocabook.service.MeuFirebaseMessagingService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.service.chat.ChatService;
 import br.gov.sp.cps.trocabook.ui.adapters.ConversaAdapter;
@@ -52,6 +57,16 @@ public class ConversasActivity extends AppCompatActivity {
     private AuthService authService;
 
     private String uidUsuarioLogado;
+
+    private final BroadcastReceiver conversasReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Quando o FCM avisa de uma nova alteração, recarrega a lista de conversas instantaneamente!
+            if (uidUsuarioLogado != null && !uidUsuarioLogado.trim().isEmpty()) {
+                carregarConversas();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -390,20 +405,31 @@ public class ConversasActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-
         super.onResume();
 
         if (bottomNavigation != null) {
-
             bottomNavigation.getMenu()
                     .findItem(R.id.menu_chat)
                     .setChecked(true);
         }
+
+        // Registra para escutar eventos de atualização em tempo real via FCM
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                conversasReceiver,
+                new IntentFilter(MeuFirebaseMessagingService.ACTION_ATUALIZAR_CHAT)
+        );
 
         if (uidUsuarioLogado != null
                 && !uidUsuarioLogado.trim().isEmpty()) {
 
             carregarConversas();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Remove o registro do receptor ao sair da tela
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(conversasReceiver);
     }
 }

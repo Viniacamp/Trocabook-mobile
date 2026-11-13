@@ -56,14 +56,17 @@ public class InteracaoService {
     public void registrarVisualizacao(String uidUsuario, String uidLivro, String uidAnuncio, Callback<Interacao> callback){
         if (uidUsuario == null || uidUsuario.trim().isEmpty()){
             callback.onError("Usuário inválido");
+            return;
         }
 
         if (uidLivro == null || uidLivro.trim().isEmpty()){
             callback.onError("Livro inválido");
+            return;
         }
 
         if (uidAnuncio == null || uidAnuncio.trim().isEmpty()){
             callback.onError("Anúncio inválido");
+            return;
         }
 
         Interacao interacao = new Interacao(
@@ -86,17 +89,19 @@ public class InteracaoService {
     public void registrarInicioConversa(String uidUsuario, String uidLivro, String uidAnuncio, Callback<Interacao> callback){
         if (uidUsuario == null || uidUsuario.trim().isEmpty()){
             callback.onError("Usuário inválido");
+            return;
         }
 
         if (uidLivro == null || uidLivro.trim().isEmpty()){
             callback.onError("Livro inválido");
+            return;
         }
 
         if (uidAnuncio == null || uidAnuncio.trim().isEmpty()){
             callback.onError("Anúncio inválido");
+            return;
         }
 
-        final boolean[] inicioConversaJaRegistrado = new boolean[1];
         interacaoRepository.buscarPorUidUsuarioEAnuncioETipo(
                 uidUsuario,
                 uidAnuncio,
@@ -104,38 +109,32 @@ public class InteracaoService {
                 new InteracaoRepository.Callback<List<Interacao>>() {
                     @Override
                     public void onSucesso(List<Interacao> dados) {
-                        inicioConversaJaRegistrado[0] = !dados.isEmpty();
+                        if (dados != null && !dados.isEmpty()) {
+                            // Já registrado, retorna nulo ou sucesso sem duplicar
+                            callback.onSuccess(null);
+                        } else {
+                            // Não registrado, prossegue com a criação
+                            Interacao interacao = new Interacao(
+                                    UUID.randomUUID().toString(),
+                                    uidUsuario,
+                                    Interacao.TipoInteracao.INICIO_CONVERSA,
+                                    uidLivro,
+                                    uidAnuncio,
+                                    null,
+                                    Interacao.OrigemInteracao.MOBILE,
+                                    Timestamp.now()
+                            );
+
+                            salvar(interacao, callback);
+                        }
                     }
 
                     @Override
                     public void onErro(Exception e) {
-
+                        callback.onError(e.getMessage());
                     }
                 }
-
         );
-
-        if (inicioConversaJaRegistrado[0]){
-            callback.onSuccess(null);
-        }
-
-        else {
-            Interacao interacao = new Interacao(
-                    UUID.randomUUID().toString(),
-                    uidUsuario,
-                    Interacao.TipoInteracao.INICIO_CONVERSA,
-                    uidLivro,
-                    uidAnuncio,
-                    null,
-                    Interacao.OrigemInteracao.MOBILE,
-                    Timestamp.now()
-            );
-
-            salvar(interacao, callback);
-        }
-
-
-
     }
 
 

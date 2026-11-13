@@ -3,6 +3,7 @@ package br.gov.sp.cps.trocabook.service.chat;
 import java.util.List;
 
 import br.gov.sp.cps.trocabook.model.dto.ApiResponse;
+import br.gov.sp.cps.trocabook.model.dto.AtualizarFcmTokenDTO;
 import br.gov.sp.cps.trocabook.model.dto.AtualizarMensagemDTO;
 import br.gov.sp.cps.trocabook.model.dto.MensagemDTO;
 import retrofit2.Call;
@@ -186,6 +187,32 @@ public class ChatService {
                     @Override
                     public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
                         callback.onError(t.getMessage());
+                    }
+                });
+    }
+
+    public void registrarOuAtualizarStatusUsuario(String uidUsuario, String fcmToken, Callback<Void> callback) {
+        if (uidUsuario == null || uidUsuario.trim().isEmpty() || fcmToken == null || fcmToken.trim().isEmpty()) {
+            callback.onError("Dados inválidos para o FCM");
+            return;
+        }
+
+        AtualizarFcmTokenDTO dto = new AtualizarFcmTokenDTO(uidUsuario, fcmToken);
+
+        api.registrarOuAtualizarStatusUsuario(dto)
+                .enqueue(new retrofit2.Callback<ApiResponse<Void>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+                        if (response.isSuccessful()) {
+                            callback.onSuccess(null);
+                        } else {
+                            callback.onError("Erro ao registrar status do usuário na API");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                        callback.onError(t.getMessage() != null ? t.getMessage() : "Erro de conexão");
                     }
                 });
     }

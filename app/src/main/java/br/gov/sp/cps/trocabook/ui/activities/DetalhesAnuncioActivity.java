@@ -24,9 +24,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
+import br.gov.sp.cps.trocabook.model.Interacao;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
+import br.gov.sp.cps.trocabook.service.InteracaoService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 
 public class DetalhesAnuncioActivity extends AppCompatActivity {
@@ -45,6 +47,8 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
     private AuthService authService;
     private AnuncioService anuncioService;
     private UsuarioService usuarioService;
+
+    private InteracaoService interacaoService;
 
     private BottomNavigationView bottomNavigation;
 
@@ -140,6 +144,28 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
                         );
 
                         configurarAcoes(dados);
+
+                        FirebaseUser usuarioAtual = authService.getUsuarioAtual();
+                        if (usuarioAtual != null) {
+                            boolean proprioAnuncio = usuarioAtual.getUid().equals(dados.getUidUsuario());
+                            if (!proprioAnuncio) {
+                                interacaoService.registrarVisualizacao(
+                                        usuarioAtual.getUid(),
+                                        dados.getUidLivro(),
+                                        dados.getId(),
+                                        new InteracaoService.Callback<Interacao>() {
+                                            @Override
+                                            public void onSuccess(Interacao dados) {
+
+                                            }
+                                            @Override
+                                            public void onError(String erro) {
+                                                android.util.Log.e("INTERACAO_LOG", "Erro ao registrar visualização: " + erro);
+                                            }
+                                        }
+                                );
+                            }
+                        }
                     }
 
                     @Override
@@ -491,6 +517,7 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
         authService = new AuthService(this);
         anuncioService = new AnuncioService();
         usuarioService = new UsuarioService();
+        interacaoService = new InteracaoService();
     }
 
     private void configurarMenu() {

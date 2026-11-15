@@ -1,19 +1,34 @@
 package br.gov.sp.cps.trocabook.service;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.Person;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import br.gov.sp.cps.trocabook.R;
+import br.gov.sp.cps.trocabook.model.Usuario;
+import br.gov.sp.cps.trocabook.ui.activities.ChatActivity;
+import br.gov.sp.cps.trocabook.util.ChatState;
+
 public class MeuFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FCM_DEBUG";
     public static final String ACTION_ATUALIZAR_CHAT = "br.gov.sp.cps.trocabook.ATUALIZAR_CHAT";
+    private static final String CHANNEL_ID = "chat_mensagens_channel";
 
     @Override
     public void onNewToken(@NonNull String token) {
@@ -25,17 +40,129 @@ public class MeuFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        Log.d(TAG, "Notificação recebida do microsserviço: " + remoteMessage.getFrom());
 
-        // Verifica se é uma mensagem de chat ou dados para atualizar a tela em tempo real
-        // O microsserviço pode enviar dados extras (ex: tipo de evento: NOVA_MENSAGEM, EDITAR, EXCLUIR)
-        if (!remoteMessage.getData().isEmpty() || remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Disparando atualização de chat via Broadcast Local");
+        if (!remoteMessage.getData().isEmpty()) {
+            String tipoEvento = remoteMessage.getData().get("tipoEvento");
+            String tipo = remoteMessage.getData().get("tipo");
+            String uidAnuncio = remoteMessage.getData().get("uidAnuncio");
+            String uidRemetente = remoteMessage.getData().get("uidRemetente");
+            String uidDestinatario = remoteMessage.getData().get("uidDestinatario");
 
-            // Dispara um aviso interno no app para a ChatActivity atualizar as mensagens na hora
-            Intent intent = new Intent(ACTION_ATUALIZAR_CHAT);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            // 1. Tratamento para eventos silenciosos (edição ou exclusão de mensagens)
+            if (tipoEvento != null) {
+                Intent intent = new Intent(ACTION_ATUALIZAR_CHAT);
+                intent.putExtra("tipoEvento", tipoEvento);
+                intent.putExtra("uidAnuncio", uidAnuncio);
+                intent.putExtra("uidRemetente", uidRemetente);
+                intent.putExtra("uidDestinatario", uidDestinatario);
+
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                return;
+            }
+
+            // 2. Tratamento para novas mensagens (com exibição de banner visual rico estilo WhatsApp)
+            if ("NOVA_MENSAGEM".equals(tipo) || remoteMessage.getData().containsKey("corpo")) {
+                String corpoMensagem = remoteMessage.getData().get("corpo");
+
+                FirebaseUser usuarioAtual = FirebaseAuth.getInstance().getCurrentUser();
+                if (usuarioAtual != null) {
+                    String meuUid = usuarioAtual.getUid();
+                    String outroUsuarioId = meuUid.equals(uidDestinatario) ? uidRemetente : uidDestinatario;
+
+                    // Se o usuário já estiver com esta exata conversa aberta, não mostra o banner visual
+                    if (ChatState.estaChatAberto(uidAnuncio, outroUsuarioId)) {
+                        Log.d(TAG, "Chat já está aberto. Notificação visual suprimida.");
+                        return;
+                    }
+
+                    // Busca o nome e foto do remetente via UsuarioService e constrói a notificação rica
+                    buscarDadosRemetenteEExibirNotificacao(outroUsuarioId, corpoMensagem, uidAnuncio);
+                }
+            }
         }
+    }
+
+    private void buscarDadosRemetenteEExibirNotificacao(String outroUsuarioId, String corpoMensagem, String anuncioId) {
+        UsuarioService usuarioService = new UsuarioService();
+
+        usuarioService.buscarUsuarioPorId(outroUsuarioId, new UsuarioService.ServiceCallback<Usuario>() {
+            @Override
+            public void onSucesso(Usuario usuario) {
+                String nomeRemetente = "Usuário";
+                String fotoPerfil = null;
+
+                if (usuario != null) {
+                    nomeRemetente = usuario.getEmailPrincipal() != null ? usuario.getEmailPrincipal() : "Usuário";
+                    fotoPerfil = usuario.getFotoPerfil();
+                }
+
+                mostrarNotificacaoChatEstiloWhatsApp(nomeRemetente, corpoMensagem, anuncioId, outroUsuarioId, fotoPerfil);
+            }
+
+            @Override
+            public void onErro(String erro) {
+                Log.e(TAG, "Erro ao buscar dados do remetente para notificação: " + erro);
+                mostrarNotificacaoChatEstiloWhatsApp("Nova mensagem", corpoMensagem, anuncioId, outroUsuarioId, null);
+            }
+        });
+    }
+
+    private void mostrarNotificacaoChatEstiloWhatsApp(String nomeRemetente, String corpo, String anuncioId, String outroUsuarioId, String urlFotoPerfil) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Mensagens do Chat",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        // Intent para redirecionar diretamente para a ChatActivity correta ao tocar na notificação
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("anuncioId", anuncioId);
+        intent.putExtra("userDestinatario", outroUsuarioId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                (int) System.currentTimeMillis(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        Person.Builder remetenteBuilder = new Person.Builder().setName(nomeRemetente);
+
+        // Carrega a foto de perfil circular com o Glide em background
+        try {
+            if (urlFotoPerfil != null && !urlFotoPerfil.isEmpty()) {
+                Bitmap bitmapFoto = Glide.with(getApplicationContext())
+                        .asBitmap()
+                        .load(urlFotoPerfil)
+                        .circleCrop()
+                        .submit(100, 100)
+                        .get();
+                remetenteBuilder.setIcon(IconCompat.createWithBitmap(bitmapFoto));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erro ao carregar foto do remetente para a notificação: " + e.getMessage());
+        }
+
+        Person remetente = remetenteBuilder.build();
+
+        NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(
+                new Person.Builder().setName("Eu").build()
+        );
+        messagingStyle.addMessage(corpo, System.currentTimeMillis(), remetente);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.logo_roxa_texto_preto)
+                .setStyle(messagingStyle)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
+
+        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
     }
 
     private void enviarTokenParaServidor(String token) {

@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static final String BASE_URL =
-            "https://trocabookchatservice.onrender.com/api/chat/";
+            "https://trocabook-chat-service.azurewebsites.net/api/chat/";
 
     private static Retrofit retrofit;
 

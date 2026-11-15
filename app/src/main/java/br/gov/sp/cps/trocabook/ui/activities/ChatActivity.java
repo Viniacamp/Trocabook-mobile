@@ -52,6 +52,7 @@ import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.service.chat.ChatService;
 import br.gov.sp.cps.trocabook.ui.adapters.AnuncioTrocaAdapter;
 import br.gov.sp.cps.trocabook.ui.adapters.ChatAdapter;
+import br.gov.sp.cps.trocabook.util.ChatState;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -64,9 +65,24 @@ public class ChatActivity extends AppCompatActivity {
     private final BroadcastReceiver chatReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Assim que o FCM avisa que houve alteração, recarregamos as mensagens instantaneamente!
-            carregarMensagens();
-            atualizarNegociacao();
+            String anuncioRecebido = intent.getStringExtra("uidAnuncio");
+            String remetenteRecebido = intent.getStringExtra("uidRemetente");
+            String destinatarioRecebido = intent.getStringExtra("uidDestinatario");
+
+            if (anuncioId != null && anuncioId.equals(anuncioRecebido)) {
+                // Verifica se o evento envolve os dois participantes desta exata conversa
+                boolean envolveRemetente =
+                        (userRemetente != null && (userRemetente.equals(remetenteRecebido) || userRemetente.equals(destinatarioRecebido)));
+
+                boolean envolveDestinatario =
+                        (userDestinatario != null && (userDestinatario.equals(remetenteRecebido) || userDestinatario.equals(destinatarioRecebido)));
+
+                if (envolveRemetente && envolveDestinatario) {
+                    // Atualiza a tela cirurgicamente apenas para esta conversa!
+                    carregarMensagens();
+                    atualizarNegociacao();
+                }
+            }
         }
     };
 
@@ -257,6 +273,8 @@ public class ChatActivity extends AppCompatActivity {
 
         negociacoesService =
                 new NegociacoesService();
+
+        interacaoService = new InteracaoService();
 
         listaMensagens =
                 new ArrayList<>();
@@ -2273,13 +2291,17 @@ public class ChatActivity extends AppCompatActivity {
                     .setChecked(true);
         }
 
+        // Marca este chat como ativo para barrar notificações visuais desnecessárias
+        if (anuncioId != null && userDestinatario != null) {
+            ChatState.setChatAtivo(anuncioId, userDestinatario);
+        }
+
         // Registra para escutar eventos de mensagens novas em tempo real via FCM
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 chatReceiver,
                 new IntentFilter(MeuFirebaseMessagingService.ACTION_ATUALIZAR_CHAT)
         );
 
-        // Carrega o estado atual ao entrar na tela
         carregarMensagens();
         atualizarNegociacao();
     }
@@ -2288,7 +2310,9 @@ public class ChatActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        // Remove o registro do receptor para evitar vazamento de memória (Memory Leak)
+        // Limpa o estado do chat ativo ao sair da tela
+        ChatState.limparChatAtivo();
+
         LocalBroadcastManager.getInstance(this).unregisterReceiver(chatReceiver);
     }
 }

@@ -1651,28 +1651,24 @@ public class ChatActivity extends AppCompatActivity {
                     public void onSucesso(
                             Usuario usuario
                     ) {
-
+                        // Se o usuário veio nulo, define um texto padrão e encerra
                         if (usuario == null) {
-
-                            txtNomeUsuarioChat.setText(
-                                    "Usuário"
-                            );
-
+                            txtNomeUsuarioChat.setText("Usuário");
                             return;
                         }
 
-                        txtNomeUsuarioChat.setText(
-                                usuario.getEmailPrincipal()
-                        );
+                        // Define o nome (se estiver vazio, usa o e-mail principal como alternativa)
+                        String nomeExibicao = (usuario.getNome() != null && !usuario.getNome().trim().isEmpty())
+                                ? usuario.getNome()
+                                : usuario.getEmailPrincipal();
 
+                        txtNomeUsuarioChat.setText(nomeExibicao);
+
+                        // Carrega a foto de perfil normalmente com o Glide
                         String fotoPerfil = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
-                        Glide.with(
-                                        ChatActivity.this
-                                )
+                        Glide.with(ChatActivity.this)
                                 .load(fotoPerfil)
-                                .placeholder(
-                                        R.drawable.placeholder_usuario
-                                )
+                                .placeholder(R.drawable.placeholder_usuario)
                                 .into(imgUsuarioChat);
                     }
 

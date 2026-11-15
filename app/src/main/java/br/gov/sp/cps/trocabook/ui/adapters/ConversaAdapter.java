@@ -77,7 +77,7 @@ public class ConversaAdapter
                 conversa.getUltimaMensagem();
 
         holder.textNome.setText(
-                usuario.getEmailPrincipal()
+                usuario.getNome()
         );
 
         String ultimaMensagem;
@@ -91,7 +91,7 @@ public class ConversaAdapter
         } else {
 
             ultimaMensagem =
-                    usuario.getEmailPrincipal()
+                    usuario.getNome()
                             + ": "
                             + mensagem.getConteudo();
         }

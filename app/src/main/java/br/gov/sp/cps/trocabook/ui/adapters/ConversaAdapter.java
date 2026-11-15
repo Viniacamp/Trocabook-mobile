@@ -17,6 +17,7 @@ import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.model.dto.ConversaDTO;
 import br.gov.sp.cps.trocabook.model.dto.MensagemDTO;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class ConversaAdapter
         extends RecyclerView.Adapter<ConversaAdapter.ConversaViewHolder> {
@@ -98,8 +99,9 @@ public class ConversaAdapter
         holder.textUltimaMensagem
                 .setText(ultimaMensagem);
 
+        String fotoPerfil = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
         Glide.with(holder.itemView.getContext())
-                .load(usuario.getFotoPerfil())
+                .load(fotoPerfil)
                 .placeholder(
                         R.drawable.placeholder_usuario
                 )

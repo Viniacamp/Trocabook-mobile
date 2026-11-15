@@ -22,6 +22,7 @@ import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.NegociacoesService;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class NegociacaoActivity extends AppCompatActivity {
 
@@ -459,7 +460,7 @@ public class NegociacaoActivity extends AppCompatActivity {
         );
 
         carregarImagem(
-                negociacaoAtual.getCapa(),
+                ImageUtils.obterUrlImagem(negociacaoAtual.getCapa()),
                 imgLivroNegociado
         );
     }

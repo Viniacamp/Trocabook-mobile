@@ -2,14 +2,21 @@ package br.gov.sp.cps.trocabook.ui.activities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Patterns;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -21,6 +28,7 @@ import java.util.Locale;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Usuario;
+import br.gov.sp.cps.trocabook.service.FileService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 
 public class DadosSegurancaActivity extends AppCompatActivity {
@@ -30,16 +38,27 @@ public class DadosSegurancaActivity extends AppCompatActivity {
     private TextInputEditText editNascimento;
     private TextInputEditText editCPF;
     private TextInputEditText editRG;
+    private TextInputEditText editNome;
+    private TextInputEditText editSobrenome;
 
     private TextInputLayout layoutEmailRec;
     private TextInputLayout layoutCPF;
     private TextInputLayout layoutTelefone;
     private TextInputLayout layoutNascimento;
 
+    private TextInputLayout layoutNome;
+
+    private TextInputLayout layoutSobrenome;
+
     private RadioGroup radioGenero;
 
-    private String nomeUsuario;
     private String emailPrincipal;
+
+    private ImageView imgFotoPerfil;
+    private TextView txtUploadFoto;
+    private Uri fotoPerfilUri;
+    private ActivityResultLauncher<String> selecionarFotoLauncher;
+    private FileService fileService;
 
     private FirebaseAuth mAuth;
     private UsuarioService usuarioService;
@@ -51,11 +70,12 @@ public class DadosSegurancaActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         usuarioService = new UsuarioService();
+        fileService = new FileService(this);
 
-        nomeUsuario = getIntent().getStringExtra("NOME_USUARIO");
         emailPrincipal = getIntent().getStringExtra("EMAIL_USUARIO");
 
         inicializarComponentes();
+        configurarSelecaoFoto();
 
         configurarMascaras();
         configurarDataCalendario();
@@ -73,13 +93,30 @@ public class DadosSegurancaActivity extends AppCompatActivity {
                 });
     }
 
+    private final InputFilter apenasLetras = (source, start, end, dest, dstart, dend) -> {
+        StringBuilder filtrado = new StringBuilder();
+        for (int i = start; i < end; i++) {
+            char c = source.charAt(i);
+            if (Character.isLetter(c) || Character.isSpaceChar(c)) {
+                filtrado.append(c);
+            }
+        }
+        return filtrado.toString();
+    };
+
+
     private void inicializarComponentes() {
 
+        editNome = findViewById(R.id.editNome);
+        editSobrenome = findViewById(R.id.editSobrenome);
         editTelefone = findViewById(R.id.editTelefone);
         editEmailRec = findViewById(R.id.editEmailRec);
         editNascimento = findViewById(R.id.editNascimento);
         editCPF = findViewById(R.id.editCPF);
         editRG = findViewById(R.id.editRG);
+
+        imgFotoPerfil = findViewById(R.id.imgFotoPerfil);
+        txtUploadFoto = findViewById(R.id.txtUploadFoto);
 
         radioGenero = findViewById(R.id.radioGenero);
 
@@ -87,6 +124,43 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         layoutCPF = findViewById(R.id.layoutCPF);
         layoutTelefone = findViewById(R.id.layoutTelefone);
         layoutNascimento = findViewById(R.id.layoutNascimento);
+        layoutNome = findViewById(R.id.layoutNome);
+        layoutSobrenome = findViewById(R.id.layoutSobrenome);
+
+        editNome.setFilters(new InputFilter[]{apenasLetras});
+        editSobrenome.setFilters(new InputFilter[]{apenasLetras});
+    }
+
+    private void configurarSelecaoFoto() {
+
+        selecionarFotoLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        fotoPerfilUri = uri;
+
+
+                        com.bumptech.glide.Glide.with(this)
+                                .load(uri)
+                                .circleCrop()
+                                .into(imgFotoPerfil);
+
+                        if (txtUploadFoto != null) {
+                            txtUploadFoto.setVisibility(View.GONE);
+                        }
+                    }
+                }
+        );
+
+
+        if (imgFotoPerfil != null) {
+            imgFotoPerfil.setOnClickListener(v -> selecionarFotoLauncher.launch("image/*"));
+        }
+
+        View layoutUpload = findViewById(R.id.layoutUploadFoto);
+        if (layoutUpload != null) {
+            layoutUpload.setOnClickListener(v -> selecionarFotoLauncher.launch("image/*"));
+        }
     }
 
     private void salvarDados() {
@@ -145,57 +219,53 @@ public class DadosSegurancaActivity extends AppCompatActivity {
         RadioButton rbGenero = findViewById(idGenero);
         String genero = rbGenero.getText().toString();
 
-        usuarioService.salvarDadosUsuario(
-                userId,
-                nomeUsuario,
-                emailPrincipal,
-                emailRec,
-                telefone,
-                cpf,
-                rg,
-                nascimento,
-                genero,
-                "",
-                new UsuarioService.ServiceCallback<Usuario>() {
+        String nomeUsuario = editNome.getText().toString() + " " + editSobrenome.getText().toString();
 
-                    @Override
-                    public void onSucesso(Usuario usuario) {
+        fileService.salvarImagem(fotoPerfilUri, new FileService.Callback<String>() {
+            @Override
+            public void onSuccess(String caminhoFotoLocal) {
 
-                        Intent intent = new Intent(
-                                DadosSegurancaActivity.this,
-                                EscolhaVerificacaoActivity.class
-                        );
 
-                        intent.putExtra(
-                                "email_recuperacao",
-                                emailRec
-                        );
+                usuarioService.salvarDadosUsuario(
+                        userId,
+                        nomeUsuario,
+                        emailPrincipal,
+                        emailRec,
+                        telefone,
+                        cpf,
+                        rg,
+                        nascimento,
+                        genero,
+                        caminhoFotoLocal,
+                        new UsuarioService.ServiceCallback<Usuario>() {
 
-                        intent.putExtra(
-                                "telefone",
-                                telefone
-                        );
+                            @Override
+                            public void onSucesso(Usuario usuario) {
+                                Intent intent = new Intent(
+                                        DadosSegurancaActivity.this,
+                                        EscolhaVerificacaoActivity.class
+                                );
+                                intent.putExtra("email_recuperacao", emailRec);
+                                intent.putExtra("telefone", telefone);
+                                intent.putExtra("EMAIL_USUARIO", emailPrincipal);
 
-                        intent.putExtra(
-                                "EMAIL_USUARIO",
-                                emailPrincipal
-                        );
+                                startActivity(intent);
+                                finish();
+                            }
 
-                        startActivity(intent);
-                        finish();
-                    }
+                            @Override
+                            public void onErro(String erro) {
+                                Toast.makeText(DadosSegurancaActivity.this, erro, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                );
+            }
 
-                    @Override
-                    public void onErro(String erro) {
-
-                        Toast.makeText(
-                                DadosSegurancaActivity.this,
-                                erro,
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                }
-        );
+            @Override
+            public void onError(String erro) {
+                Toast.makeText(DadosSegurancaActivity.this, "Erro ao processar foto: " + erro, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void configurarValidacoesAoSair() {
@@ -304,12 +374,24 @@ public class DadosSegurancaActivity extends AppCompatActivity {
                 .toString()
                 .replaceAll("[^\\d]", "");
 
-        if (nomeUsuario == null
-                || nomeUsuario.trim().isEmpty()) {
+        if (editNome == null
+                || editNome.getText().toString().trim().isEmpty()) {
 
             Toast.makeText(
                     this,
-                    "Nome do usuário não encontrado",
+                    "Nome do usuário não informado",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            erro = true;
+        }
+
+        if (editSobrenome == null
+                || editSobrenome.getText().toString().trim().isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Sobrenome do usuário não encontrado",
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -392,6 +474,11 @@ public class DadosSegurancaActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
+            erro = true;
+        }
+
+        if (fotoPerfilUri == null) {
+            Toast.makeText(this, "Selecione uma foto de perfil", Toast.LENGTH_SHORT).show();
             erro = true;
         }
 

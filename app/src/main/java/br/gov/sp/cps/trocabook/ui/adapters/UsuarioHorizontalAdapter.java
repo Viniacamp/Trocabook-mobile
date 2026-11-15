@@ -15,6 +15,7 @@ import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Usuario;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class UsuarioHorizontalAdapter
         extends RecyclerView.Adapter<UsuarioHorizontalAdapter.UsuarioViewHolder> {
@@ -56,7 +57,7 @@ public class UsuarioHorizontalAdapter
 
         Usuario usuario = lista.get(position);
 
-        String caminhoImagem = usuario.getFotoPerfil();
+        String caminhoImagem = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
 
         if (caminhoImagem == null || caminhoImagem.isEmpty()) {
 

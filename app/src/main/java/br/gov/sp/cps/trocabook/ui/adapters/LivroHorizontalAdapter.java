@@ -14,6 +14,7 @@ import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.utils.ItemComCapa;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class LivroHorizontalAdapter<T extends ItemComCapa>
         extends RecyclerView.Adapter<LivroHorizontalAdapter.LivroViewHolder> {
@@ -54,8 +55,9 @@ public class LivroHorizontalAdapter<T extends ItemComCapa>
 
         T livro = listaLivros.get(position);
 
+        String urlCapa = ImageUtils.obterUrlImagem(livro.getCapa());
         Glide.with(holder.itemView.getContext())
-                .load(livro.getCapa())
+                .load(urlCapa)
                 .placeholder(R.drawable.placeholder_capa)
                 .into(holder.capa);
 

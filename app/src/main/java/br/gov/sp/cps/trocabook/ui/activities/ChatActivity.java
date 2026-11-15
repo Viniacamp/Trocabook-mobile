@@ -53,6 +53,7 @@ import br.gov.sp.cps.trocabook.service.chat.ChatService;
 import br.gov.sp.cps.trocabook.ui.adapters.AnuncioTrocaAdapter;
 import br.gov.sp.cps.trocabook.ui.adapters.ChatAdapter;
 import br.gov.sp.cps.trocabook.util.ChatState;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -365,8 +366,9 @@ public class ChatActivity extends AppCompatActivity {
                 )
         );
 
+        String urlCapa = ImageUtils.obterUrlImagem(anuncioAtual.getCapa());
         Glide.with(this)
-                .load(anuncioAtual.getCapa())
+                .load(urlCapa)
                 .placeholder(R.drawable.placeholder_capa)
                 .into(imgCapaAnuncioChat);
     }
@@ -539,7 +541,7 @@ public class ChatActivity extends AppCompatActivity {
                 negociacaoAtual.getTituloLivroOferecido();
 
         String capa =
-                negociacaoAtual.getCapaLivroOferecido();
+                ImageUtils.obterUrlImagem(negociacaoAtual.getCapaLivroOferecido());
 
         String descricao =
                 negociacaoAtual.getDescricaoOferta();
@@ -938,8 +940,9 @@ public class ChatActivity extends AppCompatActivity {
                 anuncioOferecido.getTitulo()
         );
 
+        String urlCapaOferecido = ImageUtils.obterUrlImagem(anuncioOferecido.getCapa());
         Glide.with(this)
-                .load(anuncioOferecido.getCapa())
+                .load(urlCapaOferecido)
                 .placeholder(R.drawable.placeholder_capa)
                 .into(imgCapa);
 
@@ -1662,10 +1665,11 @@ public class ChatActivity extends AppCompatActivity {
                                 usuario.getEmailPrincipal()
                         );
 
+                        String fotoPerfil = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
                         Glide.with(
                                         ChatActivity.this
                                 )
-                                .load(usuario.getFotoPerfil())
+                                .load(fotoPerfil)
                                 .placeholder(
                                         R.drawable.placeholder_usuario
                                 )

@@ -30,6 +30,7 @@ import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.InteracaoService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class DetalhesAnuncioActivity extends AppCompatActivity {
 
@@ -439,13 +440,14 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
                         // Por enquanto, exibindo o email.
                         // Depois pode ser alterado para o nome.
                         textUsuario.setText(
-                                usuario.getEmailPrincipal()
+                                usuario.getNome()
                         );
 
+                        String urlFotoPerfil = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
                         Glide.with(
                                         DetalhesAnuncioActivity.this
                                 )
-                                .load(usuario.getFotoPerfil())
+                                .load(urlFotoPerfil)
                                 .placeholder(
                                         R.drawable.placeholder_usuario
                                 )

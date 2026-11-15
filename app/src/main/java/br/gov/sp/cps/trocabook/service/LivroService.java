@@ -318,7 +318,7 @@ public class LivroService {
         List<String> categoriasLimpos =
                 limparLista(categorias);
 
-        fileService.salvarImagem(
+        fileService.salvarCapaLivro(
                 imageUri,
                 new FileService.Callback<String>() {
 

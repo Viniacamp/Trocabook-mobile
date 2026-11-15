@@ -17,21 +17,11 @@ import br.gov.sp.cps.trocabook.service.AuthService;
 
 public class CriarSenhaActivity extends AppCompatActivity {
 
-    private TextInputLayout layoutNome, layoutSobrenome, layoutEmail, layoutSenha, layoutConfirma;
-    private TextInputEditText editNome, editSobrenome, editEmail, editSenha, editConfirma;
+    private TextInputLayout layoutEmail, layoutSenha, layoutConfirma;
+    private TextInputEditText editEmail, editSenha, editConfirma;
 
     private AuthService authService;
 
-    private final InputFilter apenasLetras = (source, start, end, dest, dstart, dend) -> {
-        StringBuilder filtrado = new StringBuilder();
-        for (int i = start; i < end; i++) {
-            char c = source.charAt(i);
-            if (Character.isLetter(c) || Character.isSpaceChar(c)) {
-                filtrado.append(c);
-            }
-        }
-        return filtrado.toString();
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,20 +30,13 @@ public class CriarSenhaActivity extends AppCompatActivity {
 
         authService = new AuthService(this);
 
-        layoutNome = findViewById(R.id.layoutNome);
-        layoutSobrenome = findViewById(R.id.layoutSobrenome);
         layoutEmail = findViewById(R.id.layoutEmail);
         layoutSenha = findViewById(R.id.layoutSenha);
         layoutConfirma = findViewById(R.id.layoutConfirmaSenha);
 
-        editNome = findViewById(R.id.editNome);
-        editSobrenome = findViewById(R.id.editSobrenome);
         editEmail = findViewById(R.id.editEmail);
         editSenha = findViewById(R.id.editSenha);
         editConfirma = findViewById(R.id.editConfirmaSenha);
-
-        editNome.setFilters(new InputFilter[]{apenasLetras});
-        editSobrenome.setFilters(new InputFilter[]{apenasLetras});
 
         configurarValidacoes();
 
@@ -87,7 +70,6 @@ public class CriarSenhaActivity extends AppCompatActivity {
 
     private void irParaProximaTela() {
         Intent intent = new Intent(this, DadosSegurancaActivity.class);
-        intent.putExtra("NOME_USUARIO", editNome.getText().toString() + " " + editSobrenome.getText().toString());
         intent.putExtra("EMAIL_USUARIO", editEmail.getText().toString());
         startActivity(intent);
     }
@@ -127,14 +109,6 @@ public class CriarSenhaActivity extends AppCompatActivity {
     }
 
     private boolean validarTudo() {
-        if (editNome.getText().toString().isEmpty()) {
-            layoutNome.setError("Digite seu nome");
-            return false;
-        }
-        if (editSobrenome.getText().toString().isEmpty()) {
-            layoutSobrenome.setError("Digite seu sobrenome");
-            return false;
-        }
         if (!editSenha.getText().toString().equals(editConfirma.getText().toString())) {
             layoutConfirma.setError("Senhas não coincidem");
             return false;

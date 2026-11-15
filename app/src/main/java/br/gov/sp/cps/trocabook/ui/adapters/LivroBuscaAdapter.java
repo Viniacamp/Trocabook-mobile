@@ -15,6 +15,7 @@ import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.dto.LivroBuscaOutput;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class LivroBuscaAdapter
         extends RecyclerView.Adapter<LivroBuscaAdapter.LivroBuscaViewHolder> {
@@ -55,8 +56,9 @@ public class LivroBuscaAdapter
 
         holder.titulo.setText(livro.getTitulo());
 
+        String urlCapa = ImageUtils.obterUrlImagem(livro.getUrlImagem());
         Glide.with(holder.itemView.getContext())
-                .load(livro.getUrlImagem())
+                .load(urlCapa)
                 .placeholder(R.drawable.placeholder_capa)
                 .into(holder.capa);
 

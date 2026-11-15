@@ -28,6 +28,7 @@ import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.NegociacoesService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.ui.adapters.LivroHorizontalAdapter;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
@@ -141,8 +142,9 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
                                         + usuario.getEmailPrincipal()
                         );
 
+                        String urlFotoPerifl = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
                         Glide.with(TelaPerfilNegociadorActivity.this)
-                                .load(usuario.getFotoPerfil())
+                                .load(urlFotoPerifl)
                                 .placeholder(R.drawable.placeholder_usuario)
                                 .into(imagePerfil);
                     }

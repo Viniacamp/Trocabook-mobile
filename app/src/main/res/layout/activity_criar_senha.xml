@@ -25,40 +25,6 @@
             android:layout_marginBottom="32dp" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutNome"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:errorEnabled="true">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editNome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Nome"
-                android:fontFamily="@font/manrope_regular"
-                android:textColor="?attr/colorOnSurface"
-                android:inputType="textCapWords" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutSobrenome"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:errorEnabled="true">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editSobrenome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Sobrenome"
-                android:fontFamily="@font/manrope_regular"
-                android:textColor="?attr/colorOnSurface"
-                android:inputType="textCapWords" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutEmail"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"

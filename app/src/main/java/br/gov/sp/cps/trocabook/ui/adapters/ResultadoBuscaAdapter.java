@@ -17,6 +17,7 @@ import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
 
 public class ResultadoBuscaAdapter
         extends RecyclerView.Adapter<ResultadoBuscaAdapter.ViewHolder> {
@@ -74,8 +75,9 @@ public class ResultadoBuscaAdapter
                 anuncio.getTitulo()
         );
 
+        String urlCapa = ImageUtils.obterUrlImagem(anuncio.getCapa());
         Glide.with(holder.itemView.getContext())
-                .load(anuncio.getCapa())
+                .load(urlCapa)
                 .placeholder(R.drawable.placeholder_capa)
                 .into(holder.imgLivro);
 

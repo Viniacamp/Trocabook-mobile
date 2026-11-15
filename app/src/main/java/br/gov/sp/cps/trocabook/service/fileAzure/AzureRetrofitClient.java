@@ -13,6 +13,7 @@ public class AzureRetrofitClient {
 
     public static Retrofit getInstance() {
         if (retrofit == null) {
+
             OkHttpClient client = new OkHttpClient.Builder()
                     .build();
 

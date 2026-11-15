@@ -229,6 +229,7 @@ public class FileService {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
                     String respostaServidor = response.body();
+                    Log.d(TAG, "Resposta do servidor: " + respostaServidor);
 
                     // Verifica se a resposta é válida, se veio com sucesso e SE NÃO É UM HTML
                     if (response.isSuccessful() && respostaServidor != null && !respostaServidor.contains("<!DOCTYPE html>")) {

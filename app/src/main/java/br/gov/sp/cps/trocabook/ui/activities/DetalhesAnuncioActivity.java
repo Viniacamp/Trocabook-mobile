@@ -472,8 +472,9 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
             Anuncio.TipoNegociacao tipoNegociacao
     ) {
 
+        String urlCapa = ImageUtils.obterUrlImagem(capa);
         Glide.with(this)
-                .load(capa)
+                .load(urlCapa)
                 .placeholder(R.drawable.placeholder_capa)
                 .into(imageCapa);
 

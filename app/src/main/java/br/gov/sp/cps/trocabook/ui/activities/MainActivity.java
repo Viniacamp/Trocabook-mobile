@@ -36,7 +36,6 @@ import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.InteracaoService;
 import br.gov.sp.cps.trocabook.service.NegociacoesService;
-import br.gov.sp.cps.trocabook.service.PopularBancoService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.service.chat.ChatService;
 import br.gov.sp.cps.trocabook.ui.adapters.LivroHorizontalAdapter;
@@ -140,37 +139,10 @@ public class MainActivity extends AppCompatActivity {
         configurarRecyclerViews();
         configurarPesquisa();
         configurarBottomNavigation();
+        carregarDados();
 
-        PopularBancoService popularBancoService =
-                new PopularBancoService(this);
 
         mostrarLoading(true);
-
-        popularBancoService.iniciarBanco(
-                new PopularBancoService.Callback() {
-
-                    @Override
-                    public void onComplete() {
-                        android.util.Log.d(
-                                "HOME_DEBUG",
-                                ">>> PopularBancoService terminou"
-                        );
-                        carregarDados();
-                    }
-
-                    @Override
-                    public void onError(String erro) {
-                        android.util.Log.e(
-                                "HOME_DEBUG",
-                                ">>> PopularBancoService ERRO: " + erro
-                        );
-
-                        runOnUiThread(() ->
-                                mostrarLoading(false)
-                        );
-                    }
-                }
-        );
     }
 
     private void iniciarComponentes() {

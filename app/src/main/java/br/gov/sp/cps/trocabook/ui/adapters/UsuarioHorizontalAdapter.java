@@ -16,6 +16,7 @@ import java.util.List;
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class UsuarioHorizontalAdapter
         extends RecyclerView.Adapter<UsuarioHorizontalAdapter.UsuarioViewHolder> {
@@ -77,12 +78,12 @@ public class UsuarioHorizontalAdapter
                     .into(holder.foto);
         }
         else {
-            Uri uri = Uri.parse(caminhoImagem);
-            Glide.with(holder.itemView.getContext())
-                    .load(uri)
-                    .placeholder(R.drawable.placeholder_usuario)
-                    .error(R.drawable.placeholder_usuario)
-                    .into(holder.foto);
+            SvgLoader.carregarSvg(
+                    holder.itemView.getContext(),
+                    caminhoImagem,
+                    holder.foto,
+                    R.drawable.placeholder_usuario
+            );
         }
 
 

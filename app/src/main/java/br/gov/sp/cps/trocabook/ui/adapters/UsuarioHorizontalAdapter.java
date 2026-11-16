@@ -1,6 +1,5 @@
 package br.gov.sp.cps.trocabook.ui.adapters;
 
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +7,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -60,33 +57,12 @@ public class UsuarioHorizontalAdapter
 
         String caminhoImagem = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
 
-        if (caminhoImagem == null || caminhoImagem.isEmpty()) {
-
-            Glide.with(holder.itemView.getContext())
-                    .load(R.drawable.placeholder_usuario)
-                    .into(holder.foto);
-
-            return;
-        }
-
-
-        if (caminhoImagem.startsWith("file")) {
-            Glide.with(holder.itemView.getContext())
-                    .load(caminhoImagem)
-                    .placeholder(R.drawable.placeholder_usuario)
-                    .error(R.drawable.placeholder_usuario)
-                    .into(holder.foto);
-        }
-        else {
-            SvgLoader.carregarSvg(
-                    holder.itemView.getContext(),
-                    caminhoImagem,
-                    holder.foto,
-                    R.drawable.placeholder_usuario
-            );
-        }
-
-
+        SvgLoader.carregar(
+                holder.itemView.getContext(),
+                caminhoImagem,
+                holder.foto,
+                R.drawable.placeholder_usuario
+        );
 
         holder.itemView.setOnClickListener(v -> {
 

@@ -27,15 +27,16 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
-import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.InteracaoService;
-import br.gov.sp.cps.trocabook.service.NegociacoesService;
+import br.gov.sp.cps.trocabook.service.IaService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.service.chat.ChatService;
 import br.gov.sp.cps.trocabook.ui.adapters.LivroHorizontalAdapter;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private UsuarioService usuarioService;
     private AnuncioService anuncioService;
-    private NegociacoesService negociacoesService;
+    private IaService iaService;
 
     private InteracaoService interacaoService;
     private AuthService authService;
@@ -69,9 +70,17 @@ public class MainActivity extends AppCompatActivity {
 
     private final List<Anuncio> listaResultados =
             new ArrayList<>();
+    private final List<Anuncio> anunciosAtivos =
+            new ArrayList<>();
 
     private final Handler handlerPesquisa = new Handler(android.os.Looper.getMainLooper());
+    private final ExecutorService executorPesquisa = Executors.newFixedThreadPool(2);
     private Runnable pesquisaRunnable;
+    private int versaoPesquisa;
+    private int carregamentosIniciais = 3;
+    private boolean buscaEmAndamento;
+    private boolean anunciosPesquisaCarregados;
+    private boolean activityEncerrando;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,10 +148,8 @@ public class MainActivity extends AppCompatActivity {
         configurarRecyclerViews();
         configurarPesquisa();
         configurarBottomNavigation();
+        atualizarIndicadorCarregamento();
         carregarDados();
-
-
-        mostrarLoading(true);
     }
 
     private void iniciarComponentes() {
@@ -155,8 +162,8 @@ public class MainActivity extends AppCompatActivity {
 
         interacaoService = new InteracaoService();
 
-        negociacoesService =
-                new NegociacoesService();
+        iaService =
+                new IaService();
 
         authService =
                 new AuthService(this);
@@ -257,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         String texto = s.toString().trim();
+                        int idPesquisa = ++versaoPesquisa;
 
                         // 1. Cancela o envio anterior enquanto o usuário continua digitando ("h" -> "ha" -> "har")
                         if (pesquisaRunnable != null) {
@@ -264,9 +272,11 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (texto.length() < 2) {
+                            buscaEmAndamento = false;
                             cardResultadosPesquisa.setVisibility(View.GONE);
                             listaResultados.clear();
                             resultadoBuscaAdapter.notifyDataSetChanged();
+                            atualizarIndicadorCarregamento();
                             return;
                         }
 
@@ -276,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
                             if (editPesquisa.getText().toString().trim().equals(texto)) {
 
                                 // Realiza a busca visual na tela
-                                buscarAnuncios(texto);
+                                buscarAnuncios(texto, idPesquisa);
 
                                 // 3. REGISTRA COM SEGURANÇA: Só vai disparar para "harry", ignorando "h", "ha", etc.
                                 FirebaseUser usuarioAtual = authService.getUsuarioAtual();
@@ -305,8 +315,7 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private void buscarAnuncios(
-            String texto) {
+    private void buscarAnuncios(String texto, int idPesquisa) {
 
         cardResultadosPesquisa
                 .setVisibility(View.VISIBLE);
@@ -319,73 +328,134 @@ public class MainActivity extends AppCompatActivity {
 
         mostrarLoading(true);
 
+        if (anunciosPesquisaCarregados) {
+            processarBusca(new ArrayList<>(anunciosAtivos), texto, idPesquisa);
+            return;
+        }
+
         anuncioService.buscarTodosOsAnuncios(
                 new AnuncioService.Callback<List<Anuncio>>() {
 
                     @Override
                     public void onSuccess(
                             List<Anuncio> dados) {
-
-                        runOnUiThread(() -> {
-
-                            listaResultados.clear();
-
-                            if (dados != null) {
-
-                                String textoBusca =
-                                        texto.toLowerCase();
-
-                                for (Anuncio anuncio : dados) {
-                                    android.util.Log.d(
-                                            "HOME_CAPA",
-                                            "Título: " + anuncio.getTitulo()
-                                                    + " | Capa: " + anuncio.getCapa()
-                                    );
-
-                                    if (anuncio.getTitulo() != null
-                                            && anuncio.getTitulo()
-                                            .toLowerCase()
-                                            .contains(textoBusca)) {
-
-                                        listaResultados.add(
-                                                anuncio
-                                        );
-                                    }
-                                }
-                            }
-
-                            resultadoBuscaAdapter
-                                    .notifyDataSetChanged();
-
-                            mostrarLoading(false);
-
-                            if (listaResultados.isEmpty()) {
-
-                                layoutSemResultados
-                                        .setVisibility(View.VISIBLE);
-
-                            } else {
-
-                                recyclerResultadosBusca
-                                        .setVisibility(View.VISIBLE);
-                            }
-                        });
+                        if (activityEncerrando || isFinishing() || idPesquisa != versaoPesquisa) {
+                            return;
+                        }
+                        processarBusca(dados, texto, idPesquisa);
                     }
 
                     @Override
                     public void onError(
                             String erro) {
-
                         runOnUiThread(() -> {
-
+                            if (activityEncerrando || isFinishing() || idPesquisa != versaoPesquisa) {
+                                return;
+                            }
                             mostrarLoading(false);
-
-                            layoutSemResultados
-                                    .setVisibility(View.VISIBLE);
+                            layoutSemResultados.setVisibility(View.VISIBLE);
+                            android.util.Log.e("HOME_BUSCA", "Erro ao buscar anúncios: " + erro);
+                            Toast.makeText(MainActivity.this,
+                                    "Não foi possível realizar a busca. Tente novamente.",
+                                    Toast.LENGTH_SHORT).show();
                         });
                     }
                 }
         );
+    }
+
+    private void processarBusca(List<Anuncio> anuncios, String texto, int idPesquisa) {
+        executorPesquisa.execute(() -> {
+            List<String> termos = iaService.extrairTokensLocais(texto);
+            if (texto.trim().split("\\s+").length >= 3 || texto.contains("?")) {
+                termos = iaService.extrairTermosBuscaSemantica(texto);
+            }
+            List<AnuncioPontuado> resultados =
+                    ranquearAnuncios(anuncios, texto, termos);
+
+            runOnUiThread(() -> {
+                if (activityEncerrando || isFinishing() || idPesquisa != versaoPesquisa) {
+                    return;
+                }
+
+                listaResultados.clear();
+                for (AnuncioPontuado resultado : resultados) {
+                    listaResultados.add(resultado.anuncio);
+                }
+
+                resultadoBuscaAdapter.notifyDataSetChanged();
+                mostrarLoading(false);
+
+                if (listaResultados.isEmpty()) {
+                    layoutSemResultados.setVisibility(View.VISIBLE);
+                } else {
+                    recyclerResultadosBusca.setVisibility(View.VISIBLE);
+                }
+            });
+        });
+    }
+
+    private List<AnuncioPontuado> ranquearAnuncios(
+            List<Anuncio> anuncios,
+            String consulta,
+            List<String> termos
+    ) {
+        List<AnuncioPontuado> resultados = new ArrayList<>();
+        String consultaNormalizada = iaService.normalizarTexto(consulta);
+
+        if (anuncios == null) {
+            return resultados;
+        }
+
+        for (Anuncio anuncio : anuncios) {
+            if (anuncio == null) {
+                continue;
+            }
+
+            String titulo = iaService.normalizarTexto(anuncio.getTitulo());
+            String descricao = iaService.normalizarTexto(anuncio.getDescricao());
+            int pontuacao = 0;
+
+            if (!consultaNormalizada.isEmpty() && titulo.contains(consultaNormalizada)) {
+                pontuacao += 100;
+            }
+            if (!consultaNormalizada.isEmpty() && descricao.contains(consultaNormalizada)) {
+                pontuacao += 40;
+            }
+
+            if (termos != null) {
+                for (String termo : termos) {
+                    String termoNormalizado = iaService.normalizarTexto(termo);
+                    if (termoNormalizado.length() < 2) {
+                        continue;
+                    }
+                    if (titulo.contains(termoNormalizado)) {
+                        pontuacao += 25;
+                    }
+                    if (descricao.contains(termoNormalizado)) {
+                        pontuacao += 10;
+                    }
+                }
+            }
+
+            if (pontuacao > 0) {
+                resultados.add(new AnuncioPontuado(anuncio, pontuacao));
+            }
+        }
+
+        resultados.sort((primeiro, segundo) ->
+                Integer.compare(segundo.pontuacao, primeiro.pontuacao));
+        return resultados;
+    }
+
+    private static class AnuncioPontuado {
+        private final Anuncio anuncio;
+        private final int pontuacao;
+
+        private AnuncioPontuado(Anuncio anuncio, int pontuacao) {
+            this.anuncio = anuncio;
+            this.pontuacao = pontuacao;
+        }
     }
 
     private void carregarDados() {
@@ -398,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
 
         carregarAnuncios();
 
-        carregarNegociacoes();
+        carregarLivrosRecentes();
     }
 
     private void carregarUsuarios() {
@@ -411,13 +481,9 @@ public class MainActivity extends AppCompatActivity {
                             List<Usuario> dados) {
 
                         runOnUiThread(() -> {
-
-                            if (dados == null) {
-                                return;
-                            }
-
-                            UsuarioHorizontalAdapter adapter =
-                                    new UsuarioHorizontalAdapter(
+                            if (!activityEncerrando && !isFinishing() && dados != null) {
+                                UsuarioHorizontalAdapter adapter =
+                                        new UsuarioHorizontalAdapter(
                                             dados,
                                             usuario -> {
 
@@ -459,16 +525,22 @@ public class MainActivity extends AppCompatActivity {
 
                                                 startActivity(intent);
                                             }
-                                    );
-
-                            recyclerUsuarios
-                                    .setAdapter(adapter);
+                                        );
+                                recyclerUsuarios.setAdapter(adapter);
+                            }
+                            finalizarCarregamentoInicial();
                         });
                     }
 
                     @Override
                     public void onErro(
                             String erro) {
+                        android.util.Log.e("HOME_DEBUG", "Erro ao carregar usuários: " + erro);
+                        runOnUiThread(() -> {
+                            if (!activityEncerrando && !isFinishing()) {
+                                finalizarCarregamentoInicial();
+                            }
+                        });
                     }
                 }
         );
@@ -506,12 +578,22 @@ public class MainActivity extends AppCompatActivity {
                         }
 
 
-                        final List<Anuncio> anuncios =
-                                dados != null
-                                        ? dados
-                                        : new ArrayList<>();
+                        final List<Anuncio> anuncios = dados == null
+                                ? new ArrayList<>()
+                                : new ArrayList<>(dados.subList(
+                                        0,
+                                        Math.min(10, dados.size())
+                                ));
 
                         runOnUiThread(() -> {
+                            if (activityEncerrando || isFinishing()) {
+                                return;
+                            }
+                            anunciosAtivos.clear();
+                            if (dados != null) {
+                                anunciosAtivos.addAll(dados);
+                            }
+                            anunciosPesquisaCarregados = true;
 
                             LivroHorizontalAdapter<Anuncio> adapter =
                                     new LivroHorizontalAdapter<>(
@@ -536,7 +618,7 @@ public class MainActivity extends AppCompatActivity {
                             recyclerLivrosDestaque
                                     .setAdapter(adapter);
 
-                            mostrarLoading(false);
+                            finalizarCarregamentoInicial();
                         });
                     }
 
@@ -548,84 +630,96 @@ public class MainActivity extends AppCompatActivity {
                                 ">>> ERRO ao carregar anúncios: " + erro
                         );
 
-                        runOnUiThread(() ->
-                                mostrarLoading(false)
-                        );
+                        runOnUiThread(() -> {
+                            if (!activityEncerrando && !isFinishing()) {
+                                finalizarCarregamentoInicial();
+                            }
+                        });
                     }
                 }
         );
     }
 
-    private void carregarNegociacoes() {
-
-        negociacoesService.buscarTodos(
-                new NegociacoesService.Callback<List<Negociacao>>() {
+    private void carregarLivrosRecentes() {
+        anuncioService.buscarAnunciosMaisRecentes(
+                new AnuncioService.Callback<List<Anuncio>>() {
 
                     @Override
                     public void onSuccess(
-                            List<Negociacao> dados) {
-
-                        final List<Negociacao> negociacoes =
-                                dados != null
-                                        ? dados
-                                        : new ArrayList<>();
-
+                            List<Anuncio> dados) {
                         runOnUiThread(() -> {
-
-                            LivroHorizontalAdapter<Negociacao> adapter =
+                            if (activityEncerrando || isFinishing()) {
+                                return;
+                            }
+                            LivroHorizontalAdapter<Anuncio> adapter =
                                     new LivroHorizontalAdapter<>(
-                                            negociacoes,
-                                            negociacao -> {
-                                                // Ação ao clicar na proposta
+                                            dados != null ? dados : new ArrayList<>(),
+                                            anuncio -> {
+                                                Intent intent = new Intent(
+                                                        MainActivity.this,
+                                                        DetalhesAnuncioActivity.class
+                                                );
+                                                intent.putExtra("anuncioId", anuncio.getId());
+                                                startActivity(intent);
                                             }
                                     );
-
-                            recyclerPropostas
-                                    .setAdapter(adapter);
+                            recyclerPropostas.setAdapter(adapter);
+                            finalizarCarregamentoInicial();
                         });
                     }
 
                     @Override
                     public void onError(
                             String erro) {
+                        android.util.Log.e("HOME_DEBUG", "Erro ao carregar anúncios recentes: " + erro);
+                        runOnUiThread(() -> {
+                            if (!activityEncerrando && !isFinishing()) {
+                                finalizarCarregamentoInicial();
+                            }
+                        });
                     }
                 }
         );
     }
 
-    private void mostrarLoading(
-            boolean mostrar) {
-
+    private void mostrarLoading(boolean mostrar) {
+        buscaEmAndamento = mostrar;
         if (mostrar) {
-
-            layoutLoading
-                    .setVisibility(View.VISIBLE);
-
             recyclerResultadosBusca
                     .setVisibility(View.GONE);
-
-            if (imgLoading != null) {
-
-                Animation rotate =
-                        AnimationUtils.loadAnimation(
-                                this,
-                                R.anim.rotacao_loading
-                        );
-
-                imgLoading.startAnimation(
-                        rotate
-                );
-            }
-
-        } else {
-
-            layoutLoading
-                    .setVisibility(View.GONE);
-
-            if (imgLoading != null) {
-                imgLoading.clearAnimation();
-            }
         }
+        atualizarIndicadorCarregamento();
+    }
+
+    private void finalizarCarregamentoInicial() {
+        if (carregamentosIniciais > 0) {
+            carregamentosIniciais--;
+        }
+        atualizarIndicadorCarregamento();
+    }
+
+    private void atualizarIndicadorCarregamento() {
+        boolean mostrar = carregamentosIniciais > 0 || buscaEmAndamento;
+        layoutLoading.setVisibility(mostrar ? View.VISIBLE : View.GONE);
+
+        if (imgLoading == null) {
+            return;
+        }
+        if (mostrar) {
+            Animation rotate = AnimationUtils.loadAnimation(this, R.anim.rotacao_loading);
+            imgLoading.startAnimation(rotate);
+        } else {
+            imgLoading.clearAnimation();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        activityEncerrando = true;
+        versaoPesquisa++;
+        handlerPesquisa.removeCallbacksAndMessages(null);
+        executorPesquisa.shutdownNow();
+        super.onDestroy();
     }
 
     private void configurarBottomNavigation() {
@@ -661,9 +755,9 @@ public class MainActivity extends AppCompatActivity {
                         tela =
                                 ConversasActivity.class;
 
-                    } else if (id == R.id.menu_perfil) {
+                    } else if (id == R.id.menu_catalogo) {
 
-                        return true;
+                        tela = CatalogoActivity.class;
                     }
 
                     if (tela != null) {

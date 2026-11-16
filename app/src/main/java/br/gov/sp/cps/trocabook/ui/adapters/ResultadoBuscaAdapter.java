@@ -18,6 +18,7 @@ import br.gov.sp.cps.trocabook.model.Anuncio;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class ResultadoBuscaAdapter
         extends RecyclerView.Adapter<ResultadoBuscaAdapter.ViewHolder> {
@@ -70,7 +71,16 @@ public class ResultadoBuscaAdapter
     ) {
 
         Anuncio anuncio = anuncios.get(position);
+        String ownerUid = anuncio.getUidUsuario();
+        holder.imgUsuario.setTag(R.id.profile_photo_owner_uid, ownerUid);
 
+        SvgLoader.carregar(
+                holder.itemView.getContext(),
+                null,
+                holder.imgUsuario,
+                R.drawable.placeholder_usuario,
+                true
+        );
         holder.textTitulo.setText(
                 anuncio.getTitulo()
         );
@@ -87,17 +97,37 @@ public class ResultadoBuscaAdapter
 
                     @Override
                     public void onSucesso(Usuario usuario) {
-
-                        Glide.with(holder.itemView.getContext())
-                                .load(usuario.getFotoPerfil())
-                                .placeholder(R.drawable.placeholder_usuario)
-                                .circleCrop()
-                                .into(holder.imgUsuario);
+                        if (!java.util.Objects.equals(
+                                ownerUid,
+                                holder.imgUsuario.getTag(R.id.profile_photo_owner_uid)
+                        )) {
+                            return;
+                        }
+                        SvgLoader.carregar(
+                                holder.itemView.getContext(),
+                                usuario == null ? null
+                                        : ImageUtils.obterUrlImagem(usuario.getFotoPerfil()),
+                                holder.imgUsuario,
+                                R.drawable.placeholder_usuario,
+                                true
+                        );
                     }
 
                     @Override
                     public void onErro(String erro) {
-
+                        if (!java.util.Objects.equals(
+                                ownerUid,
+                                holder.imgUsuario.getTag(R.id.profile_photo_owner_uid)
+                        )) {
+                            return;
+                        }
+                        SvgLoader.carregar(
+                                holder.itemView.getContext(),
+                                null,
+                                holder.imgUsuario,
+                                R.drawable.placeholder_usuario,
+                                true
+                        );
                     }
                 }
         );

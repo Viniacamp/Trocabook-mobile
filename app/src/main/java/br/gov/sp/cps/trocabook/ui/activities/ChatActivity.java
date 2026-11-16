@@ -54,6 +54,7 @@ import br.gov.sp.cps.trocabook.ui.adapters.AnuncioTrocaAdapter;
 import br.gov.sp.cps.trocabook.ui.adapters.ChatAdapter;
 import br.gov.sp.cps.trocabook.util.ChatState;
 import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -1666,10 +1667,12 @@ public class ChatActivity extends AppCompatActivity {
 
                         // Carrega a foto de perfil normalmente com o Glide
                         String fotoPerfil = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
-                        Glide.with(ChatActivity.this)
-                                .load(fotoPerfil)
-                                .placeholder(R.drawable.placeholder_usuario)
-                                .into(imgUsuarioChat);
+                        SvgLoader.carregar(
+                                ChatActivity.this,
+                                fotoPerfil,
+                                imgUsuarioChat,
+                                R.drawable.placeholder_usuario
+                        );
                     }
 
                     @Override
@@ -2253,10 +2256,10 @@ public class ChatActivity extends AppCompatActivity {
                         return true;
 
                     } else if (
-                            id == R.id.menu_perfil
+                            id == R.id.menu_catalogo
                     ) {
 
-                        return true;
+                        tela = CatalogoActivity.class;
                     }
 
                     if (tela != null) {

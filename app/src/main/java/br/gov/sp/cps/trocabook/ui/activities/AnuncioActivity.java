@@ -19,6 +19,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Autor;
@@ -28,6 +30,7 @@ import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.AutorService;
 import br.gov.sp.cps.trocabook.service.CategoriaService;
+import br.gov.sp.cps.trocabook.service.IaService;
 
 public class AnuncioActivity extends AppCompatActivity {
 
@@ -39,6 +42,7 @@ public class AnuncioActivity extends AppCompatActivity {
 
     private Button btnAnunciar;
     private Button btnVoltar;
+    private Button btnGerarDescricaoIa;
 
     private Spinner spinnerTipoNegocicacao;
 
@@ -50,6 +54,8 @@ public class AnuncioActivity extends AppCompatActivity {
     private AutorService autorService;
     private CategoriaService categoriaService;
     private AuthService authService;
+    private IaService iaService;
+    private final ExecutorService executorIa = Executors.newSingleThreadExecutor();
 
     private BottomNavigationView bottomNavigation;
 
@@ -70,6 +76,7 @@ public class AnuncioActivity extends AppCompatActivity {
         anuncioService = new AnuncioService();
         autorService = new AutorService();
         categoriaService = new CategoriaService();
+        iaService = new IaService();
 
         livro = (Livro) getIntent().getSerializableExtra("livro");
 
@@ -105,6 +112,7 @@ public class AnuncioActivity extends AppCompatActivity {
 
         btnAnunciar = findViewById(R.id.btnAnunciar);
         btnVoltar = findViewById(R.id.btnVoltar);
+        btnGerarDescricaoIa = findViewById(R.id.btnGerarDescricaoIa);
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
     }
@@ -135,10 +143,9 @@ public class AnuncioActivity extends AppCompatActivity {
 
                 tela = ConversasActivity.class;
 
-            } else if (id == R.id.menu_perfil) {
+            } else if (id == R.id.menu_catalogo) {
 
-                // futura tela de perfil
-                return true;
+                tela = CatalogoActivity.class;
             }
 
             if (tela != null) {
@@ -341,6 +348,8 @@ public class AnuncioActivity extends AppCompatActivity {
 
     private void configurarBotoes() {
 
+        btnGerarDescricaoIa.setOnClickListener(v -> gerarDescricaoComIa());
+
         btnAnunciar.setOnClickListener(v -> {
 
             if (verificarCampos()) {
@@ -358,6 +367,50 @@ public class AnuncioActivity extends AppCompatActivity {
         });
 
         btnVoltar.setOnClickListener(v -> finish());
+    }
+
+    private void gerarDescricaoComIa() {
+        String tipo = spinnerTipoNegocicacao.getSelectedItem() == null
+                ? ""
+                : spinnerTipoNegocicacao.getSelectedItem().toString();
+        btnGerarDescricaoIa.setEnabled(false);
+        btnGerarDescricaoIa.setText("Gerando...");
+        iaService.gerarDescricaoAnuncioAsync(
+                executorIa,
+                livro.getTitulo(),
+                autores.getText().toString().replaceFirst("^Autores:\\s*", ""),
+                categorias.getText().toString().replaceFirst("^Categorias:\\s*", ""),
+                tipo,
+                descricao.getText().toString(),
+                new IaService.DescricaoCallback() {
+                    @Override
+                    public void onSuccess(String texto) {
+                        if (isFinishing() || isDestroyed()) {
+                            return;
+                        }
+                        descricao.setText(texto);
+                        restaurarBotaoDescricao();
+                    }
+
+                    @Override
+                    public void onError(Exception erro) {
+                        if (isFinishing() || isDestroyed()) {
+                            return;
+                        }
+                        restaurarBotaoDescricao();
+                        Toast.makeText(
+                                AnuncioActivity.this,
+                                "Não foi possível gerar a descrição.",
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                }
+        );
+    }
+
+    private void restaurarBotaoDescricao() {
+        btnGerarDescricaoIa.setEnabled(true);
+        btnGerarDescricaoIa.setText("Gerar descrição com IA");
     }
 
     private boolean verificarCampos() {
@@ -455,5 +508,11 @@ public class AnuncioActivity extends AppCompatActivity {
                     .findItem(R.id.menu_anuncio)
                     .setChecked(true);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        executorIa.shutdownNow();
+        super.onDestroy();
     }
 }

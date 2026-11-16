@@ -9,8 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-
 import java.util.List;
 
 import br.gov.sp.cps.trocabook.R;
@@ -18,6 +16,7 @@ import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.model.dto.ConversaDTO;
 import br.gov.sp.cps.trocabook.model.dto.MensagemDTO;
 import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class ConversaAdapter
         extends RecyclerView.Adapter<ConversaAdapter.ConversaViewHolder> {
@@ -100,12 +99,12 @@ public class ConversaAdapter
                 .setText(ultimaMensagem);
 
         String fotoPerfil = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
-        Glide.with(holder.itemView.getContext())
-                .load(fotoPerfil)
-                .placeholder(
-                        R.drawable.placeholder_usuario
-                )
-                .into(holder.imgUsuario);
+        SvgLoader.carregar(
+                holder.itemView.getContext(),
+                fotoPerfil,
+                holder.imgUsuario,
+                R.drawable.placeholder_usuario
+        );
 
         holder.itemView.setOnClickListener(v -> {
 

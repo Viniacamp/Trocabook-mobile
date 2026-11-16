@@ -13,7 +13,7 @@
 
     <item
         android:id="@+id/menu_livros"
-        android:icon="@drawable/book_open_svgrepo_com"
+        android:icon="@drawable/book_user_svgrepo_com"
         android:title="Livros" />
 
     <item
@@ -22,8 +22,8 @@
         android:title="Chat" />
 
     <item
-        android:id="@+id/menu_perfil"
-        android:icon="@drawable/book_user_svgrepo_com"
-        android:title="Perfil" />
+        android:id="@+id/menu_catalogo"
+        android:icon="@drawable/book_open_svgrepo_com"
+        android:title="Catálogo" />
 
 </menu>

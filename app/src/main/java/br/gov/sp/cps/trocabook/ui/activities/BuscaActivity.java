@@ -307,9 +307,9 @@ public class BuscaActivity extends AppCompatActivity {
 
                 tela = ConversasActivity.class;
 
-            } else if (id == R.id.menu_perfil) {
+            } else if (id == R.id.menu_catalogo) {
 
-                return true;
+                tela = CatalogoActivity.class;
             }
 
             if (tela != null) {

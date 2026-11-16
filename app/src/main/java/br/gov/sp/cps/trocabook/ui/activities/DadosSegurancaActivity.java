@@ -30,6 +30,7 @@ import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.FileService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class DadosSegurancaActivity extends AppCompatActivity {
 
@@ -140,10 +141,13 @@ public class DadosSegurancaActivity extends AppCompatActivity {
                         fotoPerfilUri = uri;
 
 
-                        com.bumptech.glide.Glide.with(this)
-                                .load(uri)
-                                .circleCrop()
-                                .into(imgFotoPerfil);
+                        SvgLoader.carregar(
+                                this,
+                                uri.toString(),
+                                imgFotoPerfil,
+                                R.drawable.placeholder_usuario,
+                                true
+                        );
 
                         if (txtUploadFoto != null) {
                             txtUploadFoto.setVisibility(View.GONE);

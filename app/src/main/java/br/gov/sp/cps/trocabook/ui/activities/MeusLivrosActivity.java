@@ -309,10 +309,9 @@ public class MeusLivrosActivity extends AppCompatActivity {
 
                 tela = ConversasActivity.class;
 
-            } else if (id == R.id.menu_perfil) {
+            } else if (id == R.id.menu_catalogo) {
 
-                // Futura tela de perfil.
-                return true;
+                tela = CatalogoActivity.class;
             }
 
             if (tela != null) {

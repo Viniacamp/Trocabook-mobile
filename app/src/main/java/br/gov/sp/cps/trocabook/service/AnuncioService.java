@@ -13,6 +13,8 @@ import br.gov.sp.cps.trocabook.repository.UsuarioRepository;
 
 public class AnuncioService {
 
+    private static final int LIMITE_ANUNCIOS_RECENTES = 10;
+
     private final AnuncioRepository anuncioRepository;
     private final UsuarioRepository usuarioRepository;
 
@@ -159,6 +161,26 @@ public class AnuncioService {
                 Anuncio.StatusAnuncio.ATIVO,
                 new AnuncioRepository.Callback<List<Anuncio>>() {
 
+                    @Override
+                    public void onSuccess(List<Anuncio> anuncios) {
+                        callback.onSuccess(anuncios);
+                    }
+
+                    @Override
+                    public void onError(String erro) {
+                        callback.onError(erro);
+                    }
+                }
+        );
+    }
+
+    public void buscarAnunciosMaisRecentes(
+            Callback<List<Anuncio>> callback
+    ) {
+        anuncioRepository.listarMaisRecentesPorStatus(
+                Anuncio.StatusAnuncio.ATIVO,
+                LIMITE_ANUNCIOS_RECENTES,
+                new AnuncioRepository.Callback<List<Anuncio>>() {
                     @Override
                     public void onSuccess(List<Anuncio> anuncios) {
                         callback.onSuccess(anuncios);

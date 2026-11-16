@@ -23,6 +23,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
@@ -33,6 +35,7 @@ import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.CategoriaService;
 import br.gov.sp.cps.trocabook.service.FileService;
 import br.gov.sp.cps.trocabook.service.LivroService;
+import br.gov.sp.cps.trocabook.service.IaService;
 
 public class AnuncioManualActivity extends AppCompatActivity {
 
@@ -48,6 +51,7 @@ public class AnuncioManualActivity extends AppCompatActivity {
     private TextView textoUpload;
 
     private Button btnAnunciar;
+    private Button btnGerarDescricaoIa;
 
     private Uri imageUri;
 
@@ -61,6 +65,8 @@ public class AnuncioManualActivity extends AppCompatActivity {
     private CategoriaService categoriaService;
     private AuthService authService;
     private FileService fileService;
+    private IaService iaService;
+    private final ExecutorService executorIa = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +86,7 @@ public class AnuncioManualActivity extends AppCompatActivity {
         livroService = new LivroService();
         categoriaService = new CategoriaService();
         fileService = new FileService(this);
+        iaService = new IaService();
 
         inicializarViews();
         configurarStatus();
@@ -97,6 +104,7 @@ public class AnuncioManualActivity extends AppCompatActivity {
         editCategorias = findViewById(R.id.editCategorias);
 
         btnAnunciar = findViewById(R.id.btnAnunciar);
+        btnGerarDescricaoIa = findViewById(R.id.btnGerarDescricaoIa);
 
         textoUpload = findViewById(R.id.txtUpload);
 
@@ -196,6 +204,8 @@ public class AnuncioManualActivity extends AppCompatActivity {
 
     private void configurarBotoes() {
 
+        btnGerarDescricaoIa.setOnClickListener(v -> gerarDescricaoComIa());
+
         editCategorias.setOnClickListener(
                 v -> abrirDialogCategorias()
         );
@@ -206,6 +216,59 @@ public class AnuncioManualActivity extends AppCompatActivity {
                 salvarAnuncioBanco();
             }
         });
+    }
+
+    private void gerarDescricaoComIa() {
+        String titulo = texto(editTitulo);
+        if (titulo.isEmpty()) {
+            editTitulo.setError("Digite o título antes de gerar a descrição");
+            return;
+        }
+
+        btnGerarDescricaoIa.setEnabled(false);
+        btnGerarDescricaoIa.setText("Gerando...");
+        iaService.gerarDescricaoAnuncioAsync(
+                executorIa,
+                titulo,
+                texto(editAutores),
+                texto(editCategorias),
+                spinnerTipoNegocicacao.getSelectedItem() == null
+                        ? ""
+                        : spinnerTipoNegocicacao.getSelectedItem().toString(),
+                texto(editDescricao),
+                new IaService.DescricaoCallback() {
+                    @Override
+                    public void onSuccess(String descricao) {
+                        if (isFinishing() || isDestroyed()) {
+                            return;
+                        }
+                        editDescricao.setText(descricao);
+                        restaurarBotaoDescricao();
+                    }
+
+                    @Override
+                    public void onError(Exception erro) {
+                        if (isFinishing() || isDestroyed()) {
+                            return;
+                        }
+                        restaurarBotaoDescricao();
+                        Toast.makeText(
+                                AnuncioManualActivity.this,
+                                "Não foi possível gerar a descrição.",
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                }
+        );
+    }
+
+    private String texto(TextInputEditText campo) {
+        return campo.getText() == null ? "" : campo.getText().toString().trim();
+    }
+
+    private void restaurarBotaoDescricao() {
+        btnGerarDescricaoIa.setEnabled(true);
+        btnGerarDescricaoIa.setText("Gerar descrição com IA");
     }
 
     private void abrirDialogCategorias() {
@@ -555,9 +618,9 @@ public class AnuncioManualActivity extends AppCompatActivity {
 
                         tela = ConversasActivity.class;
 
-                    } else if (id == R.id.menu_perfil) {
+                    } else if (id == R.id.menu_catalogo) {
 
-                        return true;
+                        tela = CatalogoActivity.class;
                     }
 
                     if (tela != null) {
@@ -589,5 +652,11 @@ public class AnuncioManualActivity extends AppCompatActivity {
                     .findItem(R.id.menu_anuncio)
                     .setChecked(true);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        executorIa.shutdownNow();
+        super.onDestroy();
     }
 }

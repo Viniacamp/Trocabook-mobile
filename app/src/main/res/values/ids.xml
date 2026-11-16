@@ -1,0 +1,4 @@
+<resources>
+    <item name="svg_loader_request_source" type="id" />
+    <item name="profile_photo_owner_uid" type="id" />
+</resources>

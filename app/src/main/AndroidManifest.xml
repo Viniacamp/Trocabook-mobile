@@ -33,6 +33,9 @@
             android:name=".ui.activities.MeusLivrosActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.activities.CatalogoActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.AnuncioActivity"
             android:exported="false" />
         <activity

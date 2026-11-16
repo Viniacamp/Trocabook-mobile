@@ -13,7 +13,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -29,6 +28,7 @@ import br.gov.sp.cps.trocabook.service.NegociacoesService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.ui.adapters.LivroHorizontalAdapter;
 import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
@@ -143,10 +143,12 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
                         );
 
                         String urlFotoPerifl = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
-                        Glide.with(TelaPerfilNegociadorActivity.this)
-                                .load(urlFotoPerifl)
-                                .placeholder(R.drawable.placeholder_usuario)
-                                .into(imagePerfil);
+                        SvgLoader.carregar(
+                                TelaPerfilNegociadorActivity.this,
+                                urlFotoPerifl,
+                                imagePerfil,
+                                R.drawable.placeholder_usuario
+                        );
                     }
 
                     @Override
@@ -309,9 +311,9 @@ public class TelaPerfilNegociadorActivity extends AppCompatActivity {
 
                 tela = ConversasActivity.class;
 
-            } else if (id == R.id.menu_perfil) {
+            } else if (id == R.id.menu_catalogo) {
 
-                return true;
+                tela = CatalogoActivity.class;
             }
 
             if (tela != null) {

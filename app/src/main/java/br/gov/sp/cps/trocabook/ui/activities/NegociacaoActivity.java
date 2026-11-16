@@ -12,7 +12,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -23,6 +22,7 @@ import br.gov.sp.cps.trocabook.model.Negociacao;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.NegociacoesService;
 import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class NegociacaoActivity extends AppCompatActivity {
 
@@ -697,10 +697,11 @@ public class NegociacaoActivity extends AppCompatActivity {
             ImageView imageView
     ) {
 
-        Glide.with(this)
-                .load(url)
-                .placeholder(R.drawable.placeholder_capa)
-                .error(R.drawable.placeholder_capa)
-                .into(imageView);
+        SvgLoader.carregar(
+                this,
+                ImageUtils.obterUrlImagem(url),
+                imageView,
+                R.drawable.placeholder_usuario
+        );
     }
 }

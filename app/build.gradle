@@ -23,6 +23,10 @@ android {
         }
         buildConfigField "String", "GOOGLE_CLIENT_ID", "\"${properties.getProperty('GOOGLE_CLIENT_ID')}\""
         buildConfigField "String", "GOOGLE_API_KEY", "\"${properties.getProperty("GOOGLE_API_KEY")}\""
+        String groqApiKey = properties.getProperty("GROQ_API_KEY", "")
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+        buildConfigField "String", "GROQ_API_KEY", "\"${groqApiKey}\""
     }
 
     buildFeatures {

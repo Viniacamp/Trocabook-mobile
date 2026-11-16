@@ -381,9 +381,9 @@ public class ConversasActivity extends AppCompatActivity {
 
                 return true;
 
-            } else if (id == R.id.menu_perfil) {
+            } else if (id == R.id.menu_catalogo) {
 
-                return true;
+                tela = CatalogoActivity.class;
             }
 
             if (tela != null) {

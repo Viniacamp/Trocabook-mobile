@@ -22,6 +22,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Anuncio;
 import br.gov.sp.cps.trocabook.model.Interacao;
@@ -29,8 +32,10 @@ import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.service.AnuncioService;
 import br.gov.sp.cps.trocabook.service.AuthService;
 import br.gov.sp.cps.trocabook.service.InteracaoService;
+import br.gov.sp.cps.trocabook.service.IaService;
 import br.gov.sp.cps.trocabook.service.UsuarioService;
 import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class DetalhesAnuncioActivity extends AppCompatActivity {
 
@@ -50,6 +55,8 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
     private UsuarioService usuarioService;
 
     private InteracaoService interacaoService;
+    private IaService iaService;
+    private final ExecutorService executorIa = Executors.newSingleThreadExecutor();
 
     private BottomNavigationView bottomNavigation;
 
@@ -286,6 +293,44 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
         );
 
         spinnerTipo.setAdapter(adapter);
+        Button btnGerarDescricaoIa = view.findViewById(R.id.btnGerarDescricaoIa);
+        btnGerarDescricaoIa.setOnClickListener(v -> {
+            btnGerarDescricaoIa.setEnabled(false);
+            btnGerarDescricaoIa.setText("Gerando...");
+            iaService.gerarDescricaoAnuncioAsync(
+                    executorIa,
+                    anuncioAtual.getTitulo(),
+                    "",
+                    "",
+                    spinnerTipo.getSelectedItem().toString(),
+                    editDescricao.getText() == null
+                            ? ""
+                            : editDescricao.getText().toString(),
+                    new IaService.DescricaoCallback() {
+                        @Override
+                        public void onSuccess(String descricao) {
+                            if (isFinishing() || isDestroyed()) {
+                                return;
+                            }
+                            editDescricao.setText(descricao);
+                            restaurarBotaoDescricao(btnGerarDescricaoIa);
+                        }
+
+                        @Override
+                        public void onError(Exception erro) {
+                            if (isFinishing() || isDestroyed()) {
+                                return;
+                            }
+                            restaurarBotaoDescricao(btnGerarDescricaoIa);
+                            Toast.makeText(
+                                    DetalhesAnuncioActivity.this,
+                                    "Não foi possível gerar a descrição.",
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        }
+                    }
+            );
+        });
 
         switch (anuncioAtual.getTipoNegociacao()) {
             case TROCA:
@@ -319,6 +364,11 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
                         }
                 )
                 .show();
+    }
+
+    private void restaurarBotaoDescricao(Button botao) {
+        botao.setEnabled(true);
+        botao.setText("Gerar descrição com IA");
     }
 
     private void salvarEdicao(
@@ -437,21 +487,18 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // Por enquanto, exibindo o email.
-                        // Depois pode ser alterado para o nome.
+
                         textUsuario.setText(
                                 usuario.getNome()
                         );
 
                         String urlFotoPerfil = ImageUtils.obterUrlImagem(usuario.getFotoPerfil());
-                        Glide.with(
-                                        DetalhesAnuncioActivity.this
-                                )
-                                .load(urlFotoPerfil)
-                                .placeholder(
-                                        R.drawable.placeholder_usuario
-                                )
-                                .into(imageUsuario);
+                        SvgLoader.carregar(
+                                DetalhesAnuncioActivity.this,
+                                urlFotoPerfil,
+                                imageUsuario,
+                                R.drawable.placeholder_usuario
+                        );
                     }
 
                     @Override
@@ -521,6 +568,7 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
         anuncioService = new AnuncioService();
         usuarioService = new UsuarioService();
         interacaoService = new InteracaoService();
+        iaService = new IaService();
     }
 
     private void configurarMenu() {
@@ -551,9 +599,9 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
 
                 tela = ConversasActivity.class;
 
-            } else if (id == R.id.menu_perfil) {
+            } else if (id == R.id.menu_catalogo) {
 
-                return true;
+                tela = CatalogoActivity.class;
             }
 
             if (tela != null) {
@@ -586,5 +634,11 @@ public class DetalhesAnuncioActivity extends AppCompatActivity {
                     .findItem(R.id.menu_home)
                     .setChecked(true);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        executorIa.shutdownNow();
+        super.onDestroy();
     }
 }

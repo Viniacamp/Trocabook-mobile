@@ -2,6 +2,7 @@ package br.gov.sp.cps.trocabook.repository;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Query.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +87,40 @@ public class AnuncioRepository {
                 })
                 .addOnFailureListener(e ->
                         callback.onError("Erro ao buscar todos os anúncios: " + e.getMessage())
+                );
+    }
+
+    public void listarMaisRecentesPorStatus(
+            Anuncio.StatusAnuncio status,
+            int limite,
+            Callback<List<Anuncio>> callback
+    ) {
+        if (limite <= 0) {
+            callback.onError("O limite de anúncios deve ser maior que zero.");
+            return;
+        }
+
+        Query query = db.collection(COLECAO);
+        if (status != null) {
+            query = query.whereEqualTo("status", status.name());
+        }
+
+        query.orderBy("dataCriacao", Direction.DESCENDING)
+                .limit(limite)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Anuncio> anuncios = new ArrayList<>();
+                    snapshot.getDocuments().forEach(documento -> {
+                        Anuncio anuncio = documento.toObject(Anuncio.class);
+                        if (anuncio != null) {
+                            anuncio.setId(documento.getId());
+                            anuncios.add(anuncio);
+                        }
+                    });
+                    callback.onSuccess(anuncios);
+                })
+                .addOnFailureListener(e ->
+                        callback.onError("Erro ao buscar anúncios recentes: " + e.getMessage())
                 );
     }
 

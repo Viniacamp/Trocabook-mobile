@@ -13,7 +13,6 @@ import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -23,6 +22,8 @@ import br.gov.sp.cps.trocabook.R;
 import br.gov.sp.cps.trocabook.model.Usuario;
 import br.gov.sp.cps.trocabook.ui.activities.ChatActivity;
 import br.gov.sp.cps.trocabook.util.ChatState;
+import br.gov.sp.cps.trocabook.util.ImageUtils;
+import br.gov.sp.cps.trocabook.util.SvgLoader;
 
 public class MeuFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -134,19 +135,30 @@ public class MeuFirebaseMessagingService extends FirebaseMessagingService {
 
         Person.Builder remetenteBuilder = new Person.Builder().setName(nomeRemetente);
 
-        // Carrega a foto de perfil circular com o Glide em background
+        Bitmap bitmapFoto = null;
         try {
-            if (urlFotoPerfil != null && !urlFotoPerfil.isEmpty()) {
-                Bitmap bitmapFoto = Glide.with(getApplicationContext())
-                        .asBitmap()
-                        .load(urlFotoPerfil)
-                        .circleCrop()
-                        .submit(100, 100)
-                        .get();
-                remetenteBuilder.setIcon(IconCompat.createWithBitmap(bitmapFoto));
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Erro ao carregar foto do remetente para a notificação: " + e.getMessage());
+            String urlResolvida = ImageUtils.obterUrlImagem(urlFotoPerfil);
+            bitmapFoto = SvgLoader.baixarBitmap(
+                    getApplicationContext(),
+                    urlResolvida,
+                    100,
+                    100,
+                    true
+            );
+        } catch (java.io.IOException | RuntimeException e) {
+            Log.e(TAG, "Erro ao carregar foto do remetente para a notificação.", e);
+        }
+        if (bitmapFoto == null) {
+            bitmapFoto = SvgLoader.bitmapPlaceholder(
+                    getApplicationContext(),
+                    R.drawable.placeholder_usuario,
+                    100,
+                    100,
+                    true
+            );
+        }
+        if (bitmapFoto != null) {
+            remetenteBuilder.setIcon(IconCompat.createWithBitmap(bitmapFoto));
         }
 
         Person remetente = remetenteBuilder.build();

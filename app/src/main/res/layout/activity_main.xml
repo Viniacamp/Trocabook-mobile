@@ -117,7 +117,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="20dp"
                     android:fontFamily="@font/manrope_bold"
-                    android:text="Propostas Recentes:"
+                    android:text="Livros anunciados recentemente:"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="20sp"
                     android:textStyle="bold" />
